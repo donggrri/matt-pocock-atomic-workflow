@@ -1,0 +1,29 @@
+node_modules/
+
+# g-workflow 로컬 산출물 (커밋하지 않는다)
+PLAN-*.md
+TASKS-*.md
+REVIEW-*.md
+
+# 런 로그 / 증거
+runs/
+evidence/
+
+# 실 설정 (example은 커밋함)
+settings.json
+
+# 환경 변수 / 비밀
+.env
+.env.*
+*.pem
+*.key
+service_role*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 에디터
+.idea/
+.vscode/
+*.swp

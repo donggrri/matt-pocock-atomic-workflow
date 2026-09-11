@@ -1,0 +1,50 @@
+{
+  "enabledModels": [
+    "YOUR_PRIMARY_MODEL",
+    "YOUR_FALLBACK_MODEL"
+  ],
+  "subagents": {
+    "agentOverrides": {
+      "g-planner": {
+        "model": "YOUR_PLAN_MODEL",
+        "fallbackModels": ["YOUR_PLAN_FALLBACK_MODEL"]
+      },
+      "g-tasker": {
+        "model": "YOUR_TASK_MODEL",
+        "fallbackModels": ["YOUR_TASK_FALLBACK_MODEL"]
+      },
+      "g-worker": {
+        "model": "YOUR_WORKER_MODEL",
+        "fallbackModels": ["YOUR_WORKER_FALLBACK_MODEL"]
+      },
+      "g-reviewer": {
+        "model": "YOUR_REVIEW_MODEL",
+        "fallbackModels": ["YOUR_REVIEW_FALLBACK_MODEL"]
+      },
+      "scout": {
+        "model": "YOUR_SCOUT_MODEL",
+        "fallbackModels": ["YOUR_SCOUT_FALLBACK_MODEL"]
+      },
+      "oracle": {
+        "model": "YOUR_ORACLE_MODEL",
+        "fallbackModels": ["YOUR_ORACLE_FALLBACK_MODEL"]
+      },
+      "researcher": {
+        "model": "YOUR_RESEARCHER_MODEL",
+        "fallbackModels": ["YOUR_RESEARCHER_FALLBACK_MODEL"]
+      },
+      "reviewer": {
+        "model": "YOUR_REVIEWER_MODEL",
+        "fallbackModels": ["YOUR_REVIEWER_FALLBACK_MODEL"]
+      },
+      "delegate": {
+        "model": "YOUR_DELEGATE_MODEL",
+        "fallbackModels": ["YOUR_DELEGATE_FALLBACK_MODEL"]
+      },
+      "worker": {
+        "model": "YOUR_BUILTIN_WORKER_MODEL",
+        "fallbackModels": ["YOUR_BUILTIN_WORKER_FALLBACK_MODEL"]
+      }
+    }
+  }
+}

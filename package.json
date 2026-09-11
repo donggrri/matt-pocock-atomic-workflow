@@ -1,0 +1,10 @@
+{
+  "name": "g-workflow",
+  "private": true,
+  "keywords": ["pi-package"],
+  "pi": {
+    "skills": ["./skills"],
+    "prompts": ["./prompts"],
+    "subagents": { "agents": ["./agents"] }
+  }
+}
