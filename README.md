@@ -1,52 +1,57 @@
-[English](README.en.md) | 한국어
+English | [한국어](README.kr.md)
 
 # matt-pocock-atomic-workflow
 
-Pi 기반 코딩 워크플로 패키지.  
-`/matt-pocock-atomic-explore`(선택) → `/matt-pocock-atomic-plan` → `/matt-pocock-atomic-task` → `/matt-pocock-atomic-execute` → `/matt-pocock-atomic-review` → `/matt-pocock-atomic-commit`
+A Pi-based coding workflow package.  
+`/matt-pocock-atomic-explore` (optional) → `/matt-pocock-atomic-plan` → `/matt-pocock-atomic-task` → `/matt-pocock-atomic-execute` → `/matt-pocock-atomic-review` → `/matt-pocock-atomic-commit`
 
 ---
 
-## 목차
+## Table of contents
 
-1. [설치](#1-설치)
-2. [settings.json 병합](#2-settingsjson-병합)
-3. [로그인](#3-로그인)
-4. [이전 에이전트 파일 삭제](#4-이전-에이전트-파일-삭제)
-5. [Pi 재시작](#5-pi-재시작)
-6. [사용법](#6-사용법)
-7. [단계별 모델 바꾸는 법](#7-단계별-모델-바꾸는-법)
-8. [하지 말 것](#8-하지-말-것)
-9. [번들된 matt-pocock 스킬](#9-번들된-matt-pocock-스킬)
+1. [Install](#1-install)
+2. [Merge settings.json](#2-merge-settingsjson)
+3. [Login](#3-login)
+4. [Remove previous user files](#4-remove-previous-user-files)
+5. [Restart Pi](#5-restart-pi)
+6. [Usage](#6-usage)
+7. [How to change models per phase](#7-how-to-change-models-per-phase)
+8. [Don'ts](#8-donts)
+9. [Bundled matt-pocock skills](#9-bundled-matt-pocock-skills)
 
 ---
 
-## 1. 설치
+## 1. Install
 
 ```bash
 pi install git:github.com/donggrri/pi-subagents
-pi install git:github.com/donggrri/pi-antigravity-bridge
-pi install npm:@rahularya01/pi-cursor
 pi install git:github.com/donggrri/matt-pocock-atomic-workflow
+```
+
+These are optional. Install only what you actually use:
+
+```bash
+pi install npm:@rahularya01/pi-cursor                 # Cursor models (`cursor/...`)
+pi install git:github.com/donggrri/pi-antigravity-bridge  # Antigravity models (`antigravity/...`) or `agy`
 ```
 
 ---
 
-## 2. settings.json 병합
+## 2. Merge settings.json
 
-`settings.example.json`을 복사해서 `~/.pi/agent/settings.json`에 병합한다. (또는 Pi에서 `/matt-pocock-atomic-config init` 실행)
+Copy `settings.example.json` and merge it into `~/.pi/agent/settings.json`. (Or run `/matt-pocock-atomic-config init` in Pi.)
 
 ```bash
-# settings.json이 없으면 그대로 복사
+# If settings.json does not exist, copy it as-is
 cp settings.example.json ~/.pi/agent/settings.json
 
-# 이미 있으면 두 파일을 직접 열어 agentOverrides 블록을 병합한다
-# (jq가 있으면)
+# If it already exists, open both files and merge the agentOverrides block
+# (if you have jq)
 jq -s '.[0] * .[1]' ~/.pi/agent/settings.json settings.example.json > /tmp/merged.json
 mv /tmp/merged.json ~/.pi/agent/settings.json
 ```
 
-`YOUR_*` placeholder를 실제 모델 ID로 바꾼다. 예:
+Replace `YOUR_*` placeholders with real model IDs. Use whatever models you want; the IDs below are examples only.
 
 ```json
 "g-explorer": {
@@ -59,27 +64,27 @@ mv /tmp/merged.json ~/.pi/agent/settings.json
 }
 ```
 
-사용 가능한 에이전트 키:  
+Available agent keys:  
 `g-explorer`, `g-planner`, `g-tasker`, `g-worker`, `g-reviewer`, `scout`, `oracle`, `researcher`, `reviewer`, `delegate`, `worker`
 
-단계별 키 설명과 현재 설정 확인은 `/matt-pocock-atomic-config` 또는 `/matt-pocock-atomic-models`를 실행하면 Pi가 안내해 준다.
+For per-phase key descriptions and current settings, run `/matt-pocock-atomic-config` or `/matt-pocock-atomic-models` and Pi will walk you through it.
 
 ---
 
-## 3. 로그인
+## 3. Login
 
 ```bash
 /login xai
-/login cursor
-agy          # 최초 한 번 대화형 인증 (이후 불필요)
+/login cursor   # only if you installed pi-cursor
+agy             # only if you installed pi-antigravity-bridge; interactive auth once
 ```
 
 ---
 
-## 4. 이전 사용자 파일 삭제
+## 4. Remove previous user files
 
-이전에 직접 만들었던 사용자 홈 복사본이 있으면 지워야 한다.  
-남겨 두면 이 패키지가 등록한 스킬·프롬프트·에이전트가 가려지고 충돌 경고가 난다.
+If you previously created copies in your user home, delete them.  
+Leaving them in place will shadow the skills, prompts, and agents this package registers, and produce conflict warnings.
 
 ```bash
 rm ~/.pi/agent/agents/g-*.md
@@ -87,54 +92,54 @@ rm ~/.pi/agent/prompts/g-*.md ~/.pi/agent/prompts/matt-pocock-atomic-*.md
 rm -rf ~/.agents/skills/matt-pocock-atomic-workflow
 ```
 
-> **주의**: 삭제하기 전에 내용을 이 저장소의 파일과 비교해서 차이가 있으면 먼저 병합한다.
+> **Caution**: Compare them with this repository's files first. If there are differences, merge those changes before deleting.
 
 ---
 
-## 5. Pi 재시작
+## 5. Restart Pi
 
 ```bash
-# Pi CLI를 쓰는 경우
+# If you use the Pi CLI
 pi restart
 
-# 또는 Pi 앱을 재시작한다
+# Or restart the Pi app
 ```
 
-재시작 후 `/matt-pocock-atomic-plan` 커맨드가 뜨면 설치 완료.
+After restart, if `/matt-pocock-atomic-plan` appears, installation is complete.
 
 ---
 
-## 6. 사용법
+## 6. Usage
 
-기본: **PLAN만 확정하면** task → execute → review가 자동이다. 커밋은 `/matt-pocock-atomic-commit`일 때만.
+Default: once **PLAN is confirmed**, task → execute → review run automatically. Commit only happens with `/matt-pocock-atomic-commit`.
 
-| 커맨드 | 역할 | 산출물 |
+| Command | Role | Output |
 |---|---|---|
-| `/matt-pocock-atomic-explore` | Phase 0: 코드베이스 및 기술 사전 탐색 (선택) | `EXPLORE-<slug>.md` |
-| `/matt-pocock-atomic-plan` | Phase 1 후 기본 파이프라인 | `PLAN` + 자동으로 TASKS/코드/REVIEW |
-| `/matt-pocock-atomic-task` | Phase 2만 강제하거나 이어서 자동 | `TASKS-<slug>.md` |
-| `/matt-pocock-atomic-execute` | Phase 3만 강제하거나 이어서 자동 | 코드 변경 + 체크된 TASKS |
-| `/matt-pocock-atomic-delegate` | Phase 3: 특정 워커에 위임 | 같음 |
+| `/matt-pocock-atomic-explore` | Phase 0: explore the codebase and tech in advance (optional) | `EXPLORE-<slug>.md` |
+| `/matt-pocock-atomic-plan` | Default pipeline after Phase 1 | `PLAN` + TASKS/code/REVIEW automatically |
+| `/matt-pocock-atomic-task` | Force Phase 2 only, or continue automatically | `TASKS-<slug>.md` |
+| `/matt-pocock-atomic-execute` | Force Phase 3 only, or continue automatically | code changes + checked-off TASKS |
+| `/matt-pocock-atomic-delegate` | Phase 3: delegate to a specific worker | same |
 | `/matt-pocock-atomic-review` | Phase 4 | `REVIEW-<slug>.md` |
-| `/matt-pocock-atomic-commit` | Phase 5: 커밋 (푸시 없음) | git commit |
-| `/matt-pocock-atomic-status` | 진행 상황 보고 | 텍스트 요약 |
-| `/matt-pocock-atomic-config` | matt-pocock-atomic-workflow 모델/스킬 설정 관리 (`/matt-pocock-atomic-settings`) | 텍스트/대화형 설정 |
-| `/matt-pocock-atomic-models` | 모델 설정 안내 (읽기 전용) | 텍스트 안내 |
+| `/matt-pocock-atomic-commit` | Phase 5: commit (no push) | git commit |
+| `/matt-pocock-atomic-status` | Progress report | text summary |
+| `/matt-pocock-atomic-config` | Manage matt-pocock-atomic-workflow model/skill settings (`/matt-pocock-atomic-settings`) | text/interactive settings |
+| `/matt-pocock-atomic-models` | Model settings guide (read-only) | text guide |
 
-PLAN에 막힌 질문(보안·범위·데이터 손실)이 있으면 거기서 멈춘다. 계획만 쓰려면 `/matt-pocock-atomic-plan 계획만`.
+If PLAN has blocking questions (security, scope, data loss), it stops there. To write a plan only, use `/matt-pocock-atomic-plan 계획만`.
 
-단계마다 다른 모델을 쓰려면 `settings.json`의 `subagents.agentOverrides`에서 에이전트별로 고른다. 스킬 자체에는 모델을 붙일 수 없다.
+To use a different model per phase, pick it per agent in `settings.json` under `subagents.agentOverrides`. You cannot attach a model to a skill itself.
 
 ---
 
-## 7. 단계별 모델 바꾸는 법
+## 7. How to change models per phase
 
-간편하게 바꾸려면 Pi 세션에서 `/matt-pocock-atomic-config <에이전트> <모델>` 또는 대화형으로 `/matt-pocock-atomic-config`를 실행한다.
+The easy way is to run `/matt-pocock-atomic-config <agent> <model>` in a Pi session, or `/matt-pocock-atomic-config` for the interactive flow. Pick any model you want per agent.
 
-직접 편집할 경우:
-1. `~/.pi/agent/settings.json`을 열고 `subagents.agentOverrides` 안의 해당 에이전트 키를 찾는다.
-2. `model`과 `fallbackModels`를 원하는 값으로 바꾼다.
-3. Pi를 재시작하거나 새 대화를 열면 적용된다.
+To edit it yourself:
+1. Open `~/.pi/agent/settings.json` and find the agent key under `subagents.agentOverrides`.
+2. Change `model` and `fallbackModels` to the values you want.
+3. Restart Pi or start a new conversation for the change to take effect.
 
 ```json
 {
@@ -149,32 +154,32 @@ PLAN에 막힌 질문(보안·범위·데이터 손실)이 있으면 거기서 �
 }
 ```
 
-**에이전트 `.md` 파일을 직접 고치지 말 것.** frontmatter에 `model` 키를 넣으면 settings override가 무시된다.  
-자세한 안내는 `/matt-pocock-atomic-models`.
+**Do not edit agent `.md` files directly.** If you put a `model` key in frontmatter, settings overrides are ignored.  
+For more detail, run `/matt-pocock-atomic-models`.
 
 ---
 
-## 8. 하지 말 것
+## 8. Don'ts
 
-- **푸시 금지**: `git push`는 직접 원할 때만. 에이전트는 푸시하지 않는다.
-- **비밀 금지**: 토큰·API 키·`.env`를 커밋하거나 워커 브리프에 넣지 않는다.
-- **Cursor IDE 슬래시 불필요**: 이 패키지는 Pi용이다. Cursor에서 슬래시 커맨드를 별도로 설정할 필요 없다.
-- **에이전트 파일 직접 편집 금지**: `agents/*.md`와 `prompts/*.md`를 직접 고치면 패키지 업데이트 시 덮어써진다. 모델은 settings.json에서만 바꾼다.
+- **No push**: `git push` only when you explicitly want it. The agent does not push.
+- **No secrets**: Do not commit tokens, API keys, or `.env`, and do not put them in worker briefs.
+- **No Cursor IDE slash commands**: This package is for Pi. You do not need to configure slash commands in Cursor.
+- **Do not edit agent files directly**: Changes to `agents/*.md` and `prompts/*.md` are overwritten on package update. Change models only in settings.json.
 
 ---
 
-## 9. 번들된 matt-pocock 스킬
+## 9. Bundled matt-pocock skills
 
-이 패키지를 설치하면 아래 스킬도 Pi package resource로 함께 설치·발견된다. 별도 `npx skills add`나 `~/.codex/skills` 설정이 필요 없다.
+Installing this package also installs the skills below as Pi package resources, so they are discovered immediately. You do not need a separate `npx skills add` or `~/.codex/skills` setup.
 
-| 단계 | 실행 주체 | 강제 스킬 |
+| Phase | Who runs it | Required skills |
 |---|---|---|
-| plan preflight | 부모 오케스트레이터 | `grilling`, `domain-modeling`, `codebase-design`, `wayfinder` |
-| plan | `g-planner` | 같은 스킬 + `matt-pocock-atomic-workflow` |
-| task | `g-tasker` | `to-tickets` (산출물은 `TASKS-<slug>.md`) |
+| plan preflight | parent orchestrator | `grilling`, `domain-modeling`, `codebase-design`, `wayfinder` |
+| plan | `g-planner` | the same skills + `matt-pocock-atomic-workflow` |
+| task | `g-tasker` | `to-tickets` (output is `TASKS-<slug>.md`) |
 | execute | `g-worker` | `tdd` |
-| review | `g-reviewer` | `code-review` (손자 없이 두 축) |
+| review | `g-reviewer` | `code-review` (two axes, no grandchildren) |
 
-`grill-me`와 `wayfinder`는 upstream에서 `disable-model-invocation: true`인 사용자 호출용 orchestrator다. 따라서 `/matt-pocock-atomic-plan`은 `grill-me`가 위임하는 model-invoked `grilling`을 부모 단계에서 직접 읽고 실행한다. 큰 작업은 기본적으로 tracker 없는 `local-wayfinding`으로 분류하며, upstream `wayfinder` tracker 흐름은 사용자가 명시한 경우에만 사용한다.
+`grill-me` and `wayfinder` are upstream user-invoked orchestrators with `disable-model-invocation: true`. So `/matt-pocock-atomic-plan` reads and runs the model-invoked `grilling` skill that `grill-me` would otherwise delegate, at the parent stage. Large work is classified as tracker-less `local-wayfinding` by default. The upstream `wayfinder` tracker flow is used only when the user asks for it.
 
-번들 snapshot의 원본 저장소, revision, MIT 라이선스는 `THIRD_PARTY_LICENSES/mattpocock-skills-*`에 기록되어 있다. upstream을 갱신할 때는 선정 디렉터리를 함께 갱신하고 `npm test`로 에이전트 참조를 검증한다.
+The bundled snapshot's source repository, revision, and MIT license are recorded in `THIRD_PARTY_LICENSES/mattpocock-skills-*`. When you refresh upstream, update the selected directories together and run `npm test` to verify agent references.
