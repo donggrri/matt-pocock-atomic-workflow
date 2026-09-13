@@ -1,19 +1,39 @@
 ---
-description: matt-pocock-atomic-workflow Phase 1. PLAN 작성 후 막힌 질문 없으면 task→execute→review 자동.
+description: matt-pocock-atomic-workflow Phase 1. grilling preflight 후 PLAN을 작성하고 승인되면 나머지 파이프라인을 자동 실행.
 argument-hint: "[intent | 계획만]"
 ---
-`matt-pocock-atomic-workflow` 스킬을 먼저 읽고 Phase 1을 수행한 뒤, 막힌 질문이 없으면 기본 파이프라인으로 나머지를 자동 진행한다.
+`matt-pocock-atomic-workflow` 스킬을 먼저 읽고 Phase 1을 수행한다. 패키지에 번들된 `grilling`, `domain-modeling`, `codebase-design`, `wayfinder`도 직접 읽는다. 이름만 언급하고 읽었다고 가정하지 마라.
 
 이건 Pi 세션이다. Cursor 전용 도구(`rename_chat`, `move_agent_to_root`)는 쓰지 마라. CLI 워커를 직접 설치하거나 `agy`/`codex`를 인자 없이 실행하지 마라.
 
 제품 기능이면 워크스페이스 루트에 `PLAN-<slug>.md`, 워크플로 자체(matt-pocock-atomic-workflow·스킬·커맨드·패키지) 수정·검토면 `~/.pi/agent/matt-pocock-atomic-workflow/PLAN-<slug>.md`를 쓴다. 홈·스킬·제품 루트를 서로 혼용하지 않는다.
 
-그 외:
-1. 코드·문서·기존 EXPLORE/PLAN/TASKS를 읽는다. `EXPLORE-*.md`가 있으면 사전 탐색 결과를 계획에 즉시 반영한다.
-2. 사용자가 이미 계획을 줬거나 `PLAN-*.md`가 있으면 저장/재사용하고 `g-planner`를 건너뛴다. 아니면 `subagent`로 `g-planner`를 `async: true`로 띄운다. task 첫 줄에 `matt-pocock-atomic-workflow`, `codebase-design`, `way-finder`, `grill-me` 경로를 적는다. 필요 시 grill-me를 사용하여 모호함을 해소하고, way-finder를 통해 방향을 설정한다.
-3. 막힌 질문(보안·범위·데이터 손실)이 있거나 인자에 「계획만」이 있으면 구현으로 넘어가지 않는다.
-4. 그 외에는 SKILL의 **기본 파이프라인**대로 `g-tasker` → 항목별 `g-worker` → `g-reviewer`를 `async: true`로 이어서 띄운다. 항목 `done`은 이 세션이 다시 실행한다.
-5. xAI/agy 쿼터 부족은 `fallbackModels`가 처리한다. 수동으로 모델을 갈아끼우지 말고, 폴백이 실패하면 그 사실을 보고한다.
+## Planning preflight — 부모가 직접 수행
+
+1. `grilling` 방식으로 decision tree의 현재 frontier를 계산한다. 파일·설정으로 알 수 있는 사실은 직접 조사하고 사용자에게 묻지 않는다.
+2. 사용자 결정이 있으면 번호가 있는 질문과 추천 답을 한 라운드에 제시하고 **답을 기다린다**. 답을 받기 전에 PLAN을 확정하거나 `g-planner`를 띄우지 않는다.
+3. 다음 신호가 있으면 wayfinding route로 분류한다: 여러 세션이 필요한 크기, 아직 정확히 질문할 수 없는 fog, 독립 research/prototype/grilling 결정이 둘 이상, 목적지 변경 가능성. 그 외는 `bounded`다.
+4. 기본 큰 작업 경로는 tracker 없는 `local-wayfinding`이다. upstream `wayfinder`는 `disable-model-invocation`인 사용자 호출용 orchestrator이므로 사용자가 명시한 경우에만 tracker route로 넘긴다.
+5. frontier가 빌 때까지 반복한 뒤 아래 refinement brief를 만든다. 이 brief 없이 g-planner를 시작하지 않는다.
+
+```markdown
+## 계획 정제
+
+- route: bounded | local-wayfinding | explicit-wayfinder
+- skills: grilling, domain-modeling, codebase-design
+- decision rounds: <횟수 또는 추가 결정 없음>
+- settled decisions: <요약>
+- remaining fog: <없음 또는 항목>
+```
+
+## PLAN 및 다음 단계
+
+1. 코드·문서·기존 EXPLORE/PLAN/TASKS를 읽는다. `EXPLORE-*.md`가 있으면 즉시 반영한다.
+2. 사용자가 이미 계획을 줬거나 `PLAN-*.md`가 있어도 refinement brief가 없으면 preflight를 건너뛰지 않는다.
+3. refinement가 끝났으면 brief를 포함해 `subagent`로 `g-planner`를 `async: true`로 띄운다. task 첫 줄에 번들된 `matt-pocock-atomic-workflow`, `codebase-design`, `domain-modeling`, `grilling`, `wayfinder`의 경로를 적는다. 사용자가 완성된 PLAN을 제공한 경우에만 부모가 저장하고 g-planner를 건너뛴다.
+4. 막힌 질문(보안·범위·데이터 손실), `remaining fog`, 또는 인자에 「계획만」이 있으면 구현으로 넘어가지 않는다.
+5. 그 외에는 SKILL의 기본 파이프라인대로 `g-tasker` → frontier의 `g-worker` → `g-reviewer`를 `async: true`로 이어서 띄운다. 항목 `done`은 이 세션이 다시 실행한다.
+6. 모델 폴백은 `fallbackModels`에 맡기고, 실패하면 그 사실을 보고한다.
 
 의도: ${@:-현재 대화의 요청}
 

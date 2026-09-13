@@ -15,7 +15,7 @@ Pi 기반 코딩 워크플로 패키지.
 6. [사용법](#6-사용법)
 7. [단계별 모델 바꾸는 법](#7-단계별-모델-바꾸는-법)
 8. [하지 말 것](#8-하지-말-것)
-9. [선택 사항](#9-선택-사항)
+9. [번들된 matt-pocock 스킬](#9-번들된-matt-pocock-스킬)
 
 ---
 
@@ -161,21 +161,18 @@ PLAN에 막힌 질문(보안·범위·데이터 손실)이 있으면 거기서 �
 
 ---
 
-## 9. matt-pocock 스킬 (권장)
+## 9. 번들된 matt-pocock 스킬
 
-단계 에이전트는 그대로다. 각 에이전트가 자기 스킬을 **반드시** 읽는다. 모델은 에이전트 override에서 고른다.
+이 패키지를 설치하면 아래 스킬도 Pi package resource로 함께 설치·발견된다. 별도 `npx skills add`나 `~/.codex/skills` 설정이 필요 없다.
 
-| 단계 | 에이전트 | 강제 스킬 |
+| 단계 | 실행 주체 | 강제 스킬 |
 |---|---|---|
-| plan | `g-planner` | `codebase-design`, `way-finder`, `grill-me` |
+| plan preflight | 부모 오케스트레이터 | `grilling`, `domain-modeling`, `codebase-design`, `wayfinder` |
+| plan | `g-planner` | 같은 스킬 + `matt-pocock-atomic-workflow` |
 | task | `g-tasker` | `to-tickets` (산출물은 `TASKS-<slug>.md`) |
 | execute | `g-worker` | `tdd` |
 | review | `g-reviewer` | `code-review` (손자 없이 두 축) |
 
-```bash
-npx skills add mattpocock/skills
-```
+`grill-me`와 `wayfinder`는 upstream에서 `disable-model-invocation: true`인 사용자 호출용 orchestrator다. 따라서 `/g-plan`은 `grill-me`가 위임하는 model-invoked `grilling`을 부모 단계에서 직접 읽고 실행한다. 큰 작업은 기본적으로 tracker 없는 `local-wayfinding`으로 분류하며, upstream `wayfinder` tracker 흐름은 사용자가 명시한 경우에만 사용한다.
 
-스킬이 `~/.codex/skills`에 있으면 `settings.json`에 `"skills": ["~/.codex/skills"]`를 넣는다.
-
-없어도 matt-pocock-atomic-workflow는 matt-pocock-atomic-workflow만으로 동작한다. `setup-matt-pocock-skills`는 레포 최초 1회만. `grill-me`와 `implement`(커밋)는 자동 파이프라인에 넣지 않는다.
+번들 snapshot의 원본 저장소, revision, MIT 라이선스는 `THIRD_PARTY_LICENSES/mattpocock-skills-*`에 기록되어 있다. upstream을 갱신할 때는 선정 디렉터리를 함께 갱신하고 `npm test`로 에이전트 참조를 검증한다.

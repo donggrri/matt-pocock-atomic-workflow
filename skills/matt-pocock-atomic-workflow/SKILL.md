@@ -150,25 +150,28 @@ Pi에서는 워크트리를 만든 뒤 그 경로를 작업 `cwd`로 쓴다. Cur
 1. 코드·문서·기존 `EXPLORE-*.md`/`PLAN-*.md`/`TASKS-*.md`를 읽는다. `EXPLORE-<slug>.md`가 있으면 탐색 결과를 계획에 즉시 반영한다.
 2. 필요하면 웹 검색. 코드가 낯설고 탐색 보고서가 없으면 Pi에서 `g-explorer` 또는 `scout`를 먼저 띄워도 된다.
 3. 워크트리 규칙에 따라 격리 여부를 정한다.
-4. [reference.md](reference.md) 템플릿으로 PLAN 위치 규칙에 따라 `PLAN-<slug>.md`를 쓴다: 제품 기능이면 워크트리(또는 현재 루트), 워크플로 자체면 `~/.pi/agent/matt-pocock-atomic-workflow/`. 사용자가 이미 계획을 줬으면 이 세션이 저장만 한다. 아니면 `g-planner`에게 맡긴다. 그릴링으로 사용자를 붙잡지 않는다.
-5. 한 줄 목표, 하지 않을 것, 의존 순서, 위험, 막힌 질문을 넣는다.
-6. 막힌 질문이 있거나 사용자가 「계획만」이면 멈추고 계획을 보여 준다. 아니면 **기본 파이프라인**으로 Phase 2부터 자동 진행한다.
+4. **부모 오케스트레이터가 먼저 planning preflight를 수행한다.** 패키지에 번들된 `grilling`, `domain-modeling`, `codebase-design`, `wayfinder`를 직접 읽는다. `grilling`의 decision frontier에 사용자 결정이 있으면 번호와 추천 답을 제시하고 답을 기다린다. async `g-planner`에게 사용자 인터뷰를 떠넘기지 않는다.
+5. 작업이 한 세션에 선명하면 `bounded`, 여러 세션·fog·독립 결정이 있으면 `local-wayfinding`으로 라우팅한다. `wayfinder`는 사용자 호출용이므로 사용자가 명시한 경우만 `explicit-wayfinder`로 넘긴다.
+6. [reference.md](reference.md) 템플릿으로 PLAN 위치 규칙에 따라 `PLAN-<slug>.md`를 쓴다. 부모가 만든 `계획 정제` brief를 g-planner에게 전달하며, brief가 없으면 PLAN 완료를 허용하지 않는다.
+7. 한 줄 목표, 하지 않을 것, 의존 순서, 위험, 막힌 질문과 계획 정제 증거를 넣는다.
+8. 막힌 질문·남은 fog가 있거나 사용자가 「계획만」이면 멈추고 계획을 보여 준다. 아니면 **기본 파이프라인**으로 Phase 2부터 자동 진행한다.
 
 ## 단계 스킬 (강제)
 
 스킬에는 모델이 없다. 모델은 `settings.json`의 `subagents.agentOverrides.<에이전트>`에만 있다. 그래서 단계 에이전트를 유지하고, 그 에이전트가 스킬을 읽도록 강제한다.
 
-자식 frontmatter: `inheritSkills: false` + 아래 `skills`. 없으면 matt-pocock-atomic-workflow만으로 진행한다. `setup-matt-pocock-skills`는 레포 최초 1회이며 매 단계마다 돌리지 않는다. `implement`는 자동 파이프라인에 넣지 않는다.
+필요한 matt-pocock 스킬은 이 Pi 패키지에 번들되며 설치 시 함께 발견된다. 자식 frontmatter는 `inheritSkills: false` + 아래 `skills`를 사용한다. 필수 스킬이 없으면 성공한 척 fallback하지 말고 패키지 설치/리소스 상태를 보고한다. `setup-matt-pocock-skills`와 `implement`는 자동 파이프라인에 넣지 않는다.
 
 | 단계 | 에이전트 | 강제 스킬 | 적용 방식 |
 |---|---|---|---|
 | explore | `g-explorer` | `matt-pocock-atomic-workflow` | EXPLORE-<slug>.md만 쓴다. 코드베이스 탐색, 인터페이스 식별, 리서치 전담. 코드 수정 금지 |
-| plan | `g-planner` | `matt-pocock-atomic-workflow`, `codebase-design`, `way-finder`, `grill-me` | PLAN만 쓴다. 필요 시 `grill-me`로 모호함을 해소하고 `way-finder`로 대안을 검토. 용어/ADR이 필요하면 `domain-modeling` |
+| plan preflight | 부모 | `grilling`, `domain-modeling`, `codebase-design`, `wayfinder` | 사용자 대화와 bounded/wayfinding 라우팅. refinement brief가 나올 때까지 PLAN 금지 |
+| plan | `g-planner` | `matt-pocock-atomic-workflow`, `codebase-design`, `domain-modeling`, `grilling`, `wayfinder` | 부모 brief를 PLAN으로 구체화. 인터뷰나 tracker 발행 금지 |
 | task | `g-tasker` | `matt-pocock-atomic-workflow`, `to-tickets` | 수직 슬라이스·의존만 가져온다. 산출물은 `TASKS-<slug>.md`. 트래커 발행·사용자 퀴즈 금지 |
 | execute | `g-worker` | `matt-pocock-atomic-workflow`, `tdd` | 로직은 red→green. 커밋 금지 |
 | review | `g-reviewer` | `matt-pocock-atomic-workflow`, `code-review` | Standards / Spec 두 축을 **이 에이전트가 직접**. Spec = PLAN+TASKS. 손자 금지. 산출물은 `REVIEW-<slug>.md` |
 
-설치: `npx skills add mattpocock/skills`. 이 머신처럼 `~/.codex/skills`에 있으면 Pi `settings.json`의 `skills` 배열에 그 경로를 넣는다.
+번들 출처와 revision은 패키지의 `THIRD_PARTY_LICENSES/mattpocock-skills-*`에 기록한다. 별도 `npx skills add`나 `settings.json`의 외부 skills 경로는 필요 없다.
 
 ## 오케스트레이션
 

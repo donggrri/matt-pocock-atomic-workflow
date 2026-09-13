@@ -79,6 +79,14 @@ git worktree list
 
 <한 문장>
 
+## 계획 정제
+
+- route: bounded | local-wayfinding | explicit-wayfinder
+- skills: grilling, domain-modeling, codebase-design
+- decision rounds: <횟수 또는 추가 결정 없음>
+- settled decisions: <요약>
+- remaining fog: <없음 또는 항목>
+
 ## 하지 않을 것
 
 - <이번 범위 밖>

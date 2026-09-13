@@ -15,7 +15,8 @@ argument-hint: "[show | init | <agent> <model>]"
    - `g-worker` (Phase 3 실행)
    - `g-reviewer` (Phase 4 검토)
    - 기타 빌트인 에이전트(`scout`, `oracle`, `reviewer`, `delegate`, `worker` 등)
-   - `skills` 배열 및 `packages` 목록
+   - `packages` 목록
+   - 설치된 패키지 안의 번들 스킬 `grilling`, `domain-modeling`, `codebase-design`, `wayfinder`, `to-tickets`, `tdd`, `code-review` 발견 여부
 3. 인자 또는 사용자 요청에 따른 처리:
    - `show` (기본값):
      - **설정이 이미 존재하는 경우**: 현재 설정 상태를 보기 쉬운 표로 출력하고 수정 옵션을 안내한다.
@@ -23,12 +24,13 @@ argument-hint: "[show | init | <agent> <model>]"
        1. `pi --list-models` 등으로 현재 환경에서 사용 가능한 Provider 및 주요 모델을 확인한다.
        2. 사용자에게 사용 가능한 주요 모델 목록과 함께 matt-pocock-atomic-workflow 단계별 최적 추천 프리셋(예: Antigravity 조합, 혼합 성능 최적화 조합 등)을 제시하고 선택할 수 있도록 안내한다.
        3. 사용자의 선택 또는 답변에 따라 `settings.json`의 `subagents.agentOverrides`를 즉시 생성 및 저장한다.
-   - `init`: `settings.example.json`을 기반으로 `~/.pi/agent/settings.json`의 `subagents.agentOverrides` 및 `skills`를 안전하게 병합/초기화한다. 기존 `packages`나 기타 설정은 보존한다.
+   - `init`: `settings.example.json`을 기반으로 `~/.pi/agent/settings.json`의 `subagents.agentOverrides`를 안전하게 병합/초기화한다. 기존 `packages`, `skills`, 기타 설정은 보존한다. 번들 스킬 때문에 외부 `~/.codex/skills` 경로를 추가하지 않는다.
    - `<agent> <model>`: 지정된 에이전트의 `model`(및 필요시 `fallbackModels`)을 `settings.json`에 직접 업데이트한다.
    - 사용자가 대화로 특정 단계 모델 변경을 요청하면 이를 파악하여 `settings.json`을 올바르게 수정한다.
 4. 주의사항:
    - 에이전트 `.md` 파일의 frontmatter를 직접 수정하지 말고 반드시 `settings.json`의 `subagents.agentOverrides`를 수정한다.
    - JSON 문법이 깨지지 않도록 유효성을 확인한 후 저장한다.
    - 수정 후에는 Pi 재시작 시 적용됨을 안내한다.
+   - 필수 번들 스킬이 없으면 fallback 성공으로 표시하지 말고 패키지 revision/설치 상태를 점검하라고 안내한다.
 
 한국어로 명확하고 친절하게 결과를 보고한다.
