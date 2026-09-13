@@ -17,7 +17,12 @@ argument-hint: "[show | init | <agent> <model>]"
    - 기타 빌트인 에이전트(`scout`, `oracle`, `reviewer`, `delegate`, `worker` 등)
    - `skills` 배열 및 `packages` 목록
 3. 인자 또는 사용자 요청에 따른 처리:
-   - `show` (기본값): 현재 설정 상태를 보기 쉬운 표로 출력하고, 수정 가능한 옵션을 안내한다.
+   - `show` (기본값):
+     - **설정이 이미 존재하는 경우**: 현재 설정 상태를 보기 쉬운 표로 출력하고 수정 옵션을 안내한다.
+     - **설정이 비어 있거나 미설정인 경우**:
+       1. `pi --list-models` 등으로 현재 환경에서 사용 가능한 Provider 및 주요 모델을 확인한다.
+       2. 사용자에게 사용 가능한 주요 모델 목록과 함께 g-workflow 단계별 최적 추천 프리셋(예: Antigravity 조합, 혼합 성능 최적화 조합 등)을 제시하고 선택할 수 있도록 안내한다.
+       3. 사용자의 선택 또는 답변에 따라 `settings.json`의 `subagents.agentOverrides`를 즉시 생성 및 저장한다.
    - `init`: `settings.example.json`을 기반으로 `~/.pi/agent/settings.json`의 `subagents.agentOverrides` 및 `skills`를 안전하게 병합/초기화한다. 기존 `packages`나 기타 설정은 보존한다.
    - `<agent> <model>`: 지정된 에이전트의 `model`(및 필요시 `fallbackModels`)을 `settings.json`에 직접 업데이트한다.
    - 사용자가 대화로 특정 단계 모델 변경을 요청하면 이를 파악하여 `settings.json`을 올바르게 수정한다.
