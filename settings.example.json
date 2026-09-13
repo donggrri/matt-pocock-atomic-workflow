@@ -1,4 +1,7 @@
 {
+  "skills": [
+    "~/.codex/skills"
+  ],
   "enabledModels": [
     "YOUR_PRIMARY_MODEL",
     "YOUR_FALLBACK_MODEL"

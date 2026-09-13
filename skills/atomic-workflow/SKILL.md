@@ -8,7 +8,7 @@ description: >-
 
 # Atomic Workflow (g-workflow)
 
-전역 스킬이다. Pi는 `~/.pi/agent/prompts/g-*.md`와 `~/.pi/agent/agents/g-*.md`를 쓴다. Cursor 슬래시는 `~/.cursor/commands/g-*.md`. Codex/agy가 커맨드 파일을 읽으면 `~/.agents/commands/g-*.md`.
+Pi 패키지 스킬이다. 프롬프트·에이전트는 이 패키지가 등록한다. `~/.agents/skills/atomic-workflow`, `~/.pi/agent/prompts/g-*.md`, `~/.pi/agent/agents/g-*.md`를 남겨 두면 패키지가 가려지고 충돌 경고가 난다.
 
 사용자에게는 한국어로 말한다. 템플릿은 [reference.md](reference.md), 위임은 [workers.md](workers.md), 모델은 [models.md](models.md), 테스트는 [testing.md](testing.md)를 이 파일을 읽은 뒤에만 연다.
 
@@ -26,35 +26,44 @@ description: >-
 
 워크플로 자체일 때 같이 맞추는 파일 목록:
 
-- `~/.agents/skills/atomic-workflow/`
-- `~/.agents/commands/g-*.md`
-- `~/.cursor/skills/atomic-workflow/`
-- `~/.cursor/commands/g-*.md`
-- `~/.pi/agent/agents/g-*.md`
-- `~/.pi/agent/prompts/g-*.md`
-- 필요하면 `~/.pi/agent/settings.json`의 `subagents`
+- 패키지 저장소: `skills/atomic-workflow/`, `prompts/`, `agents/`, `README.md`, `settings.example.json`
+- 필요하면 `~/.pi/agent/settings.json`의 `packages`와 `subagents`
 
 ## 단계
 
 | 단계 | 커맨드 | 산출물 | 다음 |
 |---|---|---|---|
-| 1 | `/g-plan` | `PLAN-<slug>.md` | 막힌 질문 없으면 `/g-task` |
-| 2 | `/g-task` | `TASKS-<slug>.md` | `/g-execute` |
-| 3 | `/g-execute` 또는 `/g-delegate` | 코드 + 체크된 TASKS | `/g-review` |
-| 4 | `/g-review` | `REVIEW-<slug>.md` + 테스트 | 통과 시 `/g-commit` |
+| 1 | `/g-plan` 또는 사용자가 쓴 PLAN | `PLAN-<slug>.md` | 막힌 질문 없으면 **자동** Phase 2 |
+| 2 | (자동) `g-tasker` | `TASKS-<slug>.md` | **자동** Phase 3 |
+| 3 | (자동) `g-worker` | 코드 + 체크된 TASKS | **자동** Phase 4 |
+| 4 | (자동) `g-reviewer` | `REVIEW-<slug>.md` + 테스트 | 보고. 커밋은 수동 |
 | 5 | `/g-commit` | 커밋 (푸시 없음) | 사용자가 원할 때만 PR |
 | — | `/g-status` | 진행 보고 | 이어서 할 커맨드 |
 
 슬러그: 의도에서 만든 짧은 ASCII kebab-case (`space-notes`, `mcp-http`).
 
-## 한 메시지에 여러 커맨드
+## 기본 파이프라인 (Plan 이후 자동)
 
-`/g-plan /g-execute /g-review`처럼 묶이면 **빠진 산출물부터** 순서대로 한다.
+사람 게이트는 **PLAN뿐**이다. 모델은 스킬이 아니라 서브에이전트에 붙는다. 그래서 단계마다 자식을 띄우고, 그 자식이 스킬을 읽게 한다.
 
-- Plan에 막힌 질문(보안·범위·데이터 손실)이 있으면 거기서 멈춘다.
-- Task 파일이 없으면 Execute 전에 Phase 2를 한다.
-- `/g-commit` 또는 「커밋해」가 없으면 커밋하지 않는다.
-- 푸시는 사용자가 분명히 요청할 때만 한다.
+PLAN이 있고 막힌 질문(보안·범위·데이터 손실)이 없으면 부모는 멈추지 않는다.
+
+1. `g-tasker`를 `async: true`로 띄운다.
+2. TASKS의 의존 순서대로 `g-worker`를 `async: true`로 띄운다. `parallel: yes`이고 파일이 안 겹치면 같이 띄워도 된다. 워크트리당 쓰기 워커는 하나.
+3. 항목마다 **이 세션이** `done` 명령을 다시 실행하고 통과할 때만 `[x]`.
+4. 열린 항목이 없으면 `g-reviewer`를 `async: true`로 띄운다.
+5. 결과를 한국어로 보고한다. 커밋하지 않는다.
+
+멈추는 경우:
+
+- PLAN에 막힌 질문이 있다
+- 사용자가 「계획만」/「태스크만」/「구현만」이라고 했다
+- 항목 `done`이 실패했다
+- `/g-commit` 또는 「커밋해」가 없다 → 커밋하지 않는다
+
+사용자가 이미 `PLAN-<slug>.md`를 써 두었거나 메시지에 계획을 주면 Phase 1 자식을 건너뛴다. `/g-plan`에 의도만 있으면 `g-planner`가 PLAN을 쓴 뒤 위 루프로 들어간다.
+
+자식을 띄울 때 task **첫 줄**에 강제 스킬 경로를 적는다. 부모의 `available_skills`에서 찾고, 없으면 「이 스킬 없음. atomic-workflow만으로 진행」이라고 적는다. 브리프에 비밀·토큰·`.env`를 넣지 않는다.
 
 ## 하네스
 
@@ -65,10 +74,10 @@ description: >-
 | 단계 | 에이전트 | 기본 |
 |---|---|---|
 | recon | `scout` | 코드가 낯설 때만 |
-| plan | `g-planner` | 한두 파일이면 self |
-| task | `g-tasker` | 한두 항목이면 self |
-| execute | `g-worker` | `self`를 말한 경우만 직접 구현 |
-| review | `g-reviewer` | 항상 자식 권장 |
+| plan | `g-planner` | PLAN이 이미 있으면 건너뜀. 그 외는 항상 자식 |
+| task | `g-tasker` | 항상 자식. `self`를 말한 경우만 직접 |
+| execute | `g-worker` | 항상 자식. `self`를 말한 경우만 직접 |
+| review | `g-reviewer` | 항상 자식 |
 | commit/status | self | 서브에이전트 금지 |
 
 런 로그: `~/.pi/agent/g-workflow/runs/<slug>/`
@@ -131,20 +140,35 @@ Pi에서는 워크트리를 만든 뒤 그 경로를 작업 `cwd`로 쓴다. Cur
 1. 코드·문서·기존 `PLAN-*.md`/`TASKS-*.md`를 읽는다.
 2. 필요하면 웹 검색. 코드가 낯설면 Pi에서 `scout`를 먼저 띄워도 된다.
 3. 워크트리 규칙에 따라 격리 여부를 정한다.
-4. [reference.md](reference.md) 템플릿으로 PLAN 위치 규칙에 따라 `PLAN-<slug>.md`를 쓴다: 제품 기능이면 워크트리(또는 현재 루트), 워크플로 자체면 `~/.pi/agent/g-workflow/`. Pi에서 범위가 크면 `g-planner`에게 맡긴다.
+4. [reference.md](reference.md) 템플릿으로 PLAN 위치 규칙에 따라 `PLAN-<slug>.md`를 쓴다: 제품 기능이면 워크트리(또는 현재 루트), 워크플로 자체면 `~/.pi/agent/g-workflow/`. 사용자가 이미 계획을 줬으면 이 세션이 저장만 한다. 아니면 `g-planner`에게 맡긴다. 그릴링으로 사용자를 붙잡지 않는다.
 5. 한 줄 목표, 하지 않을 것, 의존 순서, 위험, 막힌 질문을 넣는다.
-6. 같은 메시지에 이후 단계가 있고 막힌 질문이 없으면 Phase 2로 간다. 아니면 계획만 보여주고 멈춘다.
+6. 막힌 질문이 있거나 사용자가 「계획만」이면 멈추고 계획을 보여 준다. 아니면 **기본 파이프라인**으로 Phase 2부터 자동 진행한다.
+
+## 단계 스킬 (강제)
+
+스킬에는 모델이 없다. 모델은 `settings.json`의 `subagents.agentOverrides.<에이전트>`에만 있다. 그래서 단계 에이전트를 유지하고, 그 에이전트가 스킬을 읽도록 강제한다.
+
+자식 frontmatter: `inheritSkills: false` + 아래 `skills`. 없으면 atomic-workflow만으로 진행한다. `setup-matt-pocock-skills`는 레포 최초 1회이며 매 단계마다 돌리지 않는다. `grill-me` / `implement`는 자동 파이프라인에 넣지 않는다.
+
+| 단계 | 에이전트 | 강제 스킬 | 적용 방식 |
+|---|---|---|---|
+| plan | `g-planner` | `atomic-workflow`, `codebase-design` | PLAN만 쓴다. 사용자 인터뷰 금지. 용어/ADR이 필요하면 `domain-modeling` |
+| task | `g-tasker` | `atomic-workflow`, `to-tickets` | 수직 슬라이스·의존만 가져온다. 산출물은 `TASKS-<slug>.md`. 트래커 발행·사용자 퀴즈 금지 |
+| execute | `g-worker` | `atomic-workflow`, `tdd` | 로직은 red→green. 커밋 금지 |
+| review | `g-reviewer` | `atomic-workflow`, `code-review` | Standards / Spec 두 축을 **이 에이전트가 직접**. Spec = PLAN+TASKS. 손자 금지. 산출물은 `REVIEW-<slug>.md` |
+
+설치: `npx skills add mattpocock/skills`. 이 머신처럼 `~/.codex/skills`에 있으면 Pi `settings.json`의 `skills` 배열에 그 경로를 넣는다.
 
 ## 오케스트레이션
 
-Plan / Task / Review 게이트 / Commit은 부모 세션이 소유한다. 구현은 자식에게 넘길 수 있다.
+부모는 파이프라인만 돌린다. 단계 일은 해당 모델의 자식이 한다. Commit만 부모.
 
-Pi 워커: `g-worker` · `scout` · `oracle` · `reviewer` · `self`.
+Pi 워커: `g-planner` · `g-tasker` · `g-worker` · `g-reviewer` · `scout` · `oracle` · `self`.
 Cursor CLI 워커: `agy` · `codex` · `cursor` · `opencode` · `self`.
 
-1. 사용자가 워커를 지목했거나 TASKS에 `worker:`가 있으면 [workers.md](workers.md)를 읽는다.
+1. 사용자가 워커를 지목했거나 TASKS에 `worker:`가 있으면 [workers.md](workers.md)를 읽는다. 기본 구현 워커는 `g-worker`.
 2. Pi면 `subagent`만 호출한다. Cursor CLI 경로면 `ensure-workers.ps1` / `invoke-worker.ps1`만 쓴다.
-3. 브리프에 비밀·토큰·`.env`를 넣지 않는다.
+3. 브리프 첫 줄에 강제 스킬 경로. 비밀·토큰·`.env` 금지.
 4. 워커가 끝나면 오케스트레이터가 `git diff`와 테스트를 직접 확인한다. 「완료」로그를 믿지 않는다.
 5. 워크트리당 쓰기 워커는 하나. 워커는 커밋·푸시하지 않는다.
 6. `agy`를 인자 없이 실행하지 않는다 (TUI 정지).
@@ -152,27 +176,30 @@ Cursor CLI 워커: `agy` · `codex` · `cursor` · `opencode` · `self`.
 ## Phase 2 — Task
 
 1. 현재 루트의 `PLAN-<slug>.md`를 읽는다. 없으면 Phase 1부터.
-2. `TASKS-<slug>.md`를 만든다. 각 항목은 한 번에 검증 가능한 크기. Pi에서 항목이 많으면 `g-tasker`.
+2. `g-tasker`가 `TASKS-<slug>.md`를 만든다. 각 항목은 한 번에 검증 가능한 크기.
 3. `id`, 체크박스, `files`, `depends`, `parallel`, `worker`, `done`을 적는다.
 4. 같은 파일을 안 건드리는 독립 항목만 `parallel: yes`.
 5. 제품 기능이면 [testing.md](testing.md)대로 테스트 항목을 넣는다. `done`에 실제 명령을 적는다.
 6. Pi 구현 항목의 기본 `worker`는 `g-worker`. 문서 항목은 `self`.
+7. 사용자가 「태스크만」이 아니면 **기본 파이프라인**으로 Phase 3으로 간다.
 
 ## Phase 3 — Execute
 
 1. `TASKS-<slug>.md`가 없으면 Phase 2를 먼저 한다.
-2. `worker`가 `self`이거나 비었고 사용자가 위임을 원하지 않으면 이 에이전트가 구현한다.
-3. Pi에서 `g-worker` / `agy` / 모델 별칭이 있으면 `subagent`로 위임한다. Cursor CLI면 invoke 스크립트만 쓴다.
-4. 항목마다: 구현(또는 위임) → [testing.md](testing.md)의 `done` 명령을 오케스트레이터가 실행 → `[x]`. 실패하면 `막힘:`과 로그 경로를 남기고 멈춘다.
+2. `worker`가 `self`이거나 사용자가 `self`를 말한 경우만 이 세션이 구현한다. 기본은 `g-worker`.
+3. Pi에서 `g-worker` / 모델 별칭은 `subagent`로 위임한다. Cursor CLI면 invoke 스크립트만 쓴다.
+4. 항목마다: 위임 → [testing.md](testing.md)의 `done` 명령을 오케스트레이터가 실행 → `[x]`. 실패하면 `막힘:`과 로그 경로를 남기고 멈춘다.
 5. PLAN의 「하지 않을 것」을 지킨다. 커밋하지 않는다.
+6. 열린 항목이 없고 「구현만」이 아니면 **기본 파이프라인**으로 Phase 4로 간다.
 
 ## Phase 4 — Review
 
 1. [testing.md](testing.md)를 읽고 저장소의 단위 테스트·린트를 실행한다. 없으면 REVIEW에 「없음」을 적는다.
 2. TASKS의 완료 조건과 diff를 대조한다. 빠진 테스트·문서를 적는다.
 3. 로직 파일이 바뀌었으면 이번 파일만 mutation (`npx stryker run --mutate <파일>`). 생존한 인증·계약 돌연변이는 결함이다. 설정이 없으면 설치하지 않는다.
-4. `REVIEW-<slug>.md`를 쓴다. Pi면 `g-reviewer`에게 맡겨도 된다. 실패한 테스트나 break 미만 mutation을 통과로 쓰지 않는다.
+4. `g-reviewer`가 `REVIEW-<slug>.md`를 쓴다. 실패한 테스트나 break 미만 mutation을 통과로 쓰지 않는다.
 5. 제품 기능이 끝났고 검사가 통과하면 `docs/README.md` 표대로 문서를 갱신한다.
+6. 커밋하지 않는다. `/g-commit`을 안내한다.
 
 ## Phase 5 — Commit
 

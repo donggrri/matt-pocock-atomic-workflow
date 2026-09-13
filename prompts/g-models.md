@@ -7,14 +7,16 @@ description: g-workflow 단계별 모델 설정을 안내한다.
 
 ## 단계별 에이전트와 settings 키
 
-| 단계 | 에이전트 | `agentOverrides` 키 |
-|---|---|---|
-| recon | `scout` / `researcher` | `scout`, `researcher` |
-| plan | `g-planner` | `g-planner` |
-| task | `g-tasker` | `g-tasker` |
-| execute | `g-worker` | `g-worker` |
-| review | `g-reviewer` | `g-reviewer` |
-| commit/status | (현재 세션) | — |
+| 단계 | 에이전트 | 강제 스킬 | `agentOverrides` 키 |
+|---|---|---|---|
+| recon | `scout` / `researcher` | — | `scout`, `researcher` |
+| plan | `g-planner` | `codebase-design` | `g-planner` |
+| task | `g-tasker` | `to-tickets` | `g-tasker` |
+| execute | `g-worker` | `tdd` | `g-worker` |
+| review | `g-reviewer` | `code-review` | `g-reviewer` |
+| commit/status | (현재 세션) | — | — |
+
+스킬에 모델을 붙이지 않는다. 단계 모델을 바꾸려면 해당 에이전트 키의 `model` / `fallbackModels`만 고친다.
 
 빌트인 에이전트(`oracle`, `reviewer`, `delegate`, `worker` 등)도 같은 `agentOverrides` 아래에서 설정한다.
 

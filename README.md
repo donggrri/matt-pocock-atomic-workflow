@@ -25,11 +25,8 @@ Pi 기반 5단계 코딩 워크플로 패키지.
 pi install git:github.com/donggrri/pi-subagents
 pi install git:github.com/donggrri/pi-antigravity-bridge
 pi install npm:@rahularya01/pi-cursor
-pi install git:<이-저장소-URL>
+pi install git:github.com/donggrri/g-workflow
 ```
-
-> **`<이-저장소-URL>`** 자리에 이 저장소의 실제 주소를 넣는다.  
-> 예: `git:github.com/donggrri/g-workflow`
 
 ---
 
@@ -73,18 +70,15 @@ agy          # 최초 한 번 대화형 인증 (이후 불필요)
 
 ---
 
-## 4. 이전 에이전트 파일 삭제
+## 4. 이전 사용자 파일 삭제
 
-이전에 직접 만들었던 `~/.pi/agent/agents/g-*.md`가 있으면 지워야 한다.  
-남겨 두면 이 패키지가 등록한 에이전트가 가려진다.
+이전에 직접 만들었던 사용자 홈 복사본이 있으면 지워야 한다.  
+남겨 두면 이 패키지가 등록한 스킬·프롬프트·에이전트가 가려지고 충돌 경고가 난다.
 
 ```bash
-rm ~/.pi/agent/agents/g-planner.md
-rm ~/.pi/agent/agents/g-tasker.md
-rm ~/.pi/agent/agents/g-worker.md
-rm ~/.pi/agent/agents/g-reviewer.md
-# 또는 한 번에
 rm ~/.pi/agent/agents/g-*.md
+rm ~/.pi/agent/prompts/g-*.md
+rm -rf ~/.agents/skills/atomic-workflow
 ```
 
 > **주의**: 삭제하기 전에 내용을 이 저장소의 파일과 비교해서 차이가 있으면 먼저 병합한다.
@@ -106,24 +100,22 @@ pi restart
 
 ## 6. 사용법
 
+기본: **PLAN만 확정하면** task → execute → review가 자동이다. 커밋은 `/g-commit`일 때만.
+
 | 커맨드 | 역할 | 산출물 |
 |---|---|---|
-| `/g-plan` | Phase 1: 계획 | `PLAN-<slug>.md` |
-| `/g-task` | Phase 2: 작업 분할 | `TASKS-<slug>.md` |
-| `/g-execute` | Phase 3: 구현 위임 | 코드 변경 + 체크된 TASKS |
+| `/g-plan` | Phase 1 후 기본 파이프라인 | `PLAN` + 자동으로 TASKS/코드/REVIEW |
+| `/g-task` | Phase 2만 강제하거나 이어서 자동 | `TASKS-<slug>.md` |
+| `/g-execute` | Phase 3만 강제하거나 이어서 자동 | 코드 변경 + 체크된 TASKS |
 | `/g-delegate` | Phase 3: 특정 워커에 위임 | 같음 |
-| `/g-review` | Phase 4: 리뷰 | `REVIEW-<slug>.md` |
+| `/g-review` | Phase 4 | `REVIEW-<slug>.md` |
 | `/g-commit` | Phase 5: 커밋 (푸시 없음) | git commit |
 | `/g-status` | 진행 상황 보고 | 텍스트 요약 |
 | `/g-models` | 모델 설정 안내 | 텍스트 안내 |
 
-한 메시지에 여러 커맨드를 붙여도 된다:
+PLAN에 막힌 질문(보안·범위·데이터 손실)이 있으면 거기서 멈춘다. 계획만 쓰려면 `/g-plan 계획만`.
 
-```
-/g-plan /g-task /g-execute
-```
-
-계획에 막힌 질문(보안·범위·데이터 손실)이 있으면 거기서 멈춘다.
+단계마다 다른 모델을 쓰려면 `settings.json`의 `subagents.agentOverrides`에서 에이전트별로 고른다. 스킬 자체에는 모델을 붙일 수 없다.
 
 ---
 
@@ -160,12 +152,21 @@ pi restart
 
 ---
 
-## 9. 선택 사항
+## 9. matt-pocock 스킬 (권장)
 
-TypeScript 타입 지원이 필요하면:
+단계 에이전트는 그대로다. 각 에이전트가 자기 스킬을 **반드시** 읽는다. 모델은 에이전트 override에서 고른다.
+
+| 단계 | 에이전트 | 강제 스킬 |
+|---|---|---|
+| plan | `g-planner` | `codebase-design` |
+| task | `g-tasker` | `to-tickets` (산출물은 `TASKS-<slug>.md`) |
+| execute | `g-worker` | `tdd` |
+| review | `g-reviewer` | `code-review` (손자 없이 두 축) |
 
 ```bash
 npx skills add mattpocock/skills
 ```
 
-없어도 g-workflow는 정상 동작한다.
+스킬이 `~/.codex/skills`에 있으면 `settings.json`에 `"skills": ["~/.codex/skills"]`를 넣는다.
+
+없어도 g-workflow는 atomic-workflow만으로 동작한다. `setup-matt-pocock-skills`는 레포 최초 1회만. `grill-me`와 `implement`(커밋)는 자동 파이프라인에 넣지 않는다.

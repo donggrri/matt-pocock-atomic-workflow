@@ -17,14 +17,16 @@ Pi 자식 세션은 `provider/id` 또는 `provider/id:thinking`으로 고른다.
 
 ## 단계 기본값
 
-| 단계 | 에이전트 | settings 키 |
-|---|---|---|
-| recon | `scout` / `researcher` | `agentOverrides.scout`, `agentOverrides.researcher` |
-| plan | `g-planner` | `agentOverrides.g-planner` |
-| task | `g-tasker` | `agentOverrides.g-tasker` |
-| execute | `g-worker` | `agentOverrides.g-worker` |
-| review | `g-reviewer` | `agentOverrides.g-reviewer` |
-| commit/status | parent | (현재 세션 모델) |
+스킬에는 모델이 없다. 단계마다 **에이전트**를 띄워야 모델이 갈린다. 그 에이전트가 스킬을 읽는다.
+
+| 단계 | 에이전트 | 강제 스킬 | settings 키 |
+|---|---|---|---|
+| recon | `scout` / `researcher` | (없음) | `agentOverrides.scout`, `agentOverrides.researcher` |
+| plan | `g-planner` | `atomic-workflow`, `codebase-design` | `agentOverrides.g-planner` |
+| task | `g-tasker` | `atomic-workflow`, `to-tickets` | `agentOverrides.g-tasker` |
+| execute | `g-worker` | `atomic-workflow`, `tdd` | `agentOverrides.g-worker` |
+| review | `g-reviewer` | `atomic-workflow`, `code-review` | `agentOverrides.g-reviewer` |
+| commit/status | parent | (없음) | (현재 세션 모델) |
 
 ## 폴백 계약
 
