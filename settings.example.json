@@ -8,6 +8,10 @@
   ],
   "subagents": {
     "agentOverrides": {
+      "g-explorer": {
+        "model": "YOUR_EXPLORER_MODEL",
+        "fallbackModels": ["YOUR_EXPLORER_FALLBACK_MODEL"]
+      },
       "g-planner": {
         "model": "YOUR_PLAN_MODEL",
         "fallbackModels": ["YOUR_PLAN_FALLBACK_MODEL"]

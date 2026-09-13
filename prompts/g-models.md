@@ -9,12 +9,12 @@ description: g-workflow 단계별 모델 설정을 안내한다.
 
 | 단계 | 에이전트 | 강제 스킬 | `agentOverrides` 키 |
 |---|---|---|---|
-| recon | `scout` / `researcher` | — | `scout`, `researcher` |
+| explore / recon | `g-explorer` / `scout` | `atomic-workflow` | `g-explorer`, `scout` |
 | plan | `g-planner` | `codebase-design` | `g-planner` |
 | task | `g-tasker` | `to-tickets` | `g-tasker` |
 | execute | `g-worker` | `tdd` | `g-worker` |
 | review | `g-reviewer` | `code-review` | `g-reviewer` |
-| commit/status | (현재 세션) | — | — |
+| commit/status/config | (현재 세션) | — | — |
 
 스킬에 모델을 붙이지 않는다. 단계 모델을 바꾸려면 해당 에이전트 키의 `model` / `fallbackModels`만 고친다.
 
@@ -22,7 +22,9 @@ description: g-workflow 단계별 모델 설정을 안내한다.
 
 ## 바꾸는 법
 
-`~/.pi/agent/settings.json`의 `subagents.agentOverrides` 안에서 원하는 에이전트 키의 `model`과 `fallbackModels`를 편집한다.
+`/g-config` (또는 `/g-settings`) 커맨드를 사용하면 현재 설정을 바로 조회하고 대화형으로 안전하게 변경할 수 있다.
+
+직접 편집할 경우 `~/.pi/agent/settings.json`의 `subagents.agentOverrides` 안에서 원하는 에이전트 키의 `model`과 `fallbackModels`를 편집한다.
 
 ```json
 {

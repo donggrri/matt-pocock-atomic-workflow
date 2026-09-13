@@ -26,6 +26,44 @@ git worktree add -b $branch $wt HEAD
 git worktree list
 ```
 
+## EXPLORE-\<slug\>.md
+
+```markdown
+# EXPLORE: <짧은 제목>
+
+상태: Phase 0
+슬러그: <slug>
+기준: <커밋 해시 또는 브랜치>
+
+## 한 줄 요약
+
+<탐색 목적 및 핵심 발견 요약>
+
+## 분석 대상 파일 및 디렉터리
+
+1. `path/to/file.ts` (lines 10-50) - <역할 및 관련 내용>
+2. `path/to/other.ts` - <역할 및 관련 내용>
+
+## 핵심 코드 및 인터페이스
+
+```typescript
+// 발견된 주요 타입, 인터페이스, 시그니처
+```
+
+## 아키텍처 및 흐름
+
+<컴포넌트 간 상호작용 및 데이터 흐름 요약>
+
+## 제약 사항 및 리스크
+
+- <의존성 제약, 호환성 문제, 잠재 위험>
+
+## PLAN을 위한 권장 사항
+
+1. <Phase 1 Plan 수립 시 반영할 구체적 방향>
+2. <설계 및 테스트 시 유의할 점>
+```
+
 ## PLAN-\<slug\>.md
 
 ```markdown
@@ -161,7 +199,7 @@ Pi:
 $stamp = Get-Date -Format "yyyy-MM-dd"
 $dest = Join-Path $env:USERPROFILE ".pi\agent\g-workflow\evidence\$stamp-<slug>"
 New-Item -ItemType Directory -Force -Path $dest | Out-Null
-Copy-Item PLAN-<slug>.md, TASKS-<slug>.md, REVIEW-<slug>.md $dest -ErrorAction SilentlyContinue
+Copy-Item EXPLORE-<slug>.md, PLAN-<slug>.md, TASKS-<slug>.md, REVIEW-<slug>.md $dest -ErrorAction SilentlyContinue
 ```
 
 Cursor는 `.pi\agent` 대신 `.cursor`를 쓴다.

@@ -1,0 +1,29 @@
+---
+description: g-workflow 설정(모델, 폴백, 스킬 등)을 조회하고 대화형으로 변경/초기화한다.
+argument-hint: "[show | init | <agent> <model>]"
+---
+`atomic-workflow` 스킬을 참고하여 g-workflow 관련 설정을 확인하고 관리한다.
+
+인자: ${@:-show}
+
+동작 규칙:
+1. `~/.pi/agent/settings.json`(및 현재 프로젝트 `.pi/settings.json`이 있으면 함께)을 읽는다.
+2. 현재 `subagents.agentOverrides`에 등록된 g-workflow 에이전트 설정 현황을 정리해 보여준다:
+   - `g-explorer` (Phase 0 탐색)
+   - `g-planner` (Phase 1 계획)
+   - `g-tasker` (Phase 2 태스크)
+   - `g-worker` (Phase 3 실행)
+   - `g-reviewer` (Phase 4 검토)
+   - 기타 빌트인 에이전트(`scout`, `oracle`, `reviewer`, `delegate`, `worker` 등)
+   - `skills` 배열 및 `packages` 목록
+3. 인자 또는 사용자 요청에 따른 처리:
+   - `show` (기본값): 현재 설정 상태를 보기 쉬운 표로 출력하고, 수정 가능한 옵션을 안내한다.
+   - `init`: `settings.example.json`을 기반으로 `~/.pi/agent/settings.json`의 `subagents.agentOverrides` 및 `skills`를 안전하게 병합/초기화한다. 기존 `packages`나 기타 설정은 보존한다.
+   - `<agent> <model>`: 지정된 에이전트의 `model`(및 필요시 `fallbackModels`)을 `settings.json`에 직접 업데이트한다.
+   - 사용자가 대화로 특정 단계 모델 변경을 요청하면 이를 파악하여 `settings.json`을 올바르게 수정한다.
+4. 주의사항:
+   - 에이전트 `.md` 파일의 frontmatter를 직접 수정하지 말고 반드시 `settings.json`의 `subagents.agentOverrides`를 수정한다.
+   - JSON 문법이 깨지지 않도록 유효성을 확인한 후 저장한다.
+   - 수정 후에는 Pi 재시작 시 적용됨을 안내한다.
+
+한국어로 명확하고 친절하게 결과를 보고한다.

@@ -1,7 +1,7 @@
 # g-workflow
 
-Pi 기반 5단계 코딩 워크플로 패키지.  
-`/g-plan` → `/g-task` → `/g-execute` → `/g-review` → `/g-commit`
+Pi 기반 코딩 워크플로 패키지.  
+`/g-explore`(선택) → `/g-plan` → `/g-task` → `/g-execute` → `/g-review` → `/g-commit`
 
 ---
 
@@ -32,7 +32,7 @@ pi install git:github.com/donggrri/g-workflow
 
 ## 2. settings.json 병합
 
-`settings.example.json`을 복사해서 `~/.pi/agent/settings.json`에 병합한다.
+`settings.example.json`을 복사해서 `~/.pi/agent/settings.json`에 병합한다. (또는 Pi에서 `/g-config init` 실행)
 
 ```bash
 # settings.json이 없으면 그대로 복사
@@ -47,6 +47,10 @@ mv /tmp/merged.json ~/.pi/agent/settings.json
 `YOUR_*` placeholder를 실제 모델 ID로 바꾼다. 예:
 
 ```json
+"g-explorer": {
+  "model": "xai/grok-4.6",
+  "fallbackModels": ["antigravity/claude-sonnet-4-6"]
+},
 "g-planner": {
   "model": "xai/grok-4.6",
   "fallbackModels": ["antigravity/claude-sonnet-4-6"]
@@ -54,9 +58,9 @@ mv /tmp/merged.json ~/.pi/agent/settings.json
 ```
 
 사용 가능한 에이전트 키:  
-`g-planner`, `g-tasker`, `g-worker`, `g-reviewer`, `scout`, `oracle`, `researcher`, `reviewer`, `delegate`, `worker`
+`g-explorer`, `g-planner`, `g-tasker`, `g-worker`, `g-reviewer`, `scout`, `oracle`, `researcher`, `reviewer`, `delegate`, `worker`
 
-단계별 키 설명은 `/g-models`를 실행하면 Pi가 안내해 준다.
+단계별 키 설명과 현재 설정 확인은 `/g-config` 또는 `/g-models`를 실행하면 Pi가 안내해 준다.
 
 ---
 
@@ -104,6 +108,7 @@ pi restart
 
 | 커맨드 | 역할 | 산출물 |
 |---|---|---|
+| `/g-explore` | Phase 0: 코드베이스 및 기술 사전 탐색 (선택) | `EXPLORE-<slug>.md` |
 | `/g-plan` | Phase 1 후 기본 파이프라인 | `PLAN` + 자동으로 TASKS/코드/REVIEW |
 | `/g-task` | Phase 2만 강제하거나 이어서 자동 | `TASKS-<slug>.md` |
 | `/g-execute` | Phase 3만 강제하거나 이어서 자동 | 코드 변경 + 체크된 TASKS |
@@ -111,7 +116,8 @@ pi restart
 | `/g-review` | Phase 4 | `REVIEW-<slug>.md` |
 | `/g-commit` | Phase 5: 커밋 (푸시 없음) | git commit |
 | `/g-status` | 진행 상황 보고 | 텍스트 요약 |
-| `/g-models` | 모델 설정 안내 | 텍스트 안내 |
+| `/g-config` | g-workflow 모델/스킬 설정 관리 (`/g-settings`) | 텍스트/대화형 설정 |
+| `/g-models` | 모델 설정 안내 (읽기 전용) | 텍스트 안내 |
 
 PLAN에 막힌 질문(보안·범위·데이터 손실)이 있으면 거기서 멈춘다. 계획만 쓰려면 `/g-plan 계획만`.
 
@@ -121,6 +127,9 @@ PLAN에 막힌 질문(보안·범위·데이터 손실)이 있으면 거기서 �
 
 ## 7. 단계별 모델 바꾸는 법
 
+간편하게 바꾸려면 Pi 세션에서 `/g-config <에이전트> <모델>` 또는 대화형으로 `/g-config`를 실행한다.
+
+직접 편집할 경우:
 1. `~/.pi/agent/settings.json`을 열고 `subagents.agentOverrides` 안의 해당 에이전트 키를 찾는다.
 2. `model`과 `fallbackModels`를 원하는 값으로 바꾼다.
 3. Pi를 재시작하거나 새 대화를 열면 적용된다.

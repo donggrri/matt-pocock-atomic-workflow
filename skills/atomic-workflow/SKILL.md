@@ -1,9 +1,9 @@
 ---
 name: atomic-workflow
 description: >-
-  Runs g-workflow phases (plan, task, execute, review, commit, status).
-  Use when the user invokes /g-plan, /g-task, /g-execute, /g-delegate,
-  /g-review, /g-commit, /g-status, or mentions g-workflow or atomic-workflow.
+  Runs g-workflow phases (explore, plan, task, execute, review, commit, status, config).
+  Use when the user invokes /g-explore, /g-plan, /g-task, /g-execute, /g-delegate,
+  /g-review, /g-commit, /g-status, /g-config, /g-settings, or mentions g-workflow or atomic-workflow.
 ---
 
 # Atomic Workflow (g-workflow)
@@ -33,12 +33,14 @@ Pi 패키지 스킬이다. 프롬프트·에이전트는 이 패키지가 등록
 
 | 단계 | 커맨드 | 산출물 | 다음 |
 |---|---|---|---|
+| 0 | `/g-explore` | `EXPLORE-<slug>.md` | 탐색 보고 후 `/g-plan` 안내 |
 | 1 | `/g-plan` 또는 사용자가 쓴 PLAN | `PLAN-<slug>.md` | 막힌 질문 없으면 **자동** Phase 2 |
 | 2 | (자동) `g-tasker` | `TASKS-<slug>.md` | **자동** Phase 3 |
 | 3 | (자동) `g-worker` | 코드 + 체크된 TASKS | **자동** Phase 4 |
 | 4 | (자동) `g-reviewer` | `REVIEW-<slug>.md` + 테스트 | 보고. 커밋은 수동 |
 | 5 | `/g-commit` | 커밋 (푸시 없음) | 사용자가 원할 때만 PR |
 | — | `/g-status` | 진행 보고 | 이어서 할 커맨드 |
+| — | `/g-config` (`/g-settings`) | 설정 조회 및 대화형 변경 | 설정 확인 및 저장 |
 
 슬러그: 의도에서 만든 짧은 ASCII kebab-case (`space-notes`, `mcp-http`).
 
@@ -73,12 +75,12 @@ PLAN이 있고 막힌 질문(보안·범위·데이터 손실)이 없으면 부�
 
 | 단계 | 에이전트 | 기본 |
 |---|---|---|
-| recon | `scout` | 코드가 낯설 때만 |
+| explore / recon | `g-explorer` / `scout` | 코드가 낯설거나 탐색/리서치 필요 시 |
 | plan | `g-planner` | PLAN이 이미 있으면 건너뜀. 그 외는 항상 자식 |
 | task | `g-tasker` | 항상 자식. `self`를 말한 경우만 직접 |
 | execute | `g-worker` | 항상 자식. `self`를 말한 경우만 직접 |
 | review | `g-reviewer` | 항상 자식 |
-| commit/status | self | 서브에이전트 금지 |
+| commit/status/config | self | 서브에이전트 금지 |
 
 런 로그: `~/.pi/agent/g-workflow/runs/<slug>/`
 증거: `~/.pi/agent/g-workflow/evidence/<YYYY-MM-DD>-<slug>/`
@@ -135,10 +137,18 @@ Pi에서는 워크트리를 만든 뒤 그 경로를 작업 `cwd`로 쓴다. Cur
 - 자격 증명·실토큰은 문서·커밋에 넣지 않는다.
 - 워크플로 설정(`~/.cursor/...`, `~/.pi/...`, `~/.agents/...`)만 고친 세션에서는 제품 문서에 기능 상태를 적지 않는다.
 
+## Phase 0 — Explore
+
+1. 코드베이스 구조, 설정, 기존 `EXPLORE-*.md` / `PLAN-*.md`를 검토한다.
+2. 코드가 낯설거나 아키텍처/외부 라이브러리 리서치가 필요할 때 `/g-explore`를 실행한다.
+3. `subagent`로 `g-explorer`를 `async: true`로 띄워 [reference.md](reference.md) 템플릿으로 `EXPLORE-<slug>.md`를 작성한다 (제품 기능이면 워크스페이스 루트, 워크플로 자체면 `~/.pi/agent/g-workflow/`).
+4. 핵심 대상 파일, 인터페이스/타입, 아키텍처 흐름, 리스크, 권장 방향을 정리한다.
+5. 탐색 완료 후 `/g-plan`으로 이어지도록 안내한다. 코드를 직접 변경하거나 커밋하지 않는다.
+
 ## Phase 1 — Plan
 
-1. 코드·문서·기존 `PLAN-*.md`/`TASKS-*.md`를 읽는다.
-2. 필요하면 웹 검색. 코드가 낯설면 Pi에서 `scout`를 먼저 띄워도 된다.
+1. 코드·문서·기존 `EXPLORE-*.md`/`PLAN-*.md`/`TASKS-*.md`를 읽는다. `EXPLORE-<slug>.md`가 있으면 탐색 결과를 계획에 즉시 반영한다.
+2. 필요하면 웹 검색. 코드가 낯설고 탐색 보고서가 없으면 Pi에서 `g-explorer` 또는 `scout`를 먼저 띄워도 된다.
 3. 워크트리 규칙에 따라 격리 여부를 정한다.
 4. [reference.md](reference.md) 템플릿으로 PLAN 위치 규칙에 따라 `PLAN-<slug>.md`를 쓴다: 제품 기능이면 워크트리(또는 현재 루트), 워크플로 자체면 `~/.pi/agent/g-workflow/`. 사용자가 이미 계획을 줬으면 이 세션이 저장만 한다. 아니면 `g-planner`에게 맡긴다. 그릴링으로 사용자를 붙잡지 않는다.
 5. 한 줄 목표, 하지 않을 것, 의존 순서, 위험, 막힌 질문을 넣는다.
@@ -152,6 +162,7 @@ Pi에서는 워크트리를 만든 뒤 그 경로를 작업 `cwd`로 쓴다. Cur
 
 | 단계 | 에이전트 | 강제 스킬 | 적용 방식 |
 |---|---|---|---|
+| explore | `g-explorer` | `atomic-workflow` | EXPLORE-<slug>.md만 쓴다. 코드베이스 탐색, 인터페이스 식별, 리서치 전담. 코드 수정 금지 |
 | plan | `g-planner` | `atomic-workflow`, `codebase-design` | PLAN만 쓴다. 사용자 인터뷰 금지. 용어/ADR이 필요하면 `domain-modeling` |
 | task | `g-tasker` | `atomic-workflow`, `to-tickets` | 수직 슬라이스·의존만 가져온다. 산출물은 `TASKS-<slug>.md`. 트래커 발행·사용자 퀴즈 금지 |
 | execute | `g-worker` | `atomic-workflow`, `tdd` | 로직은 red→green. 커밋 금지 |
@@ -163,7 +174,7 @@ Pi에서는 워크트리를 만든 뒤 그 경로를 작업 `cwd`로 쓴다. Cur
 
 부모는 파이프라인만 돌린다. 단계 일은 해당 모델의 자식이 한다. Commit만 부모.
 
-Pi 워커: `g-planner` · `g-tasker` · `g-worker` · `g-reviewer` · `scout` · `oracle` · `self`.
+Pi 워커: `g-explorer` · `g-planner` · `g-tasker` · `g-worker` · `g-reviewer` · `scout` · `oracle` · `self`.
 Cursor CLI 워커: `agy` · `codex` · `cursor` · `opencode` · `self`.
 
 1. 사용자가 워커를 지목했거나 TASKS에 `worker:`가 있으면 [workers.md](workers.md)를 읽는다. 기본 구현 워커는 `g-worker`.
