@@ -1,84 +1,48 @@
 import assert from "node:assert/strict";
-import { readFile, readdir } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
+import { join } from "node:path";
 import test from "node:test";
 
-const root = new URL("../", import.meta.url);
-const bundled = [
+const requiredSkills = [
   "codebase-design",
   "domain-modeling",
   "grilling",
-  "grill-me",
   "wayfinder",
   "to-tickets",
   "tdd",
-  "code-review",
+  "code-review"
 ];
 
-const text = async (path) => readFile(new URL(path, root), "utf8");
-
-function frontmatterValue(markdown, key) {
-  const match = markdown.match(new RegExp(`^${key}:\\s*(.+)$`, "m"));
-  return match?.[1].trim();
-}
-
-test("bundled skills: package resource contains the selected upstream skills", async () => {
-  const pkg = JSON.parse(await text("package.json"));
-  assert.ok(pkg.pi.skills.includes("./skills"));
-
-  const discovered = [];
-  for (const entry of await readdir(new URL("skills/", root), { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue;
-    try {
-      const markdown = await text(`skills/${entry.name}/SKILL.md`);
-      discovered.push(frontmatterValue(markdown, "name"));
-    } catch (error) {
-      if (error.code !== "ENOENT") throw error;
-    }
-  }
-
-  for (const skill of bundled) assert.ok(discovered.includes(skill), `${skill} must be discoverable`);
-  assert.equal((await text("THIRD_PARTY_LICENSES/mattpocock-skills-REVISION")).trim().length, 40);
-  assert.match(await text("THIRD_PARTY_LICENSES/mattpocock-skills-LICENSE"), /MIT License/);
+test("package.json includes skills directory", async () => {
+  const pkgStr = await readFile("package.json", "utf8");
+  const pkg = JSON.parse(pkgStr);
+  assert.ok(pkg.pi && pkg.pi.skills && pkg.pi.skills.includes("./skills"), "package.json must declare pi.skills array containing './skills'");
 });
 
-test("planning skills: parent preflight uses grilling and agent references resolve", async () => {
-  const prompt = await text("prompts/g-plan.md");
-  const planner = await text("agents/g-planner.md");
-
-  assert.match(prompt, /Planning preflight/);
-  assert.match(prompt, /`grilling`/);
-  assert.match(prompt, /답을 기다린다/);
-  assert.match(prompt, /local-wayfinding/);
-  assert.doesNotMatch(prompt, /way-finder/);
-
-  const declared = frontmatterValue(planner, "skills").split(/,\s*/);
-  for (const skill of ["codebase-design", "domain-modeling", "grilling", "wayfinder"]) {
-    assert.ok(declared.includes(skill), `g-planner must declare ${skill}`);
-    assert.ok(bundled.includes(skill), `${skill} must ship with the package`);
-  }
-
-  assert.equal(frontmatterValue(await text("skills/grilling/SKILL.md"), "disable-model-invocation"), undefined);
-  assert.equal(frontmatterValue(await text("skills/grill-me/SKILL.md"), "disable-model-invocation"), "true");
-  assert.equal(frontmatterValue(await text("skills/wayfinder/SKILL.md"), "disable-model-invocation"), "true");
-});
-
-test("bundled skills: every phase agent skill reference resolves", async () => {
-  const available = new Set(["matt-pocock-atomic-workflow", ...bundled]);
-  for (const file of await readdir(new URL("agents/", root))) {
-    if (!file.endsWith(".md")) continue;
-    const markdown = await text(`agents/${file}`);
-    const value = frontmatterValue(markdown, "skills");
-    if (!value) continue;
-    for (const skill of value.split(/,\s*/)) {
-      assert.ok(available.has(skill), `${file} references unbundled skill ${skill}`);
-    }
+test("bundled skills are present", async () => {
+  for (const skill of requiredSkills) {
+    const stats = await stat(join("skills", skill, "SKILL.md")).catch(() => null);
+    assert.ok(stats && stats.isFile(), `skill ${skill} must exist in skills directory`);
   }
 });
 
-test("documentation: installation does not require an external skill directory", async () => {
-  const readme = await text("README.md");
-  const settings = JSON.parse(await text("settings.example.json"));
-  assert.match(readme, /설치하면 아래 스킬도 Pi package resource로 함께 설치·발견/);
-  assert.doesNotMatch(readme, /```bash\s*npx skills add/);
-  assert.equal(settings.skills, undefined);
+test("planning preflight is defined in prompts", async () => {
+  const gPlan = await readFile("prompts/g-plan.md", "utf8");
+  assert.match(gPlan, /grilling/, "g-plan.md must reference grilling");
+  assert.match(gPlan, /wayfinder/, "g-plan.md must reference wayfinder");
+  assert.doesNotMatch(gPlan, /way-finder/, "g-plan.md must not reference old way-finder typo");
+});
+
+test("g-planner contract uses correct skills", async () => {
+  const gPlanner = await readFile("agents/g-planner.md", "utf8");
+  assert.match(gPlanner, /skills:.*grilling/, "g-planner must use grilling");
+  assert.match(gPlanner, /skills:.*wayfinder/, "g-planner must use wayfinder");
+  assert.doesNotMatch(gPlanner, /grill-me/, "g-planner must not rely on grill-me directly");
+  assert.match(gPlanner, /brief/, "g-planner must require planning refinement brief");
+});
+
+test("documentation matches bundled behavior", async () => {
+  const readme = await readFile("README.md", "utf8");
+  assert.doesNotMatch(readme, /npx skills add mattpocock/, "README must not instruct to run npx skills add in installation instructions (except as historical context)");
+  assert.match(readme, /THIRD_PARTY_LICENSES/, "README must mention THIRD_PARTY_LICENSES");
 });

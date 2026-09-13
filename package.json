@@ -1,10 +1,10 @@
 {
   "name": "matt-pocock-atomic-workflow",
   "private": true,
-  "scripts": {
-    "test": "node --test"
-  },
   "keywords": ["pi-package"],
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  },
   "pi": {
     "skills": ["./skills"],
     "prompts": ["./prompts"],
