@@ -9,7 +9,7 @@ description: g-workflow 단계별 모델 설정을 안내한다.
 
 | 단계 | 에이전트 | 강제 스킬 | `agentOverrides` 키 |
 |---|---|---|---|
-| explore / recon | `g-explorer` / `scout` | `atomic-workflow` | `g-explorer`, `scout` |
+| explore / recon | `g-explorer` / `scout` | `atomic-pocock-workflow` | `g-explorer`, `scout` |
 | plan | `g-planner` | `codebase-design` | `g-planner` |
 | task | `g-tasker` | `to-tickets` | `g-tasker` |
 | execute | `g-worker` | `tdd` | `g-worker` |

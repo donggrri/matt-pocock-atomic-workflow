@@ -65,7 +65,7 @@ Cursor/Antigravity는 확장 프로바이더라서 이 모델들을 쓰는 자�
 
 절대 경로:
 
-`$env:USERPROFILE\.agents\skills\atomic-workflow\scripts\...`
+`$env:USERPROFILE\.agents\skills\atomic-pocock-workflow\scripts\...`
 
 | 워커 | CLI | 비대화형 |
 |---|---|---|
@@ -80,7 +80,7 @@ Cursor/Antigravity는 확장 프로바이더라서 이 모델들을 쓰는 자�
 설치:
 
 ```powershell
-& "$env:USERPROFILE\.agents\skills\atomic-workflow\scripts\ensure-workers.ps1" -Workers agy,codex
+& "$env:USERPROFILE\.agents\skills\atomic-pocock-workflow\scripts\ensure-workers.ps1" -Workers agy,codex
 ```
 
 없는 것만 설치한다.
@@ -98,7 +98,7 @@ Cursor/Antigravity는 확장 프로바이더라서 이 모델들을 쓰는 자�
 브리프는 `~/.cursor/g-workflow/runs/<slug>/<task-id>.brief.md`.
 
 ```powershell
-$skill = Join-Path $env:USERPROFILE ".agents\skills\atomic-workflow\scripts"
+$skill = Join-Path $env:USERPROFILE ".agents\skills\atomic-pocock-workflow\scripts"
 $runs = Join-Path $env:USERPROFILE ".cursor\g-workflow\runs\<slug>"
 New-Item -ItemType Directory -Force -Path $runs | Out-Null
 

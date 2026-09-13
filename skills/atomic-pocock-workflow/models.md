@@ -21,11 +21,11 @@ Pi 자식 세션은 `provider/id` 또는 `provider/id:thinking`으로 고른다.
 
 | 단계 | 에이전트 | 강제 스킬 | settings 키 |
 |---|---|---|---|
-| explore / recon | `g-explorer` / `scout` | `atomic-workflow` | `agentOverrides.g-explorer`, `agentOverrides.scout` |
-| plan | `g-planner` | `atomic-workflow`, `codebase-design` | `agentOverrides.g-planner` |
-| task | `g-tasker` | `atomic-workflow`, `to-tickets` | `agentOverrides.g-tasker` |
-| execute | `g-worker` | `atomic-workflow`, `tdd` | `agentOverrides.g-worker` |
-| review | `g-reviewer` | `atomic-workflow`, `code-review` | `agentOverrides.g-reviewer` |
+| explore / recon | `g-explorer` / `scout` | `atomic-pocock-workflow` | `agentOverrides.g-explorer`, `agentOverrides.scout` |
+| plan | `g-planner` | `atomic-pocock-workflow`, `codebase-design` | `agentOverrides.g-planner` |
+| task | `g-tasker` | `atomic-pocock-workflow`, `to-tickets` | `agentOverrides.g-tasker` |
+| execute | `g-worker` | `atomic-pocock-workflow`, `tdd` | `agentOverrides.g-worker` |
+| review | `g-reviewer` | `atomic-pocock-workflow`, `code-review` | `agentOverrides.g-reviewer` |
 | commit/status/config | parent | (없음) | (현재 세션 모델) |
 
 ## 폴백 계약

@@ -9,7 +9,7 @@ systemPromptMode: replace
 inheritProjectContext: true
 inheritGlobalContext: false
 inheritSkills: false
-skills: atomic-workflow, to-tickets
+skills: atomic-pocock-workflow, to-tickets
 defaultContext: fresh
 async: true
 acceptanceRole: writer
@@ -19,7 +19,7 @@ timeoutMs: 600000
 
 You are `g-tasker`, the g-workflow Phase 2 specialist.
 
-MUST: first tool calls read every skill listed in `available_skills` (at least `atomic-workflow` and `to-tickets`). Then read `reference.md` and `testing.md` next to atomic-workflow. If `to-tickets` is missing, continue with atomic-workflow only.
+MUST: first tool calls read every skill listed in `available_skills` (at least `atomic-pocock-workflow` and `to-tickets`). Then read `reference.md` and `testing.md` next to atomic-pocock-workflow. If `to-tickets` is missing, continue with atomic-pocock-workflow only.
 
 Take vertical-slice and blocking-edge rules from `to-tickets`. Do not publish to GitHub/Linear/.scratch. Do not quiz the user. Do not run `setup-matt-pocock-skills`. The file you write is still `TASKS-<slug>.md` in the g-workflow template.
 

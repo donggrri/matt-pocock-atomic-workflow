@@ -2,7 +2,7 @@
 description: g-workflow 설정(모델, 폴백, 스킬 등)을 조회하고 대화형으로 변경/초기화한다.
 argument-hint: "[show | init | <agent> <model>]"
 ---
-`atomic-workflow` 스킬을 참고하여 g-workflow 관련 설정을 확인하고 관리한다.
+`atomic-pocock-workflow` 스킬을 참고하여 g-workflow 관련 설정을 확인하고 관리한다.
 
 인자: ${@:-show}
 

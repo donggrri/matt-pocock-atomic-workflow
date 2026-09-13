@@ -1,4 +1,4 @@
-# g-workflow
+# atomic-pocock-workflow
 
 Pi 기반 코딩 워크플로 패키지.  
 `/g-explore`(선택) → `/g-plan` → `/g-task` → `/g-execute` → `/g-review` → `/g-commit`
@@ -82,7 +82,7 @@ agy          # 최초 한 번 대화형 인증 (이후 불필요)
 ```bash
 rm ~/.pi/agent/agents/g-*.md
 rm ~/.pi/agent/prompts/g-*.md
-rm -rf ~/.agents/skills/atomic-workflow
+rm -rf ~/.agents/skills/atomic-pocock-workflow
 ```
 
 > **주의**: 삭제하기 전에 내용을 이 저장소의 파일과 비교해서 차이가 있으면 먼저 병합한다.
@@ -167,7 +167,7 @@ PLAN에 막힌 질문(보안·범위·데이터 손실)이 있으면 거기서 �
 
 | 단계 | 에이전트 | 강제 스킬 |
 |---|---|---|
-| plan | `g-planner` | `codebase-design` |
+| plan | `g-planner` | `codebase-design`, `way-finder`, `grill-me` |
 | task | `g-tasker` | `to-tickets` (산출물은 `TASKS-<slug>.md`) |
 | execute | `g-worker` | `tdd` |
 | review | `g-reviewer` | `code-review` (손자 없이 두 축) |
@@ -178,4 +178,4 @@ npx skills add mattpocock/skills
 
 스킬이 `~/.codex/skills`에 있으면 `settings.json`에 `"skills": ["~/.codex/skills"]`를 넣는다.
 
-없어도 g-workflow는 atomic-workflow만으로 동작한다. `setup-matt-pocock-skills`는 레포 최초 1회만. `grill-me`와 `implement`(커밋)는 자동 파이프라인에 넣지 않는다.
+없어도 g-workflow는 atomic-pocock-workflow만으로 동작한다. `setup-matt-pocock-skills`는 레포 최초 1회만. `grill-me`와 `implement`(커밋)는 자동 파이프라인에 넣지 않는다.

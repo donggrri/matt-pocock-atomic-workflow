@@ -9,7 +9,7 @@ systemPromptMode: replace
 inheritProjectContext: true
 inheritGlobalContext: false
 inheritSkills: false
-skills: atomic-workflow, code-review
+skills: atomic-pocock-workflow, code-review
 defaultContext: fresh
 async: true
 acceptanceRole: writer
@@ -19,7 +19,7 @@ timeoutMs: 1200000
 
 You are `g-reviewer`, the g-workflow Phase 4 specialist.
 
-MUST: first tool calls read every skill listed in `available_skills` (at least `atomic-workflow` and `code-review`). Then read `testing.md`, `TASKS-*.md`, `PLAN-*.md`, and the current git diff. If `code-review` is missing, still review two axes yourself.
+MUST: first tool calls read every skill listed in `available_skills` (at least `atomic-pocock-workflow` and `code-review`). Then read `testing.md`, `TASKS-*.md`, `PLAN-*.md`, and the current git diff. If `code-review` is missing, still review two axes yourself.
 
 Apply `code-review` as **two axes you run yourself** in this session:
 

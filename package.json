@@ -1,5 +1,5 @@
 {
-  "name": "g-workflow",
+  "name": "atomic-pocock-workflow",
   "private": true,
   "keywords": ["pi-package"],
   "pi": {

@@ -1,14 +1,14 @@
 ---
-name: atomic-workflow
+name: atomic-pocock-workflow
 description: >-
   Runs g-workflow phases (explore, plan, task, execute, review, commit, status, config).
   Use when the user invokes /g-explore, /g-plan, /g-task, /g-execute, /g-delegate,
-  /g-review, /g-commit, /g-status, /g-config, /g-settings, or mentions g-workflow or atomic-workflow.
+  /g-review, /g-commit, /g-status, /g-config, /g-settings, or mentions g-workflow or atomic-pocock-workflow.
 ---
 
 # Atomic Workflow (g-workflow)
 
-Pi 패키지 스킬이다. 프롬프트·에이전트는 이 패키지가 등록한다. `~/.agents/skills/atomic-workflow`, `~/.pi/agent/prompts/g-*.md`, `~/.pi/agent/agents/g-*.md`를 남겨 두면 패키지가 가려지고 충돌 경고가 난다.
+Pi 패키지 스킬이다. 프롬프트·에이전트는 이 패키지가 등록한다. `~/.agents/skills/atomic-pocock-workflow`, `~/.pi/agent/prompts/g-*.md`, `~/.pi/agent/agents/g-*.md`를 남겨 두면 패키지가 가려지고 충돌 경고가 난다.
 
 사용자에게는 한국어로 말한다. 템플릿은 [reference.md](reference.md), 위임은 [workers.md](workers.md), 모델은 [models.md](models.md), 테스트는 [testing.md](testing.md)를 이 파일을 읽은 뒤에만 연다.
 
@@ -26,7 +26,7 @@ Pi 패키지 스킬이다. 프롬프트·에이전트는 이 패키지가 등록
 
 워크플로 자체일 때 같이 맞추는 파일 목록:
 
-- 패키지 저장소: `skills/atomic-workflow/`, `prompts/`, `agents/`, `README.md`, `settings.example.json`
+- 패키지 저장소: `skills/atomic-pocock-workflow/`, `prompts/`, `agents/`, `README.md`, `settings.example.json`
 - 필요하면 `~/.pi/agent/settings.json`의 `packages`와 `subagents`
 
 ## 단계
@@ -65,7 +65,7 @@ PLAN이 있고 막힌 질문(보안·범위·데이터 손실)이 없으면 부�
 
 사용자가 이미 `PLAN-<slug>.md`를 써 두었거나 메시지에 계획을 주면 Phase 1 자식을 건너뛴다. `/g-plan`에 의도만 있으면 `g-planner`가 PLAN을 쓴 뒤 위 루프로 들어간다.
 
-자식을 띄울 때 task **첫 줄**에 강제 스킬 경로를 적는다. 부모의 `available_skills`에서 찾고, 없으면 「이 스킬 없음. atomic-workflow만으로 진행」이라고 적는다. 브리프에 비밀·토큰·`.env`를 넣지 않는다.
+자식을 띄울 때 task **첫 줄**에 강제 스킬 경로를 적는다. 부모의 `available_skills`에서 찾고, 없으면 「이 스킬 없음. atomic-pocock-workflow만으로 진행」이라고 적는다. 브리프에 비밀·토큰·`.env`를 넣지 않는다.
 
 ## 하네스
 
@@ -158,15 +158,15 @@ Pi에서는 워크트리를 만든 뒤 그 경로를 작업 `cwd`로 쓴다. Cur
 
 스킬에는 모델이 없다. 모델은 `settings.json`의 `subagents.agentOverrides.<에이전트>`에만 있다. 그래서 단계 에이전트를 유지하고, 그 에이전트가 스킬을 읽도록 강제한다.
 
-자식 frontmatter: `inheritSkills: false` + 아래 `skills`. 없으면 atomic-workflow만으로 진행한다. `setup-matt-pocock-skills`는 레포 최초 1회이며 매 단계마다 돌리지 않는다. `grill-me` / `implement`는 자동 파이프라인에 넣지 않는다.
+자식 frontmatter: `inheritSkills: false` + 아래 `skills`. 없으면 atomic-pocock-workflow만으로 진행한다. `setup-matt-pocock-skills`는 레포 최초 1회이며 매 단계마다 돌리지 않는다. `implement`는 자동 파이프라인에 넣지 않는다.
 
 | 단계 | 에이전트 | 강제 스킬 | 적용 방식 |
 |---|---|---|---|
-| explore | `g-explorer` | `atomic-workflow` | EXPLORE-<slug>.md만 쓴다. 코드베이스 탐색, 인터페이스 식별, 리서치 전담. 코드 수정 금지 |
-| plan | `g-planner` | `atomic-workflow`, `codebase-design` | PLAN만 쓴다. 사용자 인터뷰 금지. 용어/ADR이 필요하면 `domain-modeling` |
-| task | `g-tasker` | `atomic-workflow`, `to-tickets` | 수직 슬라이스·의존만 가져온다. 산출물은 `TASKS-<slug>.md`. 트래커 발행·사용자 퀴즈 금지 |
-| execute | `g-worker` | `atomic-workflow`, `tdd` | 로직은 red→green. 커밋 금지 |
-| review | `g-reviewer` | `atomic-workflow`, `code-review` | Standards / Spec 두 축을 **이 에이전트가 직접**. Spec = PLAN+TASKS. 손자 금지. 산출물은 `REVIEW-<slug>.md` |
+| explore | `g-explorer` | `atomic-pocock-workflow` | EXPLORE-<slug>.md만 쓴다. 코드베이스 탐색, 인터페이스 식별, 리서치 전담. 코드 수정 금지 |
+| plan | `g-planner` | `atomic-pocock-workflow`, `codebase-design`, `way-finder`, `grill-me` | PLAN만 쓴다. 필요 시 `grill-me`로 모호함을 해소하고 `way-finder`로 대안을 검토. 용어/ADR이 필요하면 `domain-modeling` |
+| task | `g-tasker` | `atomic-pocock-workflow`, `to-tickets` | 수직 슬라이스·의존만 가져온다. 산출물은 `TASKS-<slug>.md`. 트래커 발행·사용자 퀴즈 금지 |
+| execute | `g-worker` | `atomic-pocock-workflow`, `tdd` | 로직은 red→green. 커밋 금지 |
+| review | `g-reviewer` | `atomic-pocock-workflow`, `code-review` | Standards / Spec 두 축을 **이 에이전트가 직접**. Spec = PLAN+TASKS. 손자 금지. 산출물은 `REVIEW-<slug>.md` |
 
 설치: `npx skills add mattpocock/skills`. 이 머신처럼 `~/.codex/skills`에 있으면 Pi `settings.json`의 `skills` 배열에 그 경로를 넣는다.
 

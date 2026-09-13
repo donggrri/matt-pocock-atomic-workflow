@@ -1,7 +1,7 @@
 ---
 description: g-workflow 진행 상태를 보고한다.
 ---
-`atomic-workflow` 스킬을 읽고 상태만 보고한다.
+`atomic-pocock-workflow` 스킬을 읽고 상태만 보고한다.
 
 파일을 고치거나 커밋하지 마라. 서브에이전트를 띄우지 마라.
 

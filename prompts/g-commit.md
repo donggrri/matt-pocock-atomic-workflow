@@ -2,7 +2,7 @@
 description: g-workflow Phase 5. 커밋만 한다. 푸시 없음.
 argument-hint: "[message]"
 ---
-`atomic-workflow` 스킬을 읽고 Phase 5를 수행한다.
+`atomic-pocock-workflow` 스킬을 읽고 Phase 5를 수행한다.
 
 이 단계는 서브에이전트에 넘기지 마라. 이 세션이 직접 커밋한다.
 
