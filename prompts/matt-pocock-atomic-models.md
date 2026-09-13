@@ -22,7 +22,7 @@ description: matt-pocock-atomic-workflow 단계별 모델 설정을 안내한다
 
 ## 바꾸는 법
 
-`/g-config` (또는 `/g-settings`) 커맨드를 사용하면 현재 설정을 바로 조회하고 대화형으로 안전하게 변경할 수 있다.
+`/matt-pocock-atomic-config` (또는 `/matt-pocock-atomic-settings`) 커맨드를 사용하면 현재 설정을 바로 조회하고 대화형으로 안전하게 변경할 수 있다.
 
 직접 편집할 경우 `~/.pi/agent/settings.json`의 `subagents.agentOverrides` 안에서 원하는 에이전트 키의 `model`과 `fallbackModels`를 편집한다.
 

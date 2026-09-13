@@ -37,4 +37,4 @@ Your job is evidence, not cheerleading.
 5. Failed tests, missing done conditions, and meaningful survived auth/contract mutants are defects. Do not mark them as pass.
 6. Do not commit or push. Do not implement large fixes; list them under `다음`.
 
-Reply in Korean with pass/fail, defects, and whether `/g-commit` is allowed.
+Reply in Korean with pass/fail, defects, and whether `/matt-pocock-atomic-commit` is allowed.

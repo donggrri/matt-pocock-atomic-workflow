@@ -1,7 +1,9 @@
+[English](README.en.md) | 한국어
+
 # matt-pocock-atomic-workflow
 
 Pi 기반 코딩 워크플로 패키지.  
-`/g-explore`(선택) → `/g-plan` → `/g-task` → `/g-execute` → `/g-review` → `/g-commit`
+`/matt-pocock-atomic-explore`(선택) → `/matt-pocock-atomic-plan` → `/matt-pocock-atomic-task` → `/matt-pocock-atomic-execute` → `/matt-pocock-atomic-review` → `/matt-pocock-atomic-commit`
 
 ---
 
@@ -32,7 +34,7 @@ pi install git:github.com/donggrri/matt-pocock-atomic-workflow
 
 ## 2. settings.json 병합
 
-`settings.example.json`을 복사해서 `~/.pi/agent/settings.json`에 병합한다. (또는 Pi에서 `/g-config init` 실행)
+`settings.example.json`을 복사해서 `~/.pi/agent/settings.json`에 병합한다. (또는 Pi에서 `/matt-pocock-atomic-config init` 실행)
 
 ```bash
 # settings.json이 없으면 그대로 복사
@@ -60,7 +62,7 @@ mv /tmp/merged.json ~/.pi/agent/settings.json
 사용 가능한 에이전트 키:  
 `g-explorer`, `g-planner`, `g-tasker`, `g-worker`, `g-reviewer`, `scout`, `oracle`, `researcher`, `reviewer`, `delegate`, `worker`
 
-단계별 키 설명과 현재 설정 확인은 `/g-config` 또는 `/g-models`를 실행하면 Pi가 안내해 준다.
+단계별 키 설명과 현재 설정 확인은 `/matt-pocock-atomic-config` 또는 `/matt-pocock-atomic-models`를 실행하면 Pi가 안내해 준다.
 
 ---
 
@@ -81,7 +83,7 @@ agy          # 최초 한 번 대화형 인증 (이후 불필요)
 
 ```bash
 rm ~/.pi/agent/agents/g-*.md
-rm ~/.pi/agent/prompts/g-*.md
+rm ~/.pi/agent/prompts/g-*.md ~/.pi/agent/prompts/matt-pocock-atomic-*.md
 rm -rf ~/.agents/skills/matt-pocock-atomic-workflow
 ```
 
@@ -98,28 +100,28 @@ pi restart
 # 또는 Pi 앱을 재시작한다
 ```
 
-재시작 후 `/g-plan` 커맨드가 뜨면 설치 완료.
+재시작 후 `/matt-pocock-atomic-plan` 커맨드가 뜨면 설치 완료.
 
 ---
 
 ## 6. 사용법
 
-기본: **PLAN만 확정하면** task → execute → review가 자동이다. 커밋은 `/g-commit`일 때만.
+기본: **PLAN만 확정하면** task → execute → review가 자동이다. 커밋은 `/matt-pocock-atomic-commit`일 때만.
 
 | 커맨드 | 역할 | 산출물 |
 |---|---|---|
-| `/g-explore` | Phase 0: 코드베이스 및 기술 사전 탐색 (선택) | `EXPLORE-<slug>.md` |
-| `/g-plan` | Phase 1 후 기본 파이프라인 | `PLAN` + 자동으로 TASKS/코드/REVIEW |
-| `/g-task` | Phase 2만 강제하거나 이어서 자동 | `TASKS-<slug>.md` |
-| `/g-execute` | Phase 3만 강제하거나 이어서 자동 | 코드 변경 + 체크된 TASKS |
-| `/g-delegate` | Phase 3: 특정 워커에 위임 | 같음 |
-| `/g-review` | Phase 4 | `REVIEW-<slug>.md` |
-| `/g-commit` | Phase 5: 커밋 (푸시 없음) | git commit |
-| `/g-status` | 진행 상황 보고 | 텍스트 요약 |
-| `/g-config` | matt-pocock-atomic-workflow 모델/스킬 설정 관리 (`/g-settings`) | 텍스트/대화형 설정 |
-| `/g-models` | 모델 설정 안내 (읽기 전용) | 텍스트 안내 |
+| `/matt-pocock-atomic-explore` | Phase 0: 코드베이스 및 기술 사전 탐색 (선택) | `EXPLORE-<slug>.md` |
+| `/matt-pocock-atomic-plan` | Phase 1 후 기본 파이프라인 | `PLAN` + 자동으로 TASKS/코드/REVIEW |
+| `/matt-pocock-atomic-task` | Phase 2만 강제하거나 이어서 자동 | `TASKS-<slug>.md` |
+| `/matt-pocock-atomic-execute` | Phase 3만 강제하거나 이어서 자동 | 코드 변경 + 체크된 TASKS |
+| `/matt-pocock-atomic-delegate` | Phase 3: 특정 워커에 위임 | 같음 |
+| `/matt-pocock-atomic-review` | Phase 4 | `REVIEW-<slug>.md` |
+| `/matt-pocock-atomic-commit` | Phase 5: 커밋 (푸시 없음) | git commit |
+| `/matt-pocock-atomic-status` | 진행 상황 보고 | 텍스트 요약 |
+| `/matt-pocock-atomic-config` | matt-pocock-atomic-workflow 모델/스킬 설정 관리 (`/matt-pocock-atomic-settings`) | 텍스트/대화형 설정 |
+| `/matt-pocock-atomic-models` | 모델 설정 안내 (읽기 전용) | 텍스트 안내 |
 
-PLAN에 막힌 질문(보안·범위·데이터 손실)이 있으면 거기서 멈춘다. 계획만 쓰려면 `/g-plan 계획만`.
+PLAN에 막힌 질문(보안·범위·데이터 손실)이 있으면 거기서 멈춘다. 계획만 쓰려면 `/matt-pocock-atomic-plan 계획만`.
 
 단계마다 다른 모델을 쓰려면 `settings.json`의 `subagents.agentOverrides`에서 에이전트별로 고른다. 스킬 자체에는 모델을 붙일 수 없다.
 
@@ -127,7 +129,7 @@ PLAN에 막힌 질문(보안·범위·데이터 손실)이 있으면 거기서 �
 
 ## 7. 단계별 모델 바꾸는 법
 
-간편하게 바꾸려면 Pi 세션에서 `/g-config <에이전트> <모델>` 또는 대화형으로 `/g-config`를 실행한다.
+간편하게 바꾸려면 Pi 세션에서 `/matt-pocock-atomic-config <에이전트> <모델>` 또는 대화형으로 `/matt-pocock-atomic-config`를 실행한다.
 
 직접 편집할 경우:
 1. `~/.pi/agent/settings.json`을 열고 `subagents.agentOverrides` 안의 해당 에이전트 키를 찾는다.
@@ -148,7 +150,7 @@ PLAN에 막힌 질문(보안·범위·데이터 손실)이 있으면 거기서 �
 ```
 
 **에이전트 `.md` 파일을 직접 고치지 말 것.** frontmatter에 `model` 키를 넣으면 settings override가 무시된다.  
-자세한 안내는 `/g-models`.
+자세한 안내는 `/matt-pocock-atomic-models`.
 
 ---
 
@@ -173,6 +175,6 @@ PLAN에 막힌 질문(보안·범위·데이터 손실)이 있으면 거기서 �
 | execute | `g-worker` | `tdd` |
 | review | `g-reviewer` | `code-review` (손자 없이 두 축) |
 
-`grill-me`와 `wayfinder`는 upstream에서 `disable-model-invocation: true`인 사용자 호출용 orchestrator다. 따라서 `/g-plan`은 `grill-me`가 위임하는 model-invoked `grilling`을 부모 단계에서 직접 읽고 실행한다. 큰 작업은 기본적으로 tracker 없는 `local-wayfinding`으로 분류하며, upstream `wayfinder` tracker 흐름은 사용자가 명시한 경우에만 사용한다.
+`grill-me`와 `wayfinder`는 upstream에서 `disable-model-invocation: true`인 사용자 호출용 orchestrator다. 따라서 `/matt-pocock-atomic-plan`은 `grill-me`가 위임하는 model-invoked `grilling`을 부모 단계에서 직접 읽고 실행한다. 큰 작업은 기본적으로 tracker 없는 `local-wayfinding`으로 분류하며, upstream `wayfinder` tracker 흐름은 사용자가 명시한 경우에만 사용한다.
 
 번들 snapshot의 원본 저장소, revision, MIT 라이선스는 `THIRD_PARTY_LICENSES/mattpocock-skills-*`에 기록되어 있다. upstream을 갱신할 때는 선정 디렉터리를 함께 갱신하고 `npm test`로 에이전트 참조를 검증한다.

@@ -108,7 +108,7 @@ git worktree list
 ## 검증
 
 - 자동: `npm test`
-- mutation: `/g-review`에서 이번 로직 파일만 (`npx stryker run --mutate <파일>`)
+- mutation: `/matt-pocock-atomic-review`에서 이번 로직 파일만 (`npx stryker run --mutate <파일>`)
 - 수동: <있을 때만 `tests/release/*.md`>
 
 ## 문서
@@ -196,7 +196,7 @@ TASKS: TASKS-<slug>.md
 
 ## 다음
 
-`/g-commit` 가능. 또는 고칠 항목.
+`/matt-pocock-atomic-commit` 가능. 또는 고칠 항목.
 ```
 
 ## 증거 아카이브

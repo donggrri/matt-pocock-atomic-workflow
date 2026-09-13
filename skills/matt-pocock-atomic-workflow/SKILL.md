@@ -2,13 +2,13 @@
 name: matt-pocock-atomic-workflow
 description: >-
   Runs matt-pocock-atomic-workflow phases (explore, plan, task, execute, review, commit, status, config).
-  Use when the user invokes /g-explore, /g-plan, /g-task, /g-execute, /g-delegate,
-  /g-review, /g-commit, /g-status, /g-config, /g-settings, or mentions matt-pocock-atomic-workflow or matt-pocock-atomic-workflow.
+  Use when the user invokes /matt-pocock-atomic-explore, /matt-pocock-atomic-plan, /matt-pocock-atomic-task, /matt-pocock-atomic-execute, /matt-pocock-atomic-delegate,
+  /matt-pocock-atomic-review, /matt-pocock-atomic-commit, /matt-pocock-atomic-status, /matt-pocock-atomic-config, /matt-pocock-atomic-settings, or mentions matt-pocock-atomic-workflow or matt-pocock-atomic-workflow.
 ---
 
 # Atomic Workflow (matt-pocock-atomic-workflow)
 
-Pi 패키지 스킬이다. 프롬프트·에이전트는 이 패키지가 등록한다. `~/.agents/skills/matt-pocock-atomic-workflow`, `~/.pi/agent/prompts/g-*.md`, `~/.pi/agent/agents/g-*.md`를 남겨 두면 패키지가 가려지고 충돌 경고가 난다.
+Pi 패키지 스킬이다. 프롬프트·에이전트는 이 패키지가 등록한다. `~/.agents/skills/matt-pocock-atomic-workflow`, `~/.pi/agent/prompts/g-*.md`, `~/.pi/agent/prompts/matt-pocock-atomic-*.md`, `~/.pi/agent/agents/g-*.md`를 남겨 두면 패키지가 가려지고 충돌 경고가 난다.
 
 사용자에게는 한국어로 말한다. 템플릿은 [reference.md](reference.md), 위임은 [workers.md](workers.md), 모델은 [models.md](models.md), 테스트는 [testing.md](testing.md)를 이 파일을 읽은 뒤에만 연다.
 
@@ -33,14 +33,14 @@ Pi 패키지 스킬이다. 프롬프트·에이전트는 이 패키지가 등록
 
 | 단계 | 커맨드 | 산출물 | 다음 |
 |---|---|---|---|
-| 0 | `/g-explore` | `EXPLORE-<slug>.md` | 탐색 보고 후 `/g-plan` 안내 |
-| 1 | `/g-plan` 또는 사용자가 쓴 PLAN | `PLAN-<slug>.md` | 막힌 질문 없으면 **자동** Phase 2 |
+| 0 | `/matt-pocock-atomic-explore` | `EXPLORE-<slug>.md` | 탐색 보고 후 `/matt-pocock-atomic-plan` 안내 |
+| 1 | `/matt-pocock-atomic-plan` 또는 사용자가 쓴 PLAN | `PLAN-<slug>.md` | 막힌 질문 없으면 **자동** Phase 2 |
 | 2 | (자동) `g-tasker` | `TASKS-<slug>.md` | **자동** Phase 3 |
 | 3 | (자동) `g-worker` | 코드 + 체크된 TASKS | **자동** Phase 4 |
 | 4 | (자동) `g-reviewer` | `REVIEW-<slug>.md` + 테스트 | 보고. 커밋은 수동 |
-| 5 | `/g-commit` | 커밋 (푸시 없음) | 사용자가 원할 때만 PR |
-| — | `/g-status` | 진행 보고 | 이어서 할 커맨드 |
-| — | `/g-config` (`/g-settings`) | 설정 조회 및 대화형 변경 | 설정 확인 및 저장 |
+| 5 | `/matt-pocock-atomic-commit` | 커밋 (푸시 없음) | 사용자가 원할 때만 PR |
+| — | `/matt-pocock-atomic-status` | 진행 보고 | 이어서 할 커맨드 |
+| — | `/matt-pocock-atomic-config` (`/matt-pocock-atomic-settings`) | 설정 조회 및 대화형 변경 | 설정 확인 및 저장 |
 
 슬러그: 의도에서 만든 짧은 ASCII kebab-case (`space-notes`, `mcp-http`).
 
@@ -61,9 +61,9 @@ PLAN이 있고 막힌 질문(보안·범위·데이터 손실)이 없으면 부�
 - PLAN에 막힌 질문이 있다
 - 사용자가 「계획만」/「태스크만」/「구현만」이라고 했다
 - 항목 `done`이 실패했다
-- `/g-commit` 또는 「커밋해」가 없다 → 커밋하지 않는다
+- `/matt-pocock-atomic-commit` 또는 「커밋해」가 없다 → 커밋하지 않는다
 
-사용자가 이미 `PLAN-<slug>.md`를 써 두었거나 메시지에 계획을 주면 Phase 1 자식을 건너뛴다. `/g-plan`에 의도만 있으면 `g-planner`가 PLAN을 쓴 뒤 위 루프로 들어간다.
+사용자가 이미 `PLAN-<slug>.md`를 써 두었거나 메시지에 계획을 주면 Phase 1 자식을 건너뛴다. `/matt-pocock-atomic-plan`에 의도만 있으면 `g-planner`가 PLAN을 쓴 뒤 위 루프로 들어간다.
 
 자식을 띄울 때 task **첫 줄**에 강제 스킬 경로를 적는다. 부모의 `available_skills`에서 찾고, 없으면 「이 스킬 없음. matt-pocock-atomic-workflow만으로 진행」이라고 적는다. 브리프에 비밀·토큰·`.env`를 넣지 않는다.
 
@@ -140,10 +140,10 @@ Pi에서는 워크트리를 만든 뒤 그 경로를 작업 `cwd`로 쓴다. Cur
 ## Phase 0 — Explore
 
 1. 코드베이스 구조, 설정, 기존 `EXPLORE-*.md` / `PLAN-*.md`를 검토한다.
-2. 코드가 낯설거나 아키텍처/외부 라이브러리 리서치가 필요할 때 `/g-explore`를 실행한다.
+2. 코드가 낯설거나 아키텍처/외부 라이브러리 리서치가 필요할 때 `/matt-pocock-atomic-explore`를 실행한다.
 3. `subagent`로 `g-explorer`를 `async: true`로 띄워 [reference.md](reference.md) 템플릿으로 `EXPLORE-<slug>.md`를 작성한다 (제품 기능이면 워크스페이스 루트, 워크플로 자체면 `~/.pi/agent/matt-pocock-atomic-workflow/`).
 4. 핵심 대상 파일, 인터페이스/타입, 아키텍처 흐름, 리스크, 권장 방향을 정리한다.
-5. 탐색 완료 후 `/g-plan`으로 이어지도록 안내한다. 코드를 직접 변경하거나 커밋하지 않는다.
+5. 탐색 완료 후 `/matt-pocock-atomic-plan`으로 이어지도록 안내한다. 코드를 직접 변경하거나 커밋하지 않는다.
 
 ## Phase 1 — Plan
 
@@ -213,11 +213,11 @@ Cursor CLI 워커: `agy` · `codex` · `cursor` · `opencode` · `self`.
 3. 로직 파일이 바뀌었으면 이번 파일만 mutation (`npx stryker run --mutate <파일>`). 생존한 인증·계약 돌연변이는 결함이다. 설정이 없으면 설치하지 않는다.
 4. `g-reviewer`가 `REVIEW-<slug>.md`를 쓴다. 실패한 테스트나 break 미만 mutation을 통과로 쓰지 않는다.
 5. 제품 기능이 끝났고 검사가 통과하면 `docs/README.md` 표대로 문서를 갱신한다.
-6. 커밋하지 않는다. `/g-commit`을 안내한다.
+6. 커밋하지 않는다. `/matt-pocock-atomic-commit`을 안내한다.
 
 ## Phase 5 — Commit
 
-1. `/g-commit` 또는 「커밋해」가 있을 때만 한다. 서브에이전트에 넘기지 않는다.
+1. `/matt-pocock-atomic-commit` 또는 「커밋해」가 있을 때만 한다. 서브에이전트에 넘기지 않는다.
 2. `git status` / `git diff` / `git log`를 본 뒤, 비밀 파일은 제외하고 커밋한다. PLAN/TASKS/REVIEW는 기본적으로 커밋하지 않는다.
 3. 산출물 복사본을 하네스 증거 디렉터리에 둔다. 원본은 워크트리에 남긴다.
 4. 푸시하지 않는다. 커밋 해시와 남은 일을 보고한다.

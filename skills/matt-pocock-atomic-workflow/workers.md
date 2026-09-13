@@ -43,7 +43,7 @@ subagent({
 
 Cursor/Antigravity는 확장 프로바이더라서 이 모델들을 쓰는 자식은 **백그라운드(`async: true`)** 여야 한다. 포그라운드면 프로바이더가 안 올라간다. 띄운 뒤에는 완료를 기다린다.
 
-`/g-execute agy|flash|pro|sonnet`이면 `model`을 [models.md](models.md) 별칭으로 덮어쓴다. 쿼터 부족은 `fallbackModels`가 처리한다.
+`/matt-pocock-atomic-execute agy|flash|pro|sonnet`이면 `model`을 [models.md](models.md) 별칭으로 덮어쓴다. 쿼터 부족은 `fallbackModels`가 처리한다.
 
 `AskAntigravity`는 폴백 체인이 없다. 사용자가 agy CLI 원샷을 분명히 원할 때만 쓴다.
 
@@ -52,7 +52,7 @@ Cursor/Antigravity는 확장 프로바이더라서 이 모델들을 쓰는 자�
 1. 해당 워크트리에서 `git status`, `git diff`
 2. 항목의 `done` 조건(테스트)을 오케스트레이터가 실행
 3. 통과면 TASKS `[x]`, 아니면 `막힘:` + 로그/런 id
-4. 워커는 커밋하지 않는다. `/g-commit`만 커밋한다.
+4. 워커는 커밋하지 않는다. `/matt-pocock-atomic-commit`만 커밋한다.
 
 병렬: 파일이 겹치지 않고 워크트리가 다를 때만. **워크트리당 쓰기 워커는 하나.**
 

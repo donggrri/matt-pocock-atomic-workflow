@@ -8,4 +8,4 @@ Pi 세션이다. 남은 구현이 있으면 기본 파이프라인으로 그 항
 
 대상: ${@:-현재 TASKS}
 
-실패한 테스트나 의미 있는 survived mutation을 통과로 쓰지 마라. 커밋하지 마라. 다음이 커밋이면 `/g-commit`을 안내한다.
+실패한 테스트나 의미 있는 survived mutation을 통과로 쓰지 마라. 커밋하지 마라. 다음이 커밋이면 `/matt-pocock-atomic-commit`을 안내한다.

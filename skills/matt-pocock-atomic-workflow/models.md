@@ -38,7 +38,7 @@ pi-subagents `fallbackModels`는 **툴을 쓰기 전** 재시도 가능한 공�
 
 xAI나 Antigravity 사용량이 끝나면 Cursor `grok-4.6` / `composer-2.5`로 넘어가게 되어 있다. 부모는 모델을 즉석에서 추측해 바꾸지 않는다. 체인이 모두 실패하면 그 오류를 보고하고 멈춘다.
 
-## `/g-execute` 별칭
+## `/matt-pocock-atomic-execute` 별칭
 
 특정 모델을 직접 지정하고 싶을 때 부모가 `agentOverrides`를 임시로 덮어쓰거나 다음 별칭 힌트를 참고한다:
 

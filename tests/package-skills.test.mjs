@@ -27,10 +27,10 @@ test("bundled skills are present", async () => {
 });
 
 test("planning preflight is defined in prompts", async () => {
-  const gPlan = await readFile("prompts/g-plan.md", "utf8");
-  assert.match(gPlan, /grilling/, "g-plan.md must reference grilling");
-  assert.match(gPlan, /wayfinder/, "g-plan.md must reference wayfinder");
-  assert.doesNotMatch(gPlan, /way-finder/, "g-plan.md must not reference old way-finder typo");
+  const gPlan = await readFile("prompts/matt-pocock-atomic-plan.md", "utf8");
+  assert.match(gPlan, /grilling/, "matt-pocock-atomic-plan.md must reference grilling");
+  assert.match(gPlan, /wayfinder/, "matt-pocock-atomic-plan.md must reference wayfinder");
+  assert.doesNotMatch(gPlan, /way-finder/, "matt-pocock-atomic-plan.md must not reference old way-finder typo");
 });
 
 test("g-planner contract uses correct skills", async () => {
@@ -45,4 +45,21 @@ test("documentation matches bundled behavior", async () => {
   const readme = await readFile("README.md", "utf8");
   assert.doesNotMatch(readme, /npx skills add mattpocock/, "README must not instruct to run npx skills add in installation instructions (except as historical context)");
   assert.match(readme, /THIRD_PARTY_LICENSES/, "README must mention THIRD_PARTY_LICENSES");
+});
+
+test("workflow prompts use package-prefixed slash command names", async () => {
+  const prompts = (await readdir("prompts")).sort();
+  assert.deepEqual(prompts, [
+    "matt-pocock-atomic-commit.md",
+    "matt-pocock-atomic-config.md",
+    "matt-pocock-atomic-delegate.md",
+    "matt-pocock-atomic-execute.md",
+    "matt-pocock-atomic-explore.md",
+    "matt-pocock-atomic-models.md",
+    "matt-pocock-atomic-plan.md",
+    "matt-pocock-atomic-review.md",
+    "matt-pocock-atomic-settings.md",
+    "matt-pocock-atomic-status.md",
+    "matt-pocock-atomic-task.md"
+  ]);
 });

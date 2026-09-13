@@ -1,8 +1,8 @@
 ---
-description: matt-pocock-atomic-workflow 설정(모델, 폴백, 스킬 등)을 조회하고 대화형으로 변경/초기화한다 (/g-config 별칭).
+description: matt-pocock-atomic-workflow 설정(모델, 폴백, 스킬 등)을 조회하고 대화형으로 변경/초기화한다 (/matt-pocock-atomic-config 별칭).
 argument-hint: "[show | init | <agent> <model>]"
 ---
-`prompts/g-config.md`와 동일하게 matt-pocock-atomic-workflow 설정을 확인하고 관리한다.
+`prompts/matt-pocock-atomic-config.md`와 동일하게 matt-pocock-atomic-workflow 설정을 확인하고 관리한다.
 
 인자: ${@:-show}
 

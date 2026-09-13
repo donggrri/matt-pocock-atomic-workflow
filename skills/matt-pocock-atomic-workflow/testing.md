@@ -1,6 +1,6 @@
 # 테스트와 mutation
 
-SKILL.md를 먼저 읽는다. 테스트 파일을 쓰거나 `/g-execute`·`/g-review`에서 검사를 돌릴 때 연다.
+SKILL.md를 먼저 읽는다. 테스트 파일을 쓰거나 `/matt-pocock-atomic-execute`·`/matt-pocock-atomic-review`에서 검사를 돌릴 때 연다.
 
 ## 저장소 테스트 찾기
 
@@ -50,7 +50,7 @@ TASKS 예:
 
 **한다**
 
-- `/g-review`이고
+- `/matt-pocock-atomic-review`이고
 - 이번 diff에 단위 테스트 대상 로직이 있고
 - `stryker.config.json` 또는 `npm run test:mutate` 등 mutation 설정이 저장소에 있을 때
 
@@ -72,6 +72,6 @@ npx stryker run --mutate <변경된-로직-파일>
 
 - **killed** — 테스트가 돌연변이를 잡음. 좋음.
 - **survived** — 테스트가 못 잡음. REVIEW `결함`에 파일·돌연변이를 적고, 의미 있는 생존이면 테스트를 보강한 뒤 다시 돌린다.
-- 점수가 `thresholds.break` 미만이면 `/g-review` 실패. 커밋하지 않는다.
+- 점수가 `thresholds.break` 미만이면 `/matt-pocock-atomic-review` 실패. 커밋하지 않는다.
 
 생존 전부가 결함은 아니다. 동등한 리팩터(로그 문구, 죽은 코드)는 건너뛰고 이유를 한 줄 적는다. 인증·권한·RPC 계약 생존은 건너뛰지 않는다.

@@ -40,4 +40,4 @@ Your only job is thorough reconnaissance and exploration to prepare for planning
    - Concrete recommendations for `g-planner` (Phase 1)
 8. If this request is to inspect or edit matt-pocock-atomic-workflow itself (skills, commands, agents, packages), write `EXPLORE-<slug>.md` to `~/.pi/agent/matt-pocock-atomic-workflow/` instead of the product root.
 
-Reply in Korean to the parent with the slug, exploration report path, key findings summary, and recommend running `/g-plan` next.
+Reply in Korean to the parent with the slug, exploration report path, key findings summary, and recommend running `/matt-pocock-atomic-plan` next.
