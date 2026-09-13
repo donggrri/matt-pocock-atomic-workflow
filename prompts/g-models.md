@@ -1,7 +1,7 @@
 ---
-description: atomic-pocock-workflow 단계별 모델 설정을 안내한다.
+description: matt-pocock-atomic-workflow 단계별 모델 설정을 안내한다.
 ---
-# atomic-pocock-workflow 모델 설정
+# matt-pocock-atomic-workflow 모델 설정
 
 이 파일은 **읽기 전용**이다. 함부로 고치지 말고, 모델을 바꾸려면 아래 안내에 따라 `settings.json`을 편집한다.
 
@@ -9,7 +9,7 @@ description: atomic-pocock-workflow 단계별 모델 설정을 안내한다.
 
 | 단계 | 에이전트 | 강제 스킬 | `agentOverrides` 키 |
 |---|---|---|---|
-| explore / recon | `g-explorer` / `scout` | `atomic-pocock-workflow` | `g-explorer`, `scout` |
+| explore / recon | `g-explorer` / `scout` | `matt-pocock-atomic-workflow` | `g-explorer`, `scout` |
 | plan | `g-planner` | `codebase-design` | `g-planner` |
 | task | `g-tasker` | `to-tickets` | `g-tasker` |
 | execute | `g-worker` | `tdd` | `g-worker` |

@@ -1,4 +1,4 @@
-# atomic-pocock-workflow
+# matt-pocock-atomic-workflow
 
 `/g-plan`이 PLAN을 확정하면 task → execute → review는 자동이다. 커밋만 `/g-commit`. 이어서 할 일이 흐려지면 `/g-status`.
 
