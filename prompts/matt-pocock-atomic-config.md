@@ -9,12 +9,12 @@ argument-hint: "[show | init | <agent> <model>]"
 동작 규칙:
 1. `~/.pi/agent/settings.json`(및 현재 프로젝트 `.pi/settings.json`이 있으면 함께)을 읽는다.
 2. 현재 `subagents.agentOverrides`에 등록된 matt-pocock-atomic-workflow 에이전트 설정 현황을 정리해 보여준다:
-   - `g-explorer` (Phase 0 탐색)
-   - `g-planner` (Phase 1 계획)
-   - `g-tasker` (Phase 2 태스크)
-   - `g-worker` (Phase 3 실행)
-   - `g-reviewer` (Phase 4 검토)
-   - 기타 빌트인 에이전트(`scout`, `oracle`, `reviewer`, `delegate`, `worker` 등)
+   - `explorer` (Phase 0 탐색)
+   - `planner` (Phase 1 계획)
+   - `tasker` (Phase 2 태스크)
+   - `worker` (Phase 3 실행)
+   - `reviewer` (Phase 4 검토)
+   - 기타 빌트인 에이전트(`scout`, `oracle`, `delegate` 등)
    - `packages` 목록
    - 설치된 패키지 안의 번들 스킬 `grilling`, `domain-modeling`, `codebase-design`, `wayfinder`, `to-tickets`, `tdd`, `code-review` 발견 여부
 3. 인자 또는 사용자 요청에 따른 처리:

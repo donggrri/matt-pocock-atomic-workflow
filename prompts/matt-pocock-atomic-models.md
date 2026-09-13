@@ -9,16 +9,16 @@ description: matt-pocock-atomic-workflow 단계별 모델 설정을 안내한다
 
 | 단계 | 에이전트 | 강제 스킬 | `agentOverrides` 키 |
 |---|---|---|---|
-| explore / recon | `g-explorer` / `scout` | `matt-pocock-atomic-workflow` | `g-explorer`, `scout` |
-| plan | `g-planner` | `codebase-design` | `g-planner` |
-| task | `g-tasker` | `to-tickets` | `g-tasker` |
-| execute | `g-worker` | `tdd` | `g-worker` |
-| review | `g-reviewer` | `code-review` | `g-reviewer` |
+| explore / recon | `explorer` / `scout` | `matt-pocock-atomic-workflow` | `explorer`, `scout` |
+| plan | `planner` | `codebase-design` | `planner` |
+| task | `tasker` | `to-tickets` | `tasker` |
+| execute | `worker` | `tdd` | `worker` |
+| review | `reviewer` | `code-review` | `reviewer` |
 | commit/status/config | (현재 세션) | — | — |
 
 스킬에 모델을 붙이지 않는다. 단계 모델을 바꾸려면 해당 에이전트 키의 `model` / `fallbackModels`만 고친다.
 
-빌트인 에이전트(`oracle`, `reviewer`, `delegate`, `worker` 등)도 같은 `agentOverrides` 아래에서 설정한다.
+빌트인 에이전트(`oracle`, `delegate` 등)도 같은 `agentOverrides` 아래에서 설정한다.
 
 ## 바꾸는 법
 
@@ -30,7 +30,7 @@ description: matt-pocock-atomic-workflow 단계별 모델 설정을 안내한다
 {
   "subagents": {
     "agentOverrides": {
-      "g-planner": {
+      "planner": {
         "model": "xai/grok-4.6",
         "fallbackModels": ["antigravity/claude-sonnet-4-6"]
       }

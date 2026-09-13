@@ -54,18 +54,20 @@ mv /tmp/merged.json ~/.pi/agent/settings.json
 `YOUR_*` placeholder를 실제 모델 ID로 바꾼다. 모델은 원하는 것을 쓰면 되고, 아래 ID는 예시일 뿐이다.
 
 ```json
-"g-explorer": {
+"explorer": {
   "model": "xai/grok-4.6",
   "fallbackModels": ["antigravity/claude-sonnet-4-6"]
 },
-"g-planner": {
+"planner": {
   "model": "xai/grok-4.6",
   "fallbackModels": ["antigravity/claude-sonnet-4-6"]
 }
 ```
 
 사용 가능한 에이전트 키:  
-`g-explorer`, `g-planner`, `g-tasker`, `g-worker`, `g-reviewer`, `scout`, `oracle`, `researcher`, `reviewer`, `delegate`, `worker`
+`explorer`, `planner`, `tasker`, `worker`, `reviewer`, `scout`, `oracle`, `researcher`, `delegate`
+
+기존 설정에 `g-explorer` / `g-planner` 키가 있으면 `explorer` / `planner` / `tasker` / `worker` / `reviewer`로 바꾼다.
 
 단계별 키 설명과 현재 설정 확인은 `/matt-pocock-atomic-config` 또는 `/matt-pocock-atomic-models`를 실행하면 Pi가 안내해 준다.
 
@@ -88,6 +90,7 @@ agy             # pi-antigravity-bridge를 설치한 경우만. 최초 한 번 �
 
 ```bash
 rm ~/.pi/agent/agents/g-*.md
+rm ~/.pi/agent/agents/{explorer,planner,tasker,worker,reviewer}.md
 rm ~/.pi/agent/prompts/g-*.md ~/.pi/agent/prompts/matt-pocock-atomic-*.md
 rm -rf ~/.agents/skills/matt-pocock-atomic-workflow
 ```
@@ -145,7 +148,7 @@ PLAN에 막힌 질문(보안·범위·데이터 손실)이 있으면 거기서 �
 {
   "subagents": {
     "agentOverrides": {
-      "g-worker": {
+      "worker": {
         "model": "xai/grok-4.6",
         "fallbackModels": ["antigravity/claude-sonnet-4-6", "cursor/composer-2.5"]
       }
@@ -175,10 +178,10 @@ PLAN에 막힌 질문(보안·범위·데이터 손실)이 있으면 거기서 �
 | 단계 | 실행 주체 | 강제 스킬 |
 |---|---|---|
 | plan preflight | 부모 오케스트레이터 | `grilling`, `domain-modeling`, `codebase-design`, `wayfinder` |
-| plan | `g-planner` | 같은 스킬 + `matt-pocock-atomic-workflow` |
-| task | `g-tasker` | `to-tickets` (산출물은 `TASKS-<slug>.md`) |
-| execute | `g-worker` | `tdd` |
-| review | `g-reviewer` | `code-review` (손자 없이 두 축) |
+| plan | `planner` | 같은 스킬 + `matt-pocock-atomic-workflow` |
+| task | `tasker` | `to-tickets` (산출물은 `TASKS-<slug>.md`) |
+| execute | `worker` | `tdd` |
+| review | `reviewer` | `code-review` (손자 없이 두 축) |
 
 `grill-me`와 `wayfinder`는 upstream에서 `disable-model-invocation: true`인 사용자 호출용 orchestrator다. 따라서 `/matt-pocock-atomic-plan`은 `grill-me`가 위임하는 model-invoked `grilling`을 부모 단계에서 직접 읽고 실행한다. 큰 작업은 기본적으로 tracker 없는 `local-wayfinding`으로 분류하며, upstream `wayfinder` tracker 흐름은 사용자가 명시한 경우에만 사용한다.
 

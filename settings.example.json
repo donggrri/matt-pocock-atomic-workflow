@@ -5,23 +5,23 @@
   ],
   "subagents": {
     "agentOverrides": {
-      "g-explorer": {
+      "explorer": {
         "model": "YOUR_EXPLORER_MODEL",
         "fallbackModels": ["YOUR_EXPLORER_FALLBACK_MODEL"]
       },
-      "g-planner": {
+      "planner": {
         "model": "YOUR_PLAN_MODEL",
         "fallbackModels": ["YOUR_PLAN_FALLBACK_MODEL"]
       },
-      "g-tasker": {
+      "tasker": {
         "model": "YOUR_TASK_MODEL",
         "fallbackModels": ["YOUR_TASK_FALLBACK_MODEL"]
       },
-      "g-worker": {
+      "worker": {
         "model": "YOUR_WORKER_MODEL",
         "fallbackModels": ["YOUR_WORKER_FALLBACK_MODEL"]
       },
-      "g-reviewer": {
+      "reviewer": {
         "model": "YOUR_REVIEW_MODEL",
         "fallbackModels": ["YOUR_REVIEW_FALLBACK_MODEL"]
       },
@@ -37,17 +37,9 @@
         "model": "YOUR_RESEARCHER_MODEL",
         "fallbackModels": ["YOUR_RESEARCHER_FALLBACK_MODEL"]
       },
-      "reviewer": {
-        "model": "YOUR_REVIEWER_MODEL",
-        "fallbackModels": ["YOUR_REVIEWER_FALLBACK_MODEL"]
-      },
       "delegate": {
         "model": "YOUR_DELEGATE_MODEL",
         "fallbackModels": ["YOUR_DELEGATE_FALLBACK_MODEL"]
-      },
-      "worker": {
-        "model": "YOUR_BUILTIN_WORKER_MODEL",
-        "fallbackModels": ["YOUR_BUILTIN_WORKER_FALLBACK_MODEL"]
       }
     }
   }

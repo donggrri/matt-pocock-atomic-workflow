@@ -10,11 +10,11 @@ SKILL.md의 오케스트레이션 절을 먼저 읽는다. 위임할 때만 이 
 
 | 워커 | 역할 | 비대화형 |
 |---|---|---|
-| `g-planner` | Phase 1 PLAN | `subagent({ agent: "g-planner", task })` |
-| `g-tasker` | Phase 2 TASKS | `subagent({ agent: "g-tasker", task })` |
-| `g-worker` | Phase 3 구현 | `subagent({ agent: "g-worker", task })` |
-| `g-reviewer` | Phase 4 REVIEW | `subagent({ agent: "g-reviewer", task })` |
-| `scout` / `oracle` / `reviewer` | 선택 보조 | 같은 `subagent` 툴 |
+| `planner` | Phase 1 PLAN | `subagent({ agent: "planner", task })` |
+| `tasker` | Phase 2 TASKS | `subagent({ agent: "tasker", task })` |
+| `worker` | Phase 3 구현 | `subagent({ agent: "worker", task })` |
+| `reviewer` | Phase 4 REVIEW | `subagent({ agent: "reviewer", task })` |
+| `scout` / `oracle` | 선택 보조 | 같은 `subagent` 툴 |
 | `self` | 부모 세션 | 툴 없음 |
 
 브리프는 `~/.pi/agent/matt-pocock-atomic-workflow/runs/<slug>/<task-id>.brief.md`에 쓴다. 비밀·토큰·`.env`를 넣지 않는다.
@@ -34,7 +34,7 @@ SKILL.md의 오케스트레이션 절을 먼저 읽는다. 위임할 때만 이 
 
 ```js
 subagent({
-  agent: "g-worker",
+  agent: "worker",
   task: "<브리프 본문 또는 요약>",
   cwd: "<worktree>",
   async: true

@@ -8,8 +8,8 @@ SKILL.md를 먼저 읽는다. 위임할 모델이 필요할 때만 연다.
 
 | 대상 | 설정 경로 |
 |---|---|
-| g-explorer, g-planner, g-tasker, g-worker, g-reviewer | `~/.pi/agent/settings.json` → `subagents.agentOverrides.<에이전트명>` |
-| scout, researcher, oracle, worker, reviewer, delegate (빌트인) | 동일 `agentOverrides` 아래 별도 키 |
+| explorer, planner, tasker, worker, reviewer | `~/.pi/agent/settings.json` → `subagents.agentOverrides.<에이전트명>` |
+| scout, researcher, oracle, delegate (빌트인) | 동일 `agentOverrides` 아래 별도 키 |
 
 각 PC마다 선호 모델이 다를 수 있다. `settings.json`(또는 `settings.example.json`이 있으면 그것을 복사해 `settings.json`으로 만든 뒤)의 `agentOverrides`에서 `model`과 `fallbackModels`를 맞게 채운다. 에이전트 `.md` frontmatter에는 model 키를 두지 않는다.
 
@@ -21,11 +21,11 @@ Pi 자식 세션은 `provider/id` 또는 `provider/id:thinking`으로 고른다.
 
 | 단계 | 에이전트 | 강제 스킬 | settings 키 |
 |---|---|---|---|
-| explore / recon | `g-explorer` / `scout` | `matt-pocock-atomic-workflow` | `agentOverrides.g-explorer`, `agentOverrides.scout` |
-| plan | `g-planner` | `matt-pocock-atomic-workflow`, `codebase-design` | `agentOverrides.g-planner` |
-| task | `g-tasker` | `matt-pocock-atomic-workflow`, `to-tickets` | `agentOverrides.g-tasker` |
-| execute | `g-worker` | `matt-pocock-atomic-workflow`, `tdd` | `agentOverrides.g-worker` |
-| review | `g-reviewer` | `matt-pocock-atomic-workflow`, `code-review` | `agentOverrides.g-reviewer` |
+| explore / recon | `explorer` / `scout` | `matt-pocock-atomic-workflow` | `agentOverrides.explorer`, `agentOverrides.scout` |
+| plan | `planner` | `matt-pocock-atomic-workflow`, `codebase-design` | `agentOverrides.planner` |
+| task | `tasker` | `matt-pocock-atomic-workflow`, `to-tickets` | `agentOverrides.tasker` |
+| execute | `worker` | `matt-pocock-atomic-workflow`, `tdd` | `agentOverrides.worker` |
+| review | `reviewer` | `matt-pocock-atomic-workflow`, `code-review` | `agentOverrides.reviewer` |
 | commit/status/config | parent | (없음) | (현재 세션 모델) |
 
 ## 폴백 계약

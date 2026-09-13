@@ -117,8 +117,8 @@ git worktree list
 
 ## 오케스트레이션
 
-기본 워커: g-worker (Pi) 또는 self (Cursor)
-허용 워커: g-worker, scout, oracle, reviewer, self, agy, codex, cursor, opencode
+기본 워커: worker (Pi) 또는 self (Cursor)
+허용 워커: worker, scout, oracle, reviewer, self, agy, codex, cursor, opencode
 ```
 
 ## TASKS-\<slug\>.md

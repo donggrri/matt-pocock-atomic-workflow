@@ -13,10 +13,53 @@ const requiredSkills = [
   "code-review"
 ];
 
+const workflowAgents = {
+  explorer: ["matt-pocock-atomic-workflow"],
+  planner: ["matt-pocock-atomic-workflow", "codebase-design", "domain-modeling", "grilling", "wayfinder"],
+  tasker: ["matt-pocock-atomic-workflow", "to-tickets"],
+  worker: ["matt-pocock-atomic-workflow", "tdd"],
+  reviewer: ["matt-pocock-atomic-workflow", "code-review"]
+};
+
+const oldAgentIds = ["g-explorer", "g-planner", "g-tasker", "g-worker", "g-reviewer"];
+
+function parseFrontmatter(text, file) {
+  const match = text.match(/^---\n([\s\S]*?)\n---\n/);
+  assert.ok(match, `${file} must have YAML frontmatter`);
+  const map = {};
+  for (const line of match[1].split("\n")) {
+    const idx = line.indexOf(":");
+    if (idx === -1) continue;
+    map[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
+  }
+  return map;
+}
+
+async function walkFiles(dir, files = []) {
+  for (const name of await readdir(dir)) {
+    if (name === ".git" || name === "node_modules" || name === "tests") continue;
+    const path = join(dir, name);
+    const stats = await stat(path);
+    if (stats.isDirectory()) {
+      await walkFiles(path, files);
+    } else if (/\.(md|json|mjs|js|ps1)$/.test(name)) {
+      files.push(path);
+    }
+  }
+  return files;
+}
+
+function isAllowedOldAgentMention(line) {
+  return /g-\*\.md/.test(line)
+    || /still use `g-/.test(line)
+    || /기존 설정에 `g-/.test(line);
+}
+
 test("package.json includes skills directory", async () => {
   const pkgStr = await readFile("package.json", "utf8");
   const pkg = JSON.parse(pkgStr);
   assert.ok(pkg.pi && pkg.pi.skills && pkg.pi.skills.includes("./skills"), "package.json must declare pi.skills array containing './skills'");
+  assert.deepEqual(pkg.pi.subagents, { agents: ["./agents"] });
 });
 
 test("bundled skills are present", async () => {
@@ -27,18 +70,71 @@ test("bundled skills are present", async () => {
 });
 
 test("planning preflight is defined in prompts", async () => {
-  const gPlan = await readFile("prompts/matt-pocock-atomic-plan.md", "utf8");
-  assert.match(gPlan, /grilling/, "matt-pocock-atomic-plan.md must reference grilling");
-  assert.match(gPlan, /wayfinder/, "matt-pocock-atomic-plan.md must reference wayfinder");
-  assert.doesNotMatch(gPlan, /way-finder/, "matt-pocock-atomic-plan.md must not reference old way-finder typo");
+  const plan = await readFile("prompts/matt-pocock-atomic-plan.md", "utf8");
+  assert.match(plan, /grilling/, "matt-pocock-atomic-plan.md must reference grilling");
+  assert.match(plan, /wayfinder/, "matt-pocock-atomic-plan.md must reference wayfinder");
+  assert.doesNotMatch(plan, /way-finder/, "matt-pocock-atomic-plan.md must not reference old way-finder typo");
 });
 
-test("g-planner contract uses correct skills", async () => {
-  const gPlanner = await readFile("agents/g-planner.md", "utf8");
-  assert.match(gPlanner, /skills:.*grilling/, "g-planner must use grilling");
-  assert.match(gPlanner, /skills:.*wayfinder/, "g-planner must use wayfinder");
-  assert.doesNotMatch(gPlanner, /grill-me/, "g-planner must not rely on grill-me directly");
-  assert.match(gPlanner, /brief/, "g-planner must require planning refinement brief");
+test("workflow agents are registered without g- prefix", async () => {
+  const files = (await readdir("agents")).sort();
+  assert.deepEqual(files, Object.keys(workflowAgents).map((name) => `${name}.md`).sort());
+
+  for (const [name, skills] of Object.entries(workflowAgents)) {
+    const file = `agents/${name}.md`;
+    const body = await readFile(file, "utf8");
+    const meta = parseFrontmatter(body, file);
+    assert.equal(meta.name, name, `${file} name must match filename`);
+    assert.equal(meta.advertise, "true", `${file} must be advertised`);
+    assert.equal(meta.async, "true", `${file} must run async`);
+    assert.ok(!("model" in meta), `${file} must not pin a model in frontmatter`);
+    assert.match(meta.tools, /read/, `${file} must have tools`);
+    const listed = (meta.skills || "").split(",").map((s) => s.trim()).filter(Boolean);
+    for (const skill of skills) {
+      assert.ok(listed.includes(skill), `${name} must list skill ${skill}`);
+    }
+    assert.doesNotMatch(body, /^name: g-/m, `${file} must not use a g- name`);
+    assert.doesNotMatch(meta.aliases || "", /\bg-/, `${file} aliases must not keep g- prefix`);
+  }
+});
+
+test("planner contract uses correct skills", async () => {
+  const planner = await readFile("agents/planner.md", "utf8");
+  assert.match(planner, /skills:.*grilling/, "planner must use grilling");
+  assert.match(planner, /skills:.*wayfinder/, "planner must use wayfinder");
+  assert.doesNotMatch(planner, /grill-me/, "planner must not rely on grill-me directly");
+  assert.match(planner, /brief/, "planner must require planning refinement brief");
+});
+
+test("prompts spawn the renamed agents", async () => {
+  const prompts = {
+    "prompts/matt-pocock-atomic-explore.md": ["explorer"],
+    "prompts/matt-pocock-atomic-plan.md": ["planner", "tasker", "worker", "reviewer"],
+    "prompts/matt-pocock-atomic-task.md": ["tasker"],
+    "prompts/matt-pocock-atomic-execute.md": ["worker", "reviewer"],
+    "prompts/matt-pocock-atomic-review.md": ["reviewer"],
+    "prompts/matt-pocock-atomic-delegate.md": ["worker"]
+  };
+  for (const [file, agents] of Object.entries(prompts)) {
+    const body = await readFile(file, "utf8");
+    for (const agent of agents) {
+      assert.match(body, new RegExp(`\\b${agent}\\b`), `${file} must spawn ${agent}`);
+    }
+    for (const oldId of oldAgentIds) {
+      assert.doesNotMatch(body, new RegExp(`\\b${oldId}\\b`), `${file} must not spawn ${oldId}`);
+    }
+  }
+});
+
+test("settings example keys are unique and match agents", async () => {
+  const raw = await readFile("settings.example.json", "utf8");
+  const parsed = JSON.parse(raw);
+  const keys = Object.keys(parsed.subagents.agentOverrides);
+  assert.equal(new Set(keys).size, keys.length, "agentOverrides must not contain duplicate names");
+  for (const name of Object.keys(workflowAgents)) {
+    assert.ok(keys.includes(name), `settings.example.json must include ${name}`);
+    assert.ok(!keys.includes(`g-${name}`), `settings.example.json must not keep g-${name}`);
+  }
 });
 
 test("documentation matches bundled behavior", async () => {
@@ -62,4 +158,18 @@ test("workflow prompts use package-prefixed slash command names", async () => {
     "matt-pocock-atomic-status.md",
     "matt-pocock-atomic-task.md"
   ]);
+});
+
+test("old g- agent ids remain only as migration/cleanup notes", async () => {
+  const files = await walkFiles(".");
+  const leftover = [];
+  for (const file of files) {
+    const body = await readFile(file, "utf8");
+    for (const [i, line] of body.split("\n").entries()) {
+      if (!oldAgentIds.some((id) => line.includes(id))) continue;
+      if (isAllowedOldAgentMention(line)) continue;
+      leftover.push(`${file}:${i + 1}: ${line.trim()}`);
+    }
+  }
+  assert.deepEqual(leftover, [], leftover.join("\n"));
 });

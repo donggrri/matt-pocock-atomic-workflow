@@ -54,18 +54,20 @@ mv /tmp/merged.json ~/.pi/agent/settings.json
 Replace `YOUR_*` placeholders with real model IDs. Use whatever models you want; the IDs below are examples only.
 
 ```json
-"g-explorer": {
+"explorer": {
   "model": "xai/grok-4.6",
   "fallbackModels": ["antigravity/claude-sonnet-4-6"]
 },
-"g-planner": {
+"planner": {
   "model": "xai/grok-4.6",
   "fallbackModels": ["antigravity/claude-sonnet-4-6"]
 }
 ```
 
 Available agent keys:  
-`g-explorer`, `g-planner`, `g-tasker`, `g-worker`, `g-reviewer`, `scout`, `oracle`, `researcher`, `reviewer`, `delegate`, `worker`
+`explorer`, `planner`, `tasker`, `worker`, `reviewer`, `scout`, `oracle`, `researcher`, `delegate`
+
+If your settings still use `g-explorer` / `g-planner` keys, rename them to `explorer` / `planner` / `tasker` / `worker` / `reviewer`.
 
 For per-phase key descriptions and current settings, run `/matt-pocock-atomic-config` or `/matt-pocock-atomic-models` and Pi will walk you through it.
 
@@ -88,6 +90,7 @@ Leaving them in place will shadow the skills, prompts, and agents this package r
 
 ```bash
 rm ~/.pi/agent/agents/g-*.md
+rm ~/.pi/agent/agents/{explorer,planner,tasker,worker,reviewer}.md
 rm ~/.pi/agent/prompts/g-*.md ~/.pi/agent/prompts/matt-pocock-atomic-*.md
 rm -rf ~/.agents/skills/matt-pocock-atomic-workflow
 ```
@@ -145,7 +148,7 @@ To edit it yourself:
 {
   "subagents": {
     "agentOverrides": {
-      "g-worker": {
+      "worker": {
         "model": "xai/grok-4.6",
         "fallbackModels": ["antigravity/claude-sonnet-4-6", "cursor/composer-2.5"]
       }
@@ -175,10 +178,10 @@ Installing this package also installs the skills below as Pi package resources, 
 | Phase | Who runs it | Required skills |
 |---|---|---|
 | plan preflight | parent orchestrator | `grilling`, `domain-modeling`, `codebase-design`, `wayfinder` |
-| plan | `g-planner` | the same skills + `matt-pocock-atomic-workflow` |
-| task | `g-tasker` | `to-tickets` (output is `TASKS-<slug>.md`) |
-| execute | `g-worker` | `tdd` |
-| review | `g-reviewer` | `code-review` (two axes, no grandchildren) |
+| plan | `planner` | the same skills + `matt-pocock-atomic-workflow` |
+| task | `tasker` | `to-tickets` (output is `TASKS-<slug>.md`) |
+| execute | `worker` | `tdd` |
+| review | `reviewer` | `code-review` (two axes, no grandchildren) |
 
 `grill-me` and `wayfinder` are upstream user-invoked orchestrators with `disable-model-invocation: true`. So `/matt-pocock-atomic-plan` reads and runs the model-invoked `grilling` skill that `grill-me` would otherwise delegate, at the parent stage. Large work is classified as tracker-less `local-wayfinding` by default. The upstream `wayfinder` tracker flow is used only when the user asks for it.
 
