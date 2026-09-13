@@ -1,12 +1,12 @@
 ---
 name: atomic-pocock-workflow
 description: >-
-  Runs g-workflow phases (explore, plan, task, execute, review, commit, status, config).
+  Runs atomic-pocock-workflow phases (explore, plan, task, execute, review, commit, status, config).
   Use when the user invokes /g-explore, /g-plan, /g-task, /g-execute, /g-delegate,
-  /g-review, /g-commit, /g-status, /g-config, /g-settings, or mentions g-workflow or atomic-pocock-workflow.
+  /g-review, /g-commit, /g-status, /g-config, /g-settings, or mentions atomic-pocock-workflow or atomic-pocock-workflow.
 ---
 
-# Atomic Workflow (g-workflow)
+# Atomic Workflow (atomic-pocock-workflow)
 
 Pi 패키지 스킬이다. 프롬프트·에이전트는 이 패키지가 등록한다. `~/.agents/skills/atomic-pocock-workflow`, `~/.pi/agent/prompts/g-*.md`, `~/.pi/agent/agents/g-*.md`를 남겨 두면 패키지가 가려지고 충돌 경고가 난다.
 
@@ -22,7 +22,7 @@ Pi 패키지 스킬이다. 프롬프트·에이전트는 이 패키지가 등록
 **PLAN 위치 규칙** (템플릿 필드는 양쪽 동일):
 
 - **제품 기능**: 워크스페이스 루트에 `PLAN-<slug>.md`를 쓴다. 홈·스킬 폴더에 쓰지 않는다.
-- **워크플로 자체** (g-workflow·스킬·커맨드·패키지 수정·검토): `~/.pi/agent/g-workflow/PLAN-<slug>.md`를 쓴다. 제품 루트에 쓰지 않는다.
+- **워크플로 자체** (atomic-pocock-workflow·스킬·커맨드·패키지 수정·검토): `~/.pi/agent/atomic-pocock-workflow/PLAN-<slug>.md`를 쓴다. 제품 루트에 쓰지 않는다.
 
 워크플로 자체일 때 같이 맞추는 파일 목록:
 
@@ -82,8 +82,8 @@ PLAN이 있고 막힌 질문(보안·범위·데이터 손실)이 없으면 부�
 | review | `g-reviewer` | 항상 자식 |
 | commit/status/config | self | 서브에이전트 금지 |
 
-런 로그: `~/.pi/agent/g-workflow/runs/<slug>/`
-증거: `~/.pi/agent/g-workflow/evidence/<YYYY-MM-DD>-<slug>/`
+런 로그: `~/.pi/agent/atomic-pocock-workflow/runs/<slug>/`
+증거: `~/.pi/agent/atomic-pocock-workflow/evidence/<YYYY-MM-DD>-<slug>/`
 
 - `rename_chat`, `move_agent_to_root`를 호출하지 않는다.
 - `scripts/ensure-workers.ps1`으로 CLI를 설치하지 않는다.
@@ -100,8 +100,8 @@ PLAN이 있고 막힌 질문(보안·범위·데이터 손실)이 없으면 부�
 - 셸은 PowerShell이다. heredoc 대신 here-string.
 - 이 머신 git 설정·`--no-verify`·force push는 하지 않는다.
 
-런 로그: `~/.cursor/g-workflow/runs/<slug>/`
-증거: `~/.cursor/g-workflow/evidence/<YYYY-MM-DD>-<slug>/`
+런 로그: `~/.cursor/atomic-pocock-workflow/runs/<slug>/`
+증거: `~/.cursor/atomic-pocock-workflow/evidence/<YYYY-MM-DD>-<slug>/`
 
 구현을 CLI에 넘길 때만 [workers.md](workers.md)의 PowerShell 경로를 쓴다.
 
@@ -141,7 +141,7 @@ Pi에서는 워크트리를 만든 뒤 그 경로를 작업 `cwd`로 쓴다. Cur
 
 1. 코드베이스 구조, 설정, 기존 `EXPLORE-*.md` / `PLAN-*.md`를 검토한다.
 2. 코드가 낯설거나 아키텍처/외부 라이브러리 리서치가 필요할 때 `/g-explore`를 실행한다.
-3. `subagent`로 `g-explorer`를 `async: true`로 띄워 [reference.md](reference.md) 템플릿으로 `EXPLORE-<slug>.md`를 작성한다 (제품 기능이면 워크스페이스 루트, 워크플로 자체면 `~/.pi/agent/g-workflow/`).
+3. `subagent`로 `g-explorer`를 `async: true`로 띄워 [reference.md](reference.md) 템플릿으로 `EXPLORE-<slug>.md`를 작성한다 (제품 기능이면 워크스페이스 루트, 워크플로 자체면 `~/.pi/agent/atomic-pocock-workflow/`).
 4. 핵심 대상 파일, 인터페이스/타입, 아키텍처 흐름, 리스크, 권장 방향을 정리한다.
 5. 탐색 완료 후 `/g-plan`으로 이어지도록 안내한다. 코드를 직접 변경하거나 커밋하지 않는다.
 
@@ -150,7 +150,7 @@ Pi에서는 워크트리를 만든 뒤 그 경로를 작업 `cwd`로 쓴다. Cur
 1. 코드·문서·기존 `EXPLORE-*.md`/`PLAN-*.md`/`TASKS-*.md`를 읽는다. `EXPLORE-<slug>.md`가 있으면 탐색 결과를 계획에 즉시 반영한다.
 2. 필요하면 웹 검색. 코드가 낯설고 탐색 보고서가 없으면 Pi에서 `g-explorer` 또는 `scout`를 먼저 띄워도 된다.
 3. 워크트리 규칙에 따라 격리 여부를 정한다.
-4. [reference.md](reference.md) 템플릿으로 PLAN 위치 규칙에 따라 `PLAN-<slug>.md`를 쓴다: 제품 기능이면 워크트리(또는 현재 루트), 워크플로 자체면 `~/.pi/agent/g-workflow/`. 사용자가 이미 계획을 줬으면 이 세션이 저장만 한다. 아니면 `g-planner`에게 맡긴다. 그릴링으로 사용자를 붙잡지 않는다.
+4. [reference.md](reference.md) 템플릿으로 PLAN 위치 규칙에 따라 `PLAN-<slug>.md`를 쓴다: 제품 기능이면 워크트리(또는 현재 루트), 워크플로 자체면 `~/.pi/agent/atomic-pocock-workflow/`. 사용자가 이미 계획을 줬으면 이 세션이 저장만 한다. 아니면 `g-planner`에게 맡긴다. 그릴링으로 사용자를 붙잡지 않는다.
 5. 한 줄 목표, 하지 않을 것, 의존 순서, 위험, 막힌 질문을 넣는다.
 6. 막힌 질문이 있거나 사용자가 「계획만」이면 멈추고 계획을 보여 준다. 아니면 **기본 파이프라인**으로 Phase 2부터 자동 진행한다.
 

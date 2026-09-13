@@ -1,6 +1,6 @@
 ---
 name: g-planner
-description: g-workflow Phase 1. Writes PLAN-<slug>.md with goal, non-goals, blocked questions, and order.
+description: atomic-pocock-workflow Phase 1. Writes PLAN-<slug>.md with goal, non-goals, blocked questions, and order.
 advertise: true
 aliases: g-plan, planner
 tools: read, grep, find, ls, bash, edit, write
@@ -33,6 +33,6 @@ Your only job is a bounded plan:
 6. If a blocked question would cause data loss, security risk, or scope explosion, leave it in `막힌 질문` and do not pretend it is resolved.
 7. Do not implement product code. Do not commit or push. Do not start Phase 2.
 
-If this request is to inspect or edit g-workflow itself (skills, commands, agents, packages), write `PLAN-<slug>.md` to `~/.pi/agent/g-workflow/` instead of the product root. Do not skip writing the PLAN for workflow meta-review.
+If this request is to inspect or edit atomic-pocock-workflow itself (skills, commands, agents, packages), write `PLAN-<slug>.md` to `~/.pi/agent/atomic-pocock-workflow/` instead of the product root. Do not skip writing the PLAN for workflow meta-review.
 
 Reply in Korean to the parent with the slug, plan path, blocked questions, and that the parent should continue the auto pipeline unless questions are blocked.

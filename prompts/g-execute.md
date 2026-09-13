@@ -1,5 +1,5 @@
 ---
-description: g-workflow Phase 3. TASKS 항목을 g-worker로 구현한 뒤 기본은 review 자동.
+description: atomic-pocock-workflow Phase 3. TASKS 항목을 g-worker로 구현한 뒤 기본은 review 자동.
 argument-hint: "[agent|agy|self|item-id|구현만]"
 ---
 `atomic-pocock-workflow` 스킬을 읽고 Phase 3을 수행한다. 「구현만」이 아니면 열린 항목이 끝난 뒤 `g-reviewer`까지 자동 진행한다.

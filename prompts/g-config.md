@@ -1,14 +1,14 @@
 ---
-description: g-workflow 설정(모델, 폴백, 스킬 등)을 조회하고 대화형으로 변경/초기화한다.
+description: atomic-pocock-workflow 설정(모델, 폴백, 스킬 등)을 조회하고 대화형으로 변경/초기화한다.
 argument-hint: "[show | init | <agent> <model>]"
 ---
-`atomic-pocock-workflow` 스킬을 참고하여 g-workflow 관련 설정을 확인하고 관리한다.
+`atomic-pocock-workflow` 스킬을 참고하여 atomic-pocock-workflow 관련 설정을 확인하고 관리한다.
 
 인자: ${@:-show}
 
 동작 규칙:
 1. `~/.pi/agent/settings.json`(및 현재 프로젝트 `.pi/settings.json`이 있으면 함께)을 읽는다.
-2. 현재 `subagents.agentOverrides`에 등록된 g-workflow 에이전트 설정 현황을 정리해 보여준다:
+2. 현재 `subagents.agentOverrides`에 등록된 atomic-pocock-workflow 에이전트 설정 현황을 정리해 보여준다:
    - `g-explorer` (Phase 0 탐색)
    - `g-planner` (Phase 1 계획)
    - `g-tasker` (Phase 2 태스크)
@@ -21,7 +21,7 @@ argument-hint: "[show | init | <agent> <model>]"
      - **설정이 이미 존재하는 경우**: 현재 설정 상태를 보기 쉬운 표로 출력하고 수정 옵션을 안내한다.
      - **설정이 비어 있거나 미설정인 경우**:
        1. `pi --list-models` 등으로 현재 환경에서 사용 가능한 Provider 및 주요 모델을 확인한다.
-       2. 사용자에게 사용 가능한 주요 모델 목록과 함께 g-workflow 단계별 최적 추천 프리셋(예: Antigravity 조합, 혼합 성능 최적화 조합 등)을 제시하고 선택할 수 있도록 안내한다.
+       2. 사용자에게 사용 가능한 주요 모델 목록과 함께 atomic-pocock-workflow 단계별 최적 추천 프리셋(예: Antigravity 조합, 혼합 성능 최적화 조합 등)을 제시하고 선택할 수 있도록 안내한다.
        3. 사용자의 선택 또는 답변에 따라 `settings.json`의 `subagents.agentOverrides`를 즉시 생성 및 저장한다.
    - `init`: `settings.example.json`을 기반으로 `~/.pi/agent/settings.json`의 `subagents.agentOverrides` 및 `skills`를 안전하게 병합/초기화한다. 기존 `packages`나 기타 설정은 보존한다.
    - `<agent> <model>`: 지정된 에이전트의 `model`(및 필요시 `fallbackModels`)을 `settings.json`에 직접 업데이트한다.

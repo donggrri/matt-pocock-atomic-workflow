@@ -1,7 +1,7 @@
 ---
-description: g-workflow 단계별 모델 설정을 안내한다.
+description: atomic-pocock-workflow 단계별 모델 설정을 안내한다.
 ---
-# g-workflow 모델 설정
+# atomic-pocock-workflow 모델 설정
 
 이 파일은 **읽기 전용**이다. 함부로 고치지 말고, 모델을 바꾸려면 아래 안내에 따라 `settings.json`을 편집한다.
 

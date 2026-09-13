@@ -17,7 +17,7 @@ SKILL.md의 오케스트레이션 절을 먼저 읽는다. 위임할 때만 이 
 | `scout` / `oracle` / `reviewer` | 선택 보조 | 같은 `subagent` 툴 |
 | `self` | 부모 세션 | 툴 없음 |
 
-브리프는 `~/.pi/agent/g-workflow/runs/<slug>/<task-id>.brief.md`에 쓴다. 비밀·토큰·`.env`를 넣지 않는다.
+브리프는 `~/.pi/agent/atomic-pocock-workflow/runs/<slug>/<task-id>.brief.md`에 쓴다. 비밀·토큰·`.env`를 넣지 않는다.
 
 ```markdown
 역할: 구현 워커. 오케스트레이터는 Pi 부모 세션이다. 이 항목만 한다.
@@ -95,11 +95,11 @@ Cursor/Antigravity는 확장 프로바이더라서 이 모델들을 쓰는 자�
 - `codex login` (이미 ChatGPT면 `codex login status`)
 - agy는 최초 한 번 대화형 로그인이 필요할 수 있다.
 
-브리프는 `~/.cursor/g-workflow/runs/<slug>/<task-id>.brief.md`.
+브리프는 `~/.cursor/atomic-pocock-workflow/runs/<slug>/<task-id>.brief.md`.
 
 ```powershell
 $skill = Join-Path $env:USERPROFILE ".agents\skills\atomic-pocock-workflow\scripts"
-$runs = Join-Path $env:USERPROFILE ".cursor\g-workflow\runs\<slug>"
+$runs = Join-Path $env:USERPROFILE ".cursor\atomic-pocock-workflow\runs\<slug>"
 New-Item -ItemType Directory -Force -Path $runs | Out-Null
 
 & "$skill\invoke-worker.ps1" `

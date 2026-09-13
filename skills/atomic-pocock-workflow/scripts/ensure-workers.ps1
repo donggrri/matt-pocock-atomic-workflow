@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  g-workflow CLI 워커가 PATH에 없으면 설치한다.
+  atomic-pocock-workflow CLI 워커가 PATH에 없으면 설치한다.
 .EXAMPLE
   ./ensure-workers.ps1
   ./ensure-workers.ps1 -Workers agy,codex

@@ -6,7 +6,7 @@ argument-hint: "[intent | 계획만]"
 
 이건 Pi 세션이다. Cursor 전용 도구(`rename_chat`, `move_agent_to_root`)는 쓰지 마라. CLI 워커를 직접 설치하거나 `agy`/`codex`를 인자 없이 실행하지 마라.
 
-제품 기능이면 워크스페이스 루트에 `PLAN-<slug>.md`, 워크플로 자체(g-workflow·스킬·커맨드·패키지) 수정·검토면 `~/.pi/agent/g-workflow/PLAN-<slug>.md`를 쓴다. 홈·스킬·제품 루트를 서로 혼용하지 않는다.
+제품 기능이면 워크스페이스 루트에 `PLAN-<slug>.md`, 워크플로 자체(atomic-pocock-workflow·스킬·커맨드·패키지) 수정·검토면 `~/.pi/agent/atomic-pocock-workflow/PLAN-<slug>.md`를 쓴다. 홈·스킬·제품 루트를 서로 혼용하지 않는다.
 
 그 외:
 1. 코드·문서·기존 EXPLORE/PLAN/TASKS를 읽는다. `EXPLORE-*.md`가 있으면 사전 탐색 결과를 계획에 즉시 반영한다.

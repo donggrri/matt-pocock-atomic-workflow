@@ -1,5 +1,5 @@
 ---
-description: g-workflow Phase 4. REVIEW-<slug>.md 작성과 테스트 대조.
+description: atomic-pocock-workflow Phase 4. REVIEW-<slug>.md 작성과 테스트 대조.
 argument-hint: "[slug]"
 ---
 `atomic-pocock-workflow` 스킬과 스킬 디렉터리의 `testing.md`를 읽고 Phase 4를 수행한다.

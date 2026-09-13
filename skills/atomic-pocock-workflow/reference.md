@@ -1,4 +1,4 @@
-# g-workflow 템플릿
+# atomic-pocock-workflow 템플릿
 
 SKILL.md를 먼저 읽는다. 파일을 쓸 때만 이 문서를 연다.
 
@@ -197,7 +197,7 @@ Pi:
 
 ```powershell
 $stamp = Get-Date -Format "yyyy-MM-dd"
-$dest = Join-Path $env:USERPROFILE ".pi\agent\g-workflow\evidence\$stamp-<slug>"
+$dest = Join-Path $env:USERPROFILE ".pi\agent\atomic-pocock-workflow\evidence\$stamp-<slug>"
 New-Item -ItemType Directory -Force -Path $dest | Out-Null
 Copy-Item EXPLORE-<slug>.md, PLAN-<slug>.md, TASKS-<slug>.md, REVIEW-<slug>.md $dest -ErrorAction SilentlyContinue
 ```

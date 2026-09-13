@@ -25,7 +25,7 @@ Pi 기반 코딩 워크플로 패키지.
 pi install git:github.com/donggrri/pi-subagents
 pi install git:github.com/donggrri/pi-antigravity-bridge
 pi install npm:@rahularya01/pi-cursor
-pi install git:github.com/donggrri/g-workflow
+pi install git:github.com/donggrri/atomic-pocock-workflow
 ```
 
 ---
@@ -116,7 +116,7 @@ pi restart
 | `/g-review` | Phase 4 | `REVIEW-<slug>.md` |
 | `/g-commit` | Phase 5: 커밋 (푸시 없음) | git commit |
 | `/g-status` | 진행 상황 보고 | 텍스트 요약 |
-| `/g-config` | g-workflow 모델/스킬 설정 관리 (`/g-settings`) | 텍스트/대화형 설정 |
+| `/g-config` | atomic-pocock-workflow 모델/스킬 설정 관리 (`/g-settings`) | 텍스트/대화형 설정 |
 | `/g-models` | 모델 설정 안내 (읽기 전용) | 텍스트 안내 |
 
 PLAN에 막힌 질문(보안·범위·데이터 손실)이 있으면 거기서 멈춘다. 계획만 쓰려면 `/g-plan 계획만`.
@@ -178,4 +178,4 @@ npx skills add mattpocock/skills
 
 스킬이 `~/.codex/skills`에 있으면 `settings.json`에 `"skills": ["~/.codex/skills"]`를 넣는다.
 
-없어도 g-workflow는 atomic-pocock-workflow만으로 동작한다. `setup-matt-pocock-skills`는 레포 최초 1회만. `grill-me`와 `implement`(커밋)는 자동 파이프라인에 넣지 않는다.
+없어도 atomic-pocock-workflow는 atomic-pocock-workflow만으로 동작한다. `setup-matt-pocock-skills`는 레포 최초 1회만. `grill-me`와 `implement`(커밋)는 자동 파이프라인에 넣지 않는다.

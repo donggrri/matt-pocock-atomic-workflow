@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  g-workflow 항목을 agy / codex / cursor / opencode CLI로 비대화형 실행한다.
+  atomic-pocock-workflow 항목을 agy / codex / cursor / opencode CLI로 비대화형 실행한다.
 .EXAMPLE
   ./invoke-worker.ps1 -Worker agy -Workspace C:\proj -PromptFile C:\brief.md -LogFile C:\run.log
 #>
@@ -58,7 +58,7 @@ if ([string]::IsNullOrWhiteSpace($prompt)) {
 
 if (-not $LogFile) {
   $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-  $LogFile = Join-Path $env:TEMP "g-workflow-$Worker-$stamp.log"
+  $LogFile = Join-Path $env:TEMP "atomic-pocock-workflow-$Worker-$stamp.log"
 }
 $logDir = Split-Path -Parent $LogFile
 if ($logDir) {
@@ -102,7 +102,7 @@ try {
     'opencode' {
       $bin = Resolve-Bin @('opencode.exe', 'opencode')
       if (-not $bin) { throw 'opencode not on PATH. Run scripts/ensure-workers.ps1 -Workers opencode' }
-      & $bin run --dir $ws --auto --title "g-workflow" $prompt 2>&1 |
+      & $bin run --dir $ws --auto --title "atomic-pocock-workflow" $prompt 2>&1 |
         Tee-Object -FilePath $LogFile -Append
       $exitCode = $LASTEXITCODE
     }

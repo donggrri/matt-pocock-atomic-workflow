@@ -1,5 +1,5 @@
 ---
-description: g-workflow Phase 2. PLAN을 TASKS로 쪼갠 뒤 기본은 execute→review 자동.
+description: atomic-pocock-workflow Phase 2. PLAN을 TASKS로 쪼갠 뒤 기본은 execute→review 자동.
 argument-hint: "[slug | 태스크만]"
 ---
 `atomic-pocock-workflow` 스킬과 스킬 디렉터리의 `reference.md`를 읽고 Phase 2를 수행한다. 「태스크만」이 아니면 기본 파이프라인으로 구현·리뷰까지 이어간다.

@@ -1,6 +1,6 @@
 node_modules/
 
-# g-workflow 로컬 산출물 (커밋하지 않는다)
+# atomic-pocock-workflow 로컬 산출물 (커밋하지 않는다)
 PLAN-*.md
 TASKS-*.md
 REVIEW-*.md

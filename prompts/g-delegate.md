@@ -1,5 +1,5 @@
 ---
-description: g-workflow 구현 항목을 Pi 서브에이전트에 위임한다.
+description: atomic-pocock-workflow 구현 항목을 Pi 서브에이전트에 위임한다.
 argument-hint: "[g-worker|agy|scout|oracle] [item-id]"
 ---
 `atomic-pocock-workflow` 스킬과 스킬 디렉터리의 `workers.md`를 읽고 위임한다.

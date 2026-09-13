@@ -1,4 +1,4 @@
-# g-workflow 모델
+# atomic-pocock-workflow 모델
 
 SKILL.md를 먼저 읽는다. 위임할 모델이 필요할 때만 연다.
 
