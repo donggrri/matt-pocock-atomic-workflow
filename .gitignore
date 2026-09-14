@@ -1,9 +1,12 @@
 node_modules/
 
 # matt-pocock-atomic-workflow 로컬 산출물 (커밋하지 않는다)
+# 제품 기능 산출물은 .docs/<slug>/ 아래. 제품 docs/ 는 무시하지 말 것.
+.docs/
 PLAN-*.md
 TASKS-*.md
 REVIEW-*.md
+EXPLORE-*.md
 
 # 런 로그 / 증거
 runs/

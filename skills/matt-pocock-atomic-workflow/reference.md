@@ -201,15 +201,20 @@ TASKS: TASKS-<slug>.md
 
 ## 증거 아카이브
 
+제품 기능 원본: `<workspace>/.docs/<slug>/`
+워크플로 자체 원본: `~/.pi/agent/matt-pocock-atomic-workflow/docs/<slug>/` (Cursor: `~/.cursor/matt-pocock-atomic-workflow/docs/<slug>/`)
+
 Pi:
 
 ```powershell
 $stamp = Get-Date -Format "yyyy-MM-dd"
 $dest = Join-Path $env:USERPROFILE ".pi\agent\matt-pocock-atomic-workflow\evidence\$stamp-<slug>"
+$src = Join-Path $env:USERPROFILE ".pi\agent\matt-pocock-atomic-workflow\docs\<slug>"
+# 제품 기능이면 $src = Join-Path <workspace> ".docs\<slug>"
 New-Item -ItemType Directory -Force -Path $dest | Out-Null
-Copy-Item EXPLORE-<slug>.md, PLAN-<slug>.md, TASKS-<slug>.md, REVIEW-<slug>.md $dest -ErrorAction SilentlyContinue
+Copy-Item (Join-Path $src "EXPLORE-<slug>.md"), (Join-Path $src "PLAN-<slug>.md"), (Join-Path $src "TASKS-<slug>.md"), (Join-Path $src "REVIEW-<slug>.md") $dest -ErrorAction SilentlyContinue
 ```
 
 Cursor는 `.pi\agent` 대신 `.cursor`를 쓴다.
 
-원본은 워크트리에 남긴다. `~/.gemini/evidence`는 쓰지 않는다.
+원본은 슬러그 폴더에 남긴다. `~/.gemini/evidence`는 쓰지 않는다.

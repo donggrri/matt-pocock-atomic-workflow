@@ -124,6 +124,32 @@ test("planning preflight is defined in prompts", async () => {
   assert.doesNotMatch(plan, /way-finder/, "matt-pocock-atomic-plan.md must not reference old way-finder typo");
 });
 
+test("artifact writers use slug folders under .docs and harness docs", async () => {
+  const files = [
+    "skills/matt-pocock-atomic-workflow/SKILL.md",
+    "agents/explorer.md",
+    "agents/planner.md",
+    "prompts/matt-pocock-atomic-explore.md",
+    "prompts/matt-pocock-atomic-plan.md",
+    "prompts/matt-pocock-atomic-status.md"
+  ];
+  for (const file of files) {
+    const body = await readFile(file, "utf8");
+    assert.match(body, /\.docs\/<slug>\//, `${file} must mention .docs/<slug>/`);
+    assert.match(body, /docs\/<slug>\//, `${file} must mention docs/<slug>/`);
+    assert.doesNotMatch(
+      body,
+      /워크스페이스 루트에 `(?:PLAN|EXPLORE)-<slug>\.md`/,
+      `${file} must not tell agents to write PLAN/EXPLORE at workspace root`
+    );
+    assert.doesNotMatch(
+      body,
+      /Write `(?:PLAN|EXPLORE)-<slug>\.md` in the current workspace root/,
+      `${file} must not tell agents to write PLAN/EXPLORE at workspace root`
+    );
+  }
+});
+
 test("workflow agents are registered without g- prefix", async () => {
   const files = (await readdir("agents")).sort();
   assert.deepEqual(files, Object.keys(workflowAgents).map((name) => `${name}.md`).sort());

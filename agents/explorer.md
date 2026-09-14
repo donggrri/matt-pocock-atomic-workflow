@@ -25,12 +25,12 @@ Do not interview the user. Do not implement product features. Do not modify code
 
 Your only job is thorough reconnaissance and exploration to prepare for planning:
 
-1. Inspect the workspace, relevant code, configuration, documentation, and existing `EXPLORE-*.md` / `PLAN-*.md`.
+1. Inspect the workspace, relevant code, configuration, documentation, and existing `.docs/*/` / harness `docs/<slug>/` artifacts.
 2. Locate key files, symbols, entry points, and interfaces using grep/find/read.
 3. Trace data flows, component relationships, and dependencies.
 4. If external libraries, unfamiliar APIs, or architectural constraints are involved, investigate relevant docs/patterns.
-5. Choose a short ASCII kebab-case slug from the intent.
-6. Write `EXPLORE-<slug>.md` in the current workspace root using the skill template from `reference.md`.
+5. Choose a short ASCII kebab-case slug from the intent. Create the slug directory before writing.
+6. Write `.docs/<slug>/EXPLORE-<slug>.md` for product work using the skill template from `reference.md`. Keep the `PREFIX-<slug>.md` filename.
 7. Include:
    - Overview & intent analysis
    - Files & directories identified (with paths, line references, and roles)
@@ -38,6 +38,6 @@ Your only job is thorough reconnaissance and exploration to prepare for planning
    - Architecture summary & flow
    - Potential risks, edge cases, and constraints
    - Concrete recommendations for `planner` (Phase 1)
-8. If this request is to inspect or edit matt-pocock-atomic-workflow itself (skills, commands, agents, packages), write `EXPLORE-<slug>.md` to `~/.pi/agent/matt-pocock-atomic-workflow/` instead of the product root.
+8. If this request is to inspect or edit matt-pocock-atomic-workflow itself (skills, commands, agents, packages), write `~/.pi/agent/matt-pocock-atomic-workflow/docs/<slug>/EXPLORE-<slug>.md` (Cursor: `~/.cursor/matt-pocock-atomic-workflow/docs/<slug>/`). Never mix product root, skill folders, and home docs.
 
 Reply in Korean to the parent with the slug, exploration report path, key findings summary, and recommend running `/matt-pocock-atomic-plan` next.

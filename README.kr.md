@@ -124,12 +124,12 @@ pi restart
 
 | 커맨드 | 역할 | 산출물 |
 |---|---|---|
-| `/matt-pocock-atomic-explore` | Phase 0: 코드베이스 및 기술 사전 탐색 (선택) | `EXPLORE-<slug>.md` |
-| `/matt-pocock-atomic-plan` | Phase 1 후 기본 파이프라인 | `PLAN` + 자동으로 TASKS/코드/REVIEW |
-| `/matt-pocock-atomic-task` | Phase 2만 강제하거나 이어서 자동 | `TASKS-<slug>.md` |
+| `/matt-pocock-atomic-explore` | Phase 0: 코드베이스 및 기술 사전 탐색 (선택) | `.docs/<slug>/EXPLORE-<slug>.md` (워크플로 자체는 `docs/<slug>/`) |
+| `/matt-pocock-atomic-plan` | Phase 1 후 기본 파이프라인 | `.docs/<slug>/PLAN-<slug>.md` + 자동으로 TASKS/코드/REVIEW |
+| `/matt-pocock-atomic-task` | Phase 2만 강제하거나 이어서 자동 | `.docs/<slug>/TASKS-<slug>.md` |
 | `/matt-pocock-atomic-execute` | Phase 3만 강제하거나 이어서 자동 | 코드 변경 + 체크된 TASKS |
 | `/matt-pocock-atomic-delegate` | Phase 3: 특정 워커에 위임 | 같음 |
-| `/matt-pocock-atomic-review` | Phase 4 | `REVIEW-<slug>.md` |
+| `/matt-pocock-atomic-review` | Phase 4 | `.docs/<slug>/REVIEW-<slug>.md` |
 | `/matt-pocock-atomic-commit` | Phase 5: 커밋 (푸시 없음) | git commit |
 | `/matt-pocock-atomic-status` | 진행 상황 보고 | 텍스트 요약 |
 | `/matt-pocock-atomic-config` | matt-pocock-atomic-workflow 모델/스킬 설정 관리 (`/matt-pocock-atomic-settings`) | 텍스트/대화형 설정 |

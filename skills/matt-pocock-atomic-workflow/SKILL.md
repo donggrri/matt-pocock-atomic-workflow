@@ -19,10 +19,10 @@ Pi 패키지 스킬이다. 프롬프트·에이전트는 이 패키지가 등록
 3. Cursor면 채팅 제목을 3~5단어로 `rename_chat` 한다. Pi면 건너뛴다.
 4. 의도가 **워크플로 자체 수정**인지 **제품 기능**인지 가른다.
 
-**PLAN 위치 규칙** (템플릿 필드는 양쪽 동일):
+**PLAN 위치 규칙** (템플릿 필드는 양쪽 동일. `PREFIX-<slug>.md` 파일명은 유지. 쓰기 전 슬러그 디렉토리를 만든다):
 
-- **제품 기능**: 워크스페이스 루트에 `PLAN-<slug>.md`를 쓴다. 홈·스킬 폴더에 쓰지 않는다.
-- **워크플로 자체** (matt-pocock-atomic-workflow·스킬·커맨드·패키지 수정·검토): `~/.pi/agent/matt-pocock-atomic-workflow/PLAN-<slug>.md`를 쓴다. 제품 루트에 쓰지 않는다.
+- **제품 기능**: `<workspace>/.docs/<slug>/PLAN-<slug>.md` (같은 폴더에 EXPLORE/TASKS/REVIEW). 홈·스킬 폴더·제품 `docs/`와 혼용하지 않는다.
+- **워크플로 자체** (matt-pocock-atomic-workflow·스킬·커맨드·패키지 수정·검토): `~/.pi/agent/matt-pocock-atomic-workflow/docs/<slug>/PLAN-<slug>.md`. Cursor 하네스는 `~/.cursor/matt-pocock-atomic-workflow/docs/<slug>/`. 제품 루트에 쓰지 않는다.
 
 워크플로 자체일 때 같이 맞추는 파일 목록:
 
@@ -33,11 +33,11 @@ Pi 패키지 스킬이다. 프롬프트·에이전트는 이 패키지가 등록
 
 | 단계 | 커맨드 | 산출물 | 다음 |
 |---|---|---|---|
-| 0 | `/matt-pocock-atomic-explore` | `EXPLORE-<slug>.md` | 탐색 보고 후 `/matt-pocock-atomic-plan` 안내 |
-| 1 | `/matt-pocock-atomic-plan` 또는 사용자가 쓴 PLAN | `PLAN-<slug>.md` | 막힌 질문 없으면 **자동** Phase 2 |
-| 2 | (자동) `tasker` | `TASKS-<slug>.md` | **자동** Phase 3 |
+| 0 | `/matt-pocock-atomic-explore` | `.docs/<slug>/EXPLORE-<slug>.md` (워크플로 자체는 `docs/<slug>/`) | 탐색 보고 후 `/matt-pocock-atomic-plan` 안내 |
+| 1 | `/matt-pocock-atomic-plan` 또는 사용자가 쓴 PLAN | `.docs/<slug>/PLAN-<slug>.md` (워크플로 자체는 `docs/<slug>/`) | 막힌 질문 없으면 **자동** Phase 2 |
+| 2 | (자동) `tasker` | `.docs/<slug>/TASKS-<slug>.md` (워크플로 자체는 `docs/<slug>/`) | **자동** Phase 3 |
 | 3 | (자동) `worker` | 코드 + 체크된 TASKS | **자동** Phase 4 |
-| 4 | (자동) `reviewer` | `REVIEW-<slug>.md` + 테스트 | 보고. 커밋은 수동 |
+| 4 | (자동) `reviewer` | `.docs/<slug>/REVIEW-<slug>.md` (워크플로 자체는 `docs/<slug>/`) + 테스트 | 보고. 커밋은 수동 |
 | 5 | `/matt-pocock-atomic-commit` | 커밋 (푸시 없음) | 사용자가 원할 때만 PR |
 | — | `/matt-pocock-atomic-status` | 진행 보고 | 이어서 할 커맨드 |
 | — | `/matt-pocock-atomic-config` (`/matt-pocock-atomic-settings`) | 설정 조회 및 대화형 변경 | 설정 확인 및 저장 |
@@ -63,7 +63,7 @@ PLAN이 있고 막힌 질문(보안·범위·데이터 손실)이 없으면 부�
 - 항목 `done`이 실패했다
 - `/matt-pocock-atomic-commit` 또는 「커밋해」가 없다 → 커밋하지 않는다
 
-사용자가 이미 `PLAN-<slug>.md`를 써 두었거나 메시지에 계획을 주면 Phase 1 자식을 건너뛴다. `/matt-pocock-atomic-plan`에 의도만 있으면 `planner`가 PLAN을 쓴 뒤 위 루프로 들어간다.
+사용자가 이미 `.docs/<slug>/PLAN-<slug>.md`(또는 워크플로 자체 `docs/<slug>/PLAN-<slug>.md`)를 써 두었거나 메시지에 계획을 주면 Phase 1 자식을 건너뛴다. `/matt-pocock-atomic-plan`에 의도만 있으면 `planner`가 PLAN을 쓴 뒤 위 루프로 들어간다.
 
 자식을 띄울 때 task **첫 줄**에 강제 스킬 경로를 적는다. 부모의 `available_skills`에서 찾고, 없으면 「이 스킬 없음. matt-pocock-atomic-workflow만으로 진행」이라고 적는다. 브리프에 비밀·토큰·`.env`를 넣지 않는다.
 
@@ -139,20 +139,20 @@ Pi에서는 워크트리를 만든 뒤 그 경로를 작업 `cwd`로 쓴다. Cur
 
 ## Phase 0 — Explore
 
-1. 코드베이스 구조, 설정, 기존 `EXPLORE-*.md` / `PLAN-*.md`를 검토한다.
+1. 코드베이스 구조, 설정, 기존 `.docs/*/`·하네스 `docs/<slug>/`의 `EXPLORE-*.md` / `PLAN-*.md`를 검토한다.
 2. 코드가 낯설거나 아키텍처/외부 라이브러리 리서치가 필요할 때 `/matt-pocock-atomic-explore`를 실행한다.
-3. `subagent`로 `explorer`를 `async: true`로 띄워 [reference.md](reference.md) 템플릿으로 `EXPLORE-<slug>.md`를 작성한다 (제품 기능이면 워크스페이스 루트, 워크플로 자체면 `~/.pi/agent/matt-pocock-atomic-workflow/`).
+3. `subagent`로 `explorer`를 `async: true`로 띄워 [reference.md](reference.md) 템플릿으로 `EXPLORE-<slug>.md`를 작성한다 (제품 기능이면 `.docs/<slug>/`, 워크플로 자체면 `~/.pi/agent/matt-pocock-atomic-workflow/docs/<slug>/`).
 4. 핵심 대상 파일, 인터페이스/타입, 아키텍처 흐름, 리스크, 권장 방향을 정리한다.
 5. 탐색 완료 후 `/matt-pocock-atomic-plan`으로 이어지도록 안내한다. 코드를 직접 변경하거나 커밋하지 않는다.
 
 ## Phase 1 — Plan
 
-1. 코드·문서·기존 `EXPLORE-*.md`/`PLAN-*.md`/`TASKS-*.md`를 읽는다. `EXPLORE-<slug>.md`가 있으면 탐색 결과를 계획에 즉시 반영한다.
+1. 코드·문서·기존 `.docs/*/`·하네스 `docs/<slug>/`의 `EXPLORE-*.md`/`PLAN-*.md`/`TASKS-*.md`를 읽는다. `.docs/<slug>/EXPLORE-<slug>.md`(또는 `docs/<slug>/`)가 있으면 탐색 결과를 계획에 즉시 반영한다.
 2. 필요하면 웹 검색. 코드가 낯설고 탐색 보고서가 없으면 Pi에서 `explorer` 또는 `scout`를 먼저 띄워도 된다.
 3. 워크트리 규칙에 따라 격리 여부를 정한다.
 4. **부모 오케스트레이터가 먼저 planning preflight를 수행한다.** 패키지에 번들된 `grilling`, `domain-modeling`, `codebase-design`, `wayfinder`를 직접 읽는다. `grilling`의 decision frontier에 사용자 결정이 있으면 번호와 추천 답을 제시하고 답을 기다린다. async `planner`에게 사용자 인터뷰를 떠넘기지 않는다.
 5. 작업이 한 세션에 선명하면 `bounded`, 여러 세션·fog·독립 결정이 있으면 `local-wayfinding`으로 라우팅한다. `wayfinder`는 사용자 호출용이므로 사용자가 명시한 경우만 `explicit-wayfinder`로 넘긴다.
-6. [reference.md](reference.md) 템플릿으로 PLAN 위치 규칙에 따라 `PLAN-<slug>.md`를 쓴다. 부모가 만든 `계획 정제` brief를 planner에게 전달하며, brief가 없으면 PLAN 완료를 허용하지 않는다.
+6. [reference.md](reference.md) 템플릿으로 PLAN 위치 규칙에 따라 `.docs/<slug>/PLAN-<slug>.md`(워크플로 자체는 `docs/<slug>/PLAN-<slug>.md`)를 쓴다. 부모가 만든 `계획 정제` brief를 planner에게 전달하며, brief가 없으면 PLAN 완료를 허용하지 않는다.
 7. 한 줄 목표, 하지 않을 것, 의존 순서, 위험, 막힌 질문과 계획 정제 증거를 넣는다.
 8. 막힌 질문·남은 fog가 있거나 사용자가 「계획만」이면 멈추고 계획을 보여 준다. 아니면 **기본 파이프라인**으로 Phase 2부터 자동 진행한다.
 
@@ -164,12 +164,12 @@ Pi에서는 워크트리를 만든 뒤 그 경로를 작업 `cwd`로 쓴다. Cur
 
 | 단계 | 에이전트 | 강제 스킬 | 적용 방식 |
 |---|---|---|---|
-| explore | `explorer` | `matt-pocock-atomic-workflow` | EXPLORE-<slug>.md만 쓴다. 코드베이스 탐색, 인터페이스 식별, 리서치 전담. 코드 수정 금지 |
+| explore | `explorer` | `matt-pocock-atomic-workflow` | `.docs/<slug>/EXPLORE-<slug>.md`(워크플로 자체는 `docs/<slug>/`)만 쓴다. 코드베이스 탐색, 인터페이스 식별, 리서치 전담. 코드 수정 금지 |
 | plan preflight | 부모 | `grilling`, `domain-modeling`, `codebase-design`, `wayfinder` | 사용자 대화와 bounded/wayfinding 라우팅. refinement brief가 나올 때까지 PLAN 금지 |
 | plan | `planner` | `matt-pocock-atomic-workflow`, `codebase-design`, `domain-modeling`, `grilling`, `wayfinder` | 부모 brief를 PLAN으로 구체화. 인터뷰나 tracker 발행 금지 |
-| task | `tasker` | `matt-pocock-atomic-workflow`, `to-tickets` | 수직 슬라이스·의존만 가져온다. 산출물은 `TASKS-<slug>.md`. 트래커 발행·사용자 퀴즈 금지 |
+| task | `tasker` | `matt-pocock-atomic-workflow`, `to-tickets` | 수직 슬라이스·의존만 가져온다. 산출물은 `.docs/<slug>/TASKS-<slug>.md`(워크플로 자체는 `docs/<slug>/`). 트래커 발행·사용자 퀴즈 금지 |
 | execute | `worker` | `matt-pocock-atomic-workflow`, `tdd` | 로직은 red→green. 커밋 금지 |
-| review | `reviewer` | `matt-pocock-atomic-workflow`, `code-review` | Standards / Spec 두 축을 **이 에이전트가 직접**. Spec = PLAN+TASKS. 손자 금지. 산출물은 `REVIEW-<slug>.md` |
+| review | `reviewer` | `matt-pocock-atomic-workflow`, `code-review` | Standards / Spec 두 축을 **이 에이전트가 직접**. Spec = PLAN+TASKS. 손자 금지. 산출물은 `.docs/<slug>/REVIEW-<slug>.md`(워크플로 자체는 `docs/<slug>/`) |
 
 번들 출처와 revision은 패키지의 `THIRD_PARTY_LICENSES/mattpocock-skills-*`에 기록한다. 별도 `npx skills add`나 `settings.json`의 외부 skills 경로는 필요 없다.
 
@@ -189,8 +189,8 @@ Cursor CLI 워커: `agy` · `codex` · `cursor` · `opencode` · `self`.
 
 ## Phase 2 — Task
 
-1. 현재 루트의 `PLAN-<slug>.md`를 읽는다. 없으면 Phase 1부터.
-2. `tasker`가 `TASKS-<slug>.md`를 만든다. 각 항목은 한 번에 검증 가능한 크기.
+1. `.docs/<slug>/PLAN-<slug>.md`(워크플로 자체는 `docs/<slug>/PLAN-<slug>.md`)를 읽는다. 없으면 Phase 1부터.
+2. `tasker`가 같은 슬러그 폴더에 `TASKS-<slug>.md`를 만든다. 각 항목은 한 번에 검증 가능한 크기.
 3. `id`, 체크박스, `files`, `depends`, `parallel`, `worker`, `done`을 적는다.
 4. 같은 파일을 안 건드리는 독립 항목만 `parallel: yes`.
 5. 제품 기능이면 [testing.md](testing.md)대로 테스트 항목을 넣는다. `done`에 실제 명령을 적는다.
@@ -199,7 +199,7 @@ Cursor CLI 워커: `agy` · `codex` · `cursor` · `opencode` · `self`.
 
 ## Phase 3 — Execute
 
-1. `TASKS-<slug>.md`가 없으면 Phase 2를 먼저 한다.
+1. `.docs/<slug>/TASKS-<slug>.md`(워크플로 자체는 `docs/<slug>/`)가 없으면 Phase 2를 먼저 한다.
 2. `worker`가 `self`이거나 사용자가 `self`를 말한 경우만 이 세션이 구현한다. 기본은 `worker`.
 3. Pi에서 `worker` / 모델 별칭은 `subagent`로 위임한다. Cursor CLI면 invoke 스크립트만 쓴다.
 4. 항목마다: 위임 → [testing.md](testing.md)의 `done` 명령을 오케스트레이터가 실행 → `[x]`. 실패하면 `막힘:`과 로그 경로를 남기고 멈춘다.
@@ -211,7 +211,7 @@ Cursor CLI 워커: `agy` · `codex` · `cursor` · `opencode` · `self`.
 1. [testing.md](testing.md)를 읽고 저장소의 단위 테스트·린트를 실행한다. 없으면 REVIEW에 「없음」을 적는다.
 2. TASKS의 완료 조건과 diff를 대조한다. 빠진 테스트·문서를 적는다.
 3. 로직 파일이 바뀌었으면 이번 파일만 mutation (`npx stryker run --mutate <파일>`). 생존한 인증·계약 돌연변이는 결함이다. 설정이 없으면 설치하지 않는다.
-4. `reviewer`가 `REVIEW-<slug>.md`를 쓴다. 실패한 테스트나 break 미만 mutation을 통과로 쓰지 않는다.
+4. `reviewer`가 `.docs/<slug>/REVIEW-<slug>.md`(워크플로 자체는 `docs/<slug>/`)를 쓴다. 실패한 테스트나 break 미만 mutation을 통과로 쓰지 않는다.
 5. 제품 기능이 끝났고 검사가 통과하면 `docs/README.md` 표대로 문서를 갱신한다.
 6. 커밋하지 않는다. `/matt-pocock-atomic-commit`을 안내한다.
 
@@ -219,9 +219,9 @@ Cursor CLI 워커: `agy` · `codex` · `cursor` · `opencode` · `self`.
 
 1. `/matt-pocock-atomic-commit` 또는 「커밋해」가 있을 때만 한다. 서브에이전트에 넘기지 않는다.
 2. `git status` / `git diff` / `git log`를 본 뒤, 비밀 파일은 제외하고 커밋한다. PLAN/TASKS/REVIEW는 기본적으로 커밋하지 않는다.
-3. 산출물 복사본을 하네스 증거 디렉터리에 둔다. 원본은 워크트리에 남긴다.
+3. 슬러그 폴더의 산출물 복사본을 하네스 `evidence/<YYYY-MM-DD>-<slug>/`에 둔다. 원본은 슬러그 폴더에 남긴다.
 4. 푸시하지 않는다. 커밋 해시와 남은 일을 보고한다.
 
 ## Status
 
-활성 `PLAN-*.md`/`TASKS-*.md`를 현재 루트와 형제 워크트리에서 찾는다. 체크 비율, `worker`, 하네스 `runs/<slug>/` 로그, 막힘, 다음에 칠 커맨드를 짧게 보고한다.
+활성 `PLAN-*.md`/`TASKS-*.md`를 `.docs/*/`, 형제 워크트리 `.docs/*/`, 하네스 `docs/<slug>/`에서 찾는다. 루트/홈에 남은 레거시 평탄 파일이 있으면 언급하되 자동 이동하지 않는다. 체크 비율, `worker`, 하네스 `runs/<slug>/` 로그, 막힘, 다음에 칠 커맨드를 짧게 보고한다.
