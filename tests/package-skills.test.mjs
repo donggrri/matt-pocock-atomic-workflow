@@ -149,6 +149,7 @@ test("workflow prompts use package-prefixed slash command names", async () => {
     "matt-pocock-atomic-commit.md",
     "matt-pocock-atomic-config.md",
     "matt-pocock-atomic-delegate.md",
+    "matt-pocock-atomic-doctor.md",
     "matt-pocock-atomic-execute.md",
     "matt-pocock-atomic-explore.md",
     "matt-pocock-atomic-models.md",
@@ -158,6 +159,29 @@ test("workflow prompts use package-prefixed slash command names", async () => {
     "matt-pocock-atomic-status.md",
     "matt-pocock-atomic-task.md"
   ]);
+});
+
+test("bundled skills have valid frontmatter without unquoted colon mapping errors", async () => {
+  const { validateSkillFrontmatter } = await import("../scripts/doctor.mjs");
+  for (const skill of requiredSkills) {
+    const file = join("skills", skill, "SKILL.md");
+    const content = await readFile(file, "utf8");
+    const result = validateSkillFrontmatter(content, file);
+    assert.equal(result.valid, true, `${file} must not have YAML parse risks: ${JSON.stringify(result.issues)}`);
+  }
+});
+
+test("doctor module correctly detects and fixes unquoted description syntax", async () => {
+  const { validateSkillFrontmatter } = await import("../scripts/doctor.mjs");
+  const badContent = `---\nname: test-skill\ndescription: Some text. After tag: details here\n---\n# Body`;
+  const badResult = validateSkillFrontmatter(badContent, "test.md");
+  assert.equal(badResult.valid, false, "Should detect unquoted colon in description");
+  assert.equal(badResult.issues.length, 1);
+  assert.equal(badResult.issues[0].suggestedFix, 'description: "Some text. After tag: details here"');
+
+  const goodContent = `---\nname: test-skill\ndescription: "Some text. After tag: details here"\n---\n# Body`;
+  const goodResult = validateSkillFrontmatter(goodContent, "test.md");
+  assert.equal(goodResult.valid, true, "Should accept quoted description");
 });
 
 test("old g- agent ids remain only as migration/cleanup notes", async () => {
@@ -173,3 +197,4 @@ test("old g- agent ids remain only as migration/cleanup notes", async () => {
   }
   assert.deepEqual(leftover, [], leftover.join("\n"));
 });
+

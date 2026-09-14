@@ -128,6 +128,7 @@ pi restart
 | `/matt-pocock-atomic-status` | 진행 상황 보고 | 텍스트 요약 |
 | `/matt-pocock-atomic-config` | matt-pocock-atomic-workflow 모델/스킬 설정 관리 (`/matt-pocock-atomic-settings`) | 텍스트/대화형 설정 |
 | `/matt-pocock-atomic-models` | 모델 설정 안내 (읽기 전용) | 텍스트 안내 |
+| `/matt-pocock-atomic-doctor` | 스킬 충돌, YAML frontmatter 문법 진단 및 자동 교정(Auto-fix) | 진단 리포트 / 자동 교정 |
 
 PLAN에 막힌 질문(보안·범위·데이터 손실)이 있으면 거기서 멈춘다. 계획만 쓰려면 `/matt-pocock-atomic-plan 계획만`.
 

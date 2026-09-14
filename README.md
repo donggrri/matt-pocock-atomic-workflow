@@ -128,6 +128,7 @@ Default: once **PLAN is confirmed**, task → execute → review run automatical
 | `/matt-pocock-atomic-status` | Progress report | text summary |
 | `/matt-pocock-atomic-config` | Manage matt-pocock-atomic-workflow model/skill settings (`/matt-pocock-atomic-settings`) | text/interactive settings |
 | `/matt-pocock-atomic-models` | Model settings guide (read-only) | text guide |
+| `/matt-pocock-atomic-doctor` | Diagnose skill collisions, YAML frontmatter syntax, and apply auto-fix | text report / auto-fix |
 
 If PLAN has blocking questions (security, scope, data loss), it stops there. To write a plan only, use `/matt-pocock-atomic-plan 계획만`.
 
