@@ -25,6 +25,12 @@ A Pi-based coding workflow package.
 
 ```bash
 pi install git:github.com/donggrri/pi-subagents
+pi install npm:matt-pocock-atomic-workflow
+```
+
+Install from Git (alternative):
+
+```bash
 pi install git:github.com/donggrri/matt-pocock-atomic-workflow
 ```
 

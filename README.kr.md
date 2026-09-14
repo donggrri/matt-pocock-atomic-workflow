@@ -25,6 +25,12 @@ Pi 기반 코딩 워크플로 패키지.
 
 ```bash
 pi install git:github.com/donggrri/pi-subagents
+pi install npm:matt-pocock-atomic-workflow
+```
+
+Git에서 설치 (대안):
+
+```bash
 pi install git:github.com/donggrri/matt-pocock-atomic-workflow
 ```
 

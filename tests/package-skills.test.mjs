@@ -62,6 +62,54 @@ test("package.json includes skills directory", async () => {
   assert.deepEqual(pkg.pi.subagents, { agents: ["./agents"] });
 });
 
+test("package.json meets public publish metadata contract", async () => {
+  const pkgStr = await readFile("package.json", "utf8");
+  const pkg = JSON.parse(pkgStr);
+  const expectedKeywords = [
+    "pi-package",
+    "pi",
+    "pi-coding-agent",
+    "workflow",
+    "atomic-workflow",
+    "skills",
+    "agents"
+  ];
+  const expectedFiles = [
+    "agents/",
+    "prompts/",
+    "skills/",
+    "scripts/",
+    "settings.example.json",
+    "README.md",
+    "README.kr.md",
+    "THIRD_PARTY_LICENSES/",
+    "LICENSE"
+  ];
+
+  assert.equal(pkg.name, "matt-pocock-atomic-workflow");
+  assert.equal(pkg.version, "0.1.0");
+  assert.ok(!Object.hasOwn(pkg, "private"), "package.json must not declare private");
+  assert.equal(typeof pkg.description, "string");
+  assert.ok(pkg.description.trim().length > 0, "description must be non-empty");
+  assert.equal(pkg.license, "MIT");
+  assert.deepEqual(pkg.repository, {
+    type: "git",
+    url: "git+https://github.com/donggrri/matt-pocock-atomic-workflow.git"
+  });
+  assert.equal(pkg.homepage, "https://github.com/donggrri/matt-pocock-atomic-workflow#readme");
+  assert.equal(pkg.bugs?.url, "https://github.com/donggrri/matt-pocock-atomic-workflow/issues");
+  for (const keyword of expectedKeywords) {
+    assert.ok(pkg.keywords?.includes(keyword), `keywords must include ${keyword}`);
+  }
+  assert.deepEqual(pkg.files, expectedFiles);
+  assert.deepEqual(pkg.pi?.skills, ["./skills"]);
+  assert.deepEqual(pkg.pi?.prompts, ["./prompts"]);
+  assert.deepEqual(pkg.pi?.subagents, { agents: ["./agents"] });
+
+  const licenseStats = await stat("LICENSE").catch(() => null);
+  assert.ok(licenseStats && licenseStats.isFile(), "root LICENSE file must exist");
+});
+
 test("bundled skills are present", async () => {
   for (const skill of requiredSkills) {
     const stats = await stat(join("skills", skill, "SKILL.md")).catch(() => null);

@@ -1,7 +1,36 @@
 {
   "name": "matt-pocock-atomic-workflow",
-  "private": true,
-  "keywords": ["pi-package"],
+  "version": "0.1.0",
+  "description": "Atomic explore → plan → task → execute → review → commit workflow for the Pi coding agent.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/donggrri/matt-pocock-atomic-workflow.git"
+  },
+  "homepage": "https://github.com/donggrri/matt-pocock-atomic-workflow#readme",
+  "bugs": {
+    "url": "https://github.com/donggrri/matt-pocock-atomic-workflow/issues"
+  },
+  "keywords": [
+    "pi-package",
+    "pi",
+    "pi-coding-agent",
+    "workflow",
+    "atomic-workflow",
+    "skills",
+    "agents"
+  ],
+  "files": [
+    "agents/",
+    "prompts/",
+    "skills/",
+    "scripts/",
+    "settings.example.json",
+    "README.md",
+    "README.kr.md",
+    "THIRD_PARTY_LICENSES/",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "node --test tests/*.test.mjs",
     "doctor": "node scripts/doctor.mjs"
