@@ -17,6 +17,55 @@ export const BUNDLED_SKILLS = [
 
 export const WORKFLOW_SKILL = "matt-pocock-atomic-workflow";
 
+export const CURSOR_AGENT_NAMES = ["explorer", "planner", "tasker", "worker", "reviewer"];
+
+/**
+ * 커밋된 .cursor/agents + .cursor/commands 가 sync-cursor.mjs 생성 결과와 일치하는지 검사한다.
+ */
+export async function checkCursorSync(options = {}) {
+  const cwd = options.cwd || process.cwd();
+  try {
+    const { checkCursorSync: check } = await import("./sync-cursor.mjs");
+    return await check({ root: cwd });
+  } catch (err) {
+    return { inSync: false, mismatches: [], error: err.message };
+  }
+}
+
+/**
+ * 현재 작업 디렉터리에 Cursor용 설치(스킬·에이전트·커맨드)가 있는지 확인한다.
+ */
+export async function checkCursorInstall(options = {}) {
+  const cwd = options.cwd || process.cwd();
+  const skillDirs = [
+    join(cwd, ".agents", "skills"),
+    join(cwd, ".cursor", "skills")
+  ];
+  const foundSkillDirs = skillDirs.filter((d) => existsSync(join(d, WORKFLOW_SKILL, "SKILL.md")));
+  const agentsDir = join(cwd, ".cursor", "agents");
+  const commandsDir = join(cwd, ".cursor", "commands");
+  const agents = CURSOR_AGENT_NAMES.map((name) => ({
+    name,
+    installed: existsSync(join(agentsDir, `${name}.md`))
+  }));
+  let commands = [];
+  if (existsSync(commandsDir)) {
+    try {
+      commands = (await readdir(commandsDir)).filter((f) => f.endsWith(".md")).sort();
+    } catch {
+      // 접근 불가 시 무시
+    }
+  }
+  return {
+    skillsInstalled: foundSkillDirs.length > 0,
+    skillDirs: foundSkillDirs,
+    agents,
+    agentsInstalled: agents.filter((a) => a.installed).length,
+    commands,
+    commandsInstalled: commands.length
+  };
+}
+
 /**
  * 전역 또는 프로젝트 스킬 디렉터리에서 번들 스킬과 충돌하는 스킬들을 탐지한다.
  */
@@ -236,6 +285,8 @@ export async function runDoctor(options = {}) {
     collisions: [],
     settingsFilter: null,
     yamlIssues: [],
+    cursorSync: null,
+    cursorInstall: null,
     fixesApplied: []
   };
 
@@ -286,6 +337,20 @@ export async function runDoctor(options = {}) {
       }
     } catch {
       // 파일 읽기 오류 무시
+    }
+  }
+
+  // 3. Cursor 지원 파일 동기화 + 설치 상태 점검
+  results.cursorSync = await checkCursorSync({ cwd });
+  results.cursorInstall = await checkCursorInstall({ cwd });
+  if (results.cursorSync && !results.cursorSync.inSync && doFix && !results.cursorSync.error) {
+    try {
+      const { generateCursorFiles } = await import("./sync-cursor.mjs");
+      await generateCursorFiles({ root: cwd, write: true });
+      results.fixesApplied.push("Regenerated .cursor/agents and .cursor/commands via sync-cursor.mjs");
+      results.cursorSync = await checkCursorSync({ cwd });
+    } catch {
+      // 재생성 실패 시 진단 결과만 유지
     }
   }
 
@@ -341,8 +406,43 @@ if (process.argv[1] && process.argv[1].endsWith("doctor.mjs")) {
       }
     }
 
+    console.log("\n3. Cursor 지원(Cursor Sync & Install) 진단:");
+    if (res.cursorSync && res.cursorSync.error) {
+      console.log(`  ⚠ Cursor 동기화 점검 실패: ${res.cursorSync.error}`);
+    } else if (res.cursorSync && res.cursorSync.inSync) {
+      console.log("  ✓ 동기화 정상: .cursor/agents + .cursor/commands 가 최신 생성 결과와 일치합니다.");
+    } else if (res.cursorSync) {
+      console.log(`  ⚠ ${res.cursorSync.mismatches.length}개 Cursor 파일이 드리프트되었습니다:`);
+      for (const m of res.cursorSync.mismatches) {
+        console.log(`    - ${m}`);
+      }
+      if (!isFix) {
+        console.log("    -> 'node scripts/doctor.mjs --fix' 또는 'node scripts/sync-cursor.mjs' 로 재생성하세요.");
+      }
+    }
+    if (res.cursorInstall) {
+      const ci = res.cursorInstall;
+      const missingAgents = ci.agents.filter((a) => !a.installed).map((a) => a.name);
+      if (ci.skillsInstalled && missingAgents.length === 0 && ci.commandsInstalled > 0) {
+        console.log("  ✓ 설치 정상: 스킬·서브에이전트 5종·커맨드가 현재 프로젝트에서 발견됩니다.");
+      } else {
+        if (!ci.skillsInstalled) {
+          console.log("  ✗ Cursor 스킬 미설치: .agents/skills/matt-pocock-atomic-workflow 가 없습니다.");
+        }
+        if (missingAgents.length > 0) {
+          console.log(`  ✗ Cursor 서브에이전트 없음: ${missingAgents.join(", ")}`);
+        }
+        if (ci.commandsInstalled === 0) {
+          console.log("  ✗ Cursor 커맨드 없음: .cursor/commands/ 가 비어 있습니다.");
+        }
+        if (!isFix) {
+          console.log("    -> 'node scripts/install-cursor.mjs --target <프로젝트>' 로 설치하세요.");
+        }
+      }
+    }
+
     if (res.fixesApplied.length > 0) {
-      console.log("\n3. 자동 교정(Auto-Fix) 적용 내역:");
+      console.log("\n4. 자동 교정(Auto-Fix) 적용 내역:");
       for (const fix of res.fixesApplied) {
         console.log(`  ✓ ${fix}`);
       }
