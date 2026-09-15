@@ -52,8 +52,8 @@ PLAN이 있고 막힌 질문(보안·범위·데이터 손실)이 없으면 부�
 
 1. `tasker`를 `async: true`로 띄운다.
 2. TASKS의 의존 순서대로 `worker`를 `async: true`로 띄운다. `parallel: yes`이고 파일이 안 겹치면 같이 띄워도 된다. 워크트리당 쓰기 워커는 하나.
-3. 항목마다 **이 세션이** `done` 명령을 다시 실행하고 통과할 때만 `[x]`.
-4. 열린 항목이 없으면 `reviewer`를 `async: true`로 띄운다.
+3. 항목마다 **부모가 `scripts/run-done.mjs`로 `done` 명령을 재실행하고 `.done.json` 증거가 있을 때만** `[x]`.
+4. 열린 항목이 없으면 `reviewer`를 `async: true`로 띄운다. reviewer가 완료되면 `tester`를 띄운다. tester가 완료되고 통과하면 `[x]`로 마무리한다.
 5. 결과를 한국어로 보고한다. 커밋하지 않는다.
 
 멈추는 경우:
@@ -80,6 +80,7 @@ PLAN이 있고 막힌 질문(보안·범위·데이터 손실)이 없으면 부�
 | task | `tasker` | 항상 자식. `self`를 말한 경우만 직접 |
 | execute | `worker` | 항상 자식. `self`를 말한 경우만 직접 |
 | review | `reviewer` | 항상 자식 |
+| test | `tester` | reviewer 완료 후, 테스트 작성 + mutation 검증 |
 | commit/status/config | self | 서브에이전트 금지 |
 
 런 로그: `~/.pi/agent/matt-pocock-atomic-workflow/runs/<slug>/`
@@ -170,6 +171,7 @@ Pi에서는 워크트리를 만든 뒤 그 경로를 작업 `cwd`로 쓴다. Cur
 | task | `tasker` | `matt-pocock-atomic-workflow`, `to-tickets` | 수직 슬라이스·의존만 가져온다. 산출물은 `.docs/<slug>/TASKS-<slug>.md`(워크플로 자체는 `docs/<slug>/`). 트래커 발행·사용자 퀴즈 금지 |
 | execute | `worker` | `matt-pocock-atomic-workflow`, `tdd` | 로직은 red→green. 커밋 금지 |
 | review | `reviewer` | `matt-pocock-atomic-workflow`, `code-review` | Standards / Spec 두 축을 **이 에이전트가 직접**. Spec = PLAN+TASKS. 손자 금지. 산출물은 `.docs/<slug>/REVIEW-<slug>.md`(워크플로 자체는 `docs/<slug>/`) |
+| test | `tester` | `matt-pocock-atomic-workflow`, `tdd`, `codebase-design` | reviewer 완료 후 로직 diff에 대한 테스트 작성 + mutation 검증. `run-done`으로 증거 검증 |
 
 번들 출처와 revision은 패키지의 `THIRD_PARTY_LICENSES/mattpocock-skills-*`에 기록한다. 별도 `npx skills add`나 `settings.json`의 외부 skills 경로는 필요 없다.
 
@@ -202,14 +204,15 @@ Cursor CLI 워커: `agy` · `codex` · `cursor` · `opencode` · `self`.
 1. `.docs/<slug>/TASKS-<slug>.md`(워크플로 자체는 `docs/<slug>/`)가 없으면 Phase 2를 먼저 한다.
 2. `worker`가 `self`이거나 사용자가 `self`를 말한 경우만 이 세션이 구현한다. 기본은 `worker`.
 3. Pi에서 `worker` / 모델 별칭은 `subagent`로 위임한다. Cursor CLI면 invoke 스크립트만 쓴다.
-4. 항목마다: 위임 → [testing.md](testing.md)의 `done` 명령을 오케스트레이터가 실행 → `[x]`. 실패하면 `막힘:`과 로그 경로를 남기고 멈춘다.
+4. 항목마다: 위임 → [testing.md](testing.md)의 `done` 명령을 오케스트레이터가 `run-done`으로 실행 → `.done.json` 증거 확인 → `[x]`. 실패하면 `막힘:`과 로그 경로를 남기고 멈춘다.
 5. PLAN의 「하지 않을 것」을 지킨다. 커밋하지 않는다.
 6. 열린 항목이 없고 「구현만」이 아니면 **기본 파이프라인**으로 Phase 4로 간다.
 
 ## Phase 4 — Review
 
-1. [testing.md](testing.md)를 읽고 저장소의 단위 테스트·린트를 실행한다. 없으면 REVIEW에 「없음」을 적는다.
+1. [testing.md](testing.md)를 읽고 저장소의 단위 테스트·린트를 실행한다. 없으면 REVIEW에 「없음」을 적는다. `run-done`으로 테스트를 실행하고 `.done.json` 증거를 확인한다. 없으면 REVIEW에 「없음」을 적는다.
 2. TASKS의 완료 조건과 diff를 대조한다. 빠진 테스트·문서를 적는다.
+3. `tester`가 작성한 테스트와 mutation 검증 결과를 확인한다. tester 이후에 테스트를 재검증한다.
 3. 로직 파일이 바뀌었으면 이번 파일만 mutation (`npx stryker run --mutate <파일>`). 생존한 인증·계약 돌연변이는 결함이다. 설정이 없으면 설치하지 않는다.
 4. `reviewer`가 `.docs/<slug>/REVIEW-<slug>.md`(워크플로 자체는 `docs/<slug>/`)를 쓴다. 실패한 테스트나 break 미만 mutation을 통과로 쓰지 않는다.
 5. 제품 기능이 끝났고 검사가 통과하면 `docs/README.md` 표대로 문서를 갱신한다.

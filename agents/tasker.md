@@ -29,9 +29,10 @@ Create the slug directory if needed, then write `TASKS-<slug>.md` beside the PLA
 
 - Each item is one verifiable unit with `id`, checkbox, `files`, `depends`, `parallel`, `worker`, `done`.
 - Prefer tracer-bullet slices (narrow path through behavior), not horizontal layer tickets.
-- `done` must be a real command, not "tests exist".
+- `done` must be a real executable command, not "tests exist". 로직 항목에 실행 가능한 `done`이 필수이다.
+- `run-done` 게이트: `done` 명령은 부모가 `scripts/run-done.mjs`로 재실행하여 `.done.json` 증거를 만들어야 통과로 인정된다.
 - Same-file items are `parallel: no`.
-- Product logic gets a failing-then-passing test item when the repo has a test runner.
+- Product logic gets a failing-then-passing test item when the repo has a test runner. 로직 diff에 테스트 명령이 없으면 결함이다.
 - In Pi, implementation items use `worker: worker`. Docs/status items use `worker: self`.
 - Do not implement. Do not commit. Do not mark items done.
 

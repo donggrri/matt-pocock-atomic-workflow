@@ -30,3 +30,6 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# 임시 패치 파일
+*.patch

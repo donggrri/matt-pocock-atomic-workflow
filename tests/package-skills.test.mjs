@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
-import { readFile, readdir, stat } from "node:fs/promises";
+import { readFile, writeFile, readdir, stat } from "node:fs/promises";
+import { mkdtempSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { tmpdir } from "node:os";
 import test from "node:test";
+import { runDone } from "../scripts/run-done.mjs";
 
 const requiredSkills = [
   "codebase-design",
@@ -18,7 +21,8 @@ const workflowAgents = {
   planner: ["matt-pocock-atomic-workflow", "codebase-design", "domain-modeling", "grilling", "wayfinder"],
   tasker: ["matt-pocock-atomic-workflow", "to-tickets"],
   worker: ["matt-pocock-atomic-workflow", "tdd"],
-  reviewer: ["matt-pocock-atomic-workflow", "code-review"]
+  reviewer: ["matt-pocock-atomic-workflow", "code-review"],
+  tester: ["matt-pocock-atomic-workflow"]
 };
 
 const oldAgentIds = ["g-explorer", "g-planner", "g-tasker", "g-worker", "g-reviewer"];
@@ -270,5 +274,82 @@ test("old g- agent ids remain only as migration/cleanup notes", async () => {
     }
   }
   assert.deepEqual(leftover, [], leftover.join("\n"));
+});
+
+test("run-done returns ok:true for successful command", async () => {
+  const tmpDir = mkdtempSync(join(tmpdir(), "test-run-done-"));
+  try {
+    const result = await runDone({
+      cwd: tmpDir,
+      command: "echo hello",
+      logPath: join(tmpDir, "output.log"),
+      timeoutMs: 5000,
+    });
+    assert.equal(result.ok, true);
+    assert.equal(result.exitCode, 0);
+    const summary = JSON.parse(await readFile(`${result.outputPath}`, "utf8"));
+    assert.equal(summary.ok, true);
+    assert.equal(summary.exitCode, 0);
+  } finally {
+    rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test("run-done returns ok:false for failing command", async () => {
+  const tmpDir = mkdtempSync(join(tmpdir(), "test-run-done-"));
+  try {
+    const result = await runDone({
+      cwd: tmpDir,
+      command: "exit 1",
+      logPath: join(tmpDir, "output.log"),
+      timeoutMs: 5000,
+    });
+    assert.equal(result.ok, false);
+    assert.equal(result.exitCode, 1);
+    const summary = JSON.parse(await readFile(`${result.outputPath}`, "utf8"));
+    assert.equal(summary.ok, false);
+    assert.equal(summary.exitCode, 1);
+  } finally {
+    rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test("run-done handles timeout with ok:false and exitCode -1", async () => {
+  const tmpDir = mkdtempSync(join(tmpdir(), "test-run-done-"));
+  try {
+    const result = await runDone({
+      cwd: tmpDir,
+      command: "sleep 10",
+      logPath: join(tmpDir, "output.log"),
+      timeoutMs: 50,
+    });
+    assert.equal(result.ok, false);
+    assert.equal(result.exitCode, -1);
+    const summary = JSON.parse(await readFile(`${result.outputPath}`, "utf8"));
+    assert.equal(summary.ok, false);
+    assert.equal(summary.exitCode, -1);
+  } finally {
+    rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test("run-done creates .done.json at logPath", async () => {
+  const tmpDir = mkdtempSync(join(tmpdir(), "test-run-done-"));
+  try {
+    const logPath = join(tmpDir, "build.log");
+    await runDone({
+      cwd: tmpDir,
+      command: "echo test",
+      logPath,
+      timeoutMs: 5000,
+    });
+    const donePath = `${logPath}.done.json`;
+    const exists = statSync(donePath).isFile();
+    assert.ok(exists, ".done.json should exist");
+    const content = await readFile(logPath, "utf8");
+    assert.ok(content.includes("test"), "logPath should contain command output");
+  } finally {
+    rmSync(tmpDir, { recursive: true, force: true });
+  }
 });
 

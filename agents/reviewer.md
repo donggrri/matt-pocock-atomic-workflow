@@ -31,10 +31,12 @@ Do **not** spawn sub-agents. You have no `subagent` tool. Do both axes here. Sti
 Your job is evidence, not cheerleading.
 
 1. Run the repo's unit tests/lint if they exist. If none, write `없음`.
-2. Compare each TASKS `done` condition with the actual diff.
+2. **로직 변경인데 테스트 명령이 없으면 결함이다.** `done`에 실행 가능한 테스트 명령이 있어야 한다.
+3. Compare each TASKS `done` condition with the actual diff.
+4. `tester`가 완료된 후 테스트를 재검증한다. `run-done`으로 `.done.json` 증거가 있는지 확인한다.
 3. Mutation testing only when the skill says to (logic files + existing Stryker config). Do not install Stryker.
 4. Create the slug directory if needed, then write `.docs/<slug>/REVIEW-<slug>.md` for product work (workflow-itself: harness `docs/<slug>/REVIEW-<slug>.md`) from the template. Include Standards and Spec findings.
-5. Failed tests, missing done conditions, and meaningful survived auth/contract mutants are defects. Do not mark them as pass.
+5. Failed tests, missing done conditions, and meaningful survived auth/contract mutants are defects. Do not mark them as pass. `run-done`으로 `.done.json` 증거가 없는 항목도 결함으로 처리한다.
 6. Do not commit or push. Do not implement large fixes; list them under `다음`.
 
 Reply in Korean with pass/fail, defects, and whether `/matt-pocock-atomic-commit` is allowed.

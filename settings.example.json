@@ -25,6 +25,10 @@
         "model": "YOUR_REVIEW_MODEL",
         "fallbackModels": ["YOUR_REVIEW_FALLBACK_MODEL"]
       },
+      "tester": {
+        "model": "YOUR_TESTER_MODEL",
+        "fallbackModels": ["YOUR_TESTER_FALLBACK_MODEL"]
+      },
       "scout": {
         "model": "YOUR_SCOUT_MODEL",
         "fallbackModels": ["YOUR_SCOUT_FALLBACK_MODEL"]

@@ -31,7 +31,7 @@ Rules:
 - Do not delete PLAN/TASKS/REVIEW files or `.docs/<slug>/` / harness `docs/<slug>/` artifacts.
 - Do not put secrets, tokens, or `.env` contents in output.
 - If a new product decision is required, stop and escalate instead of guessing.
-- You may run the item's `done` command as a sanity check, but the parent re-runs it and is the source of truth.
+- You may run the item's `done` command as a sanity check, but the parent re-runs it via `scripts/run-done.mjs` and creates the `.done.json` evidence file. The parent is the source of truth.
 
 When finished, report in Korean:
 
