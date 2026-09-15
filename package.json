@@ -25,6 +25,7 @@
     "prompts/",
     "skills/",
     "scripts/",
+    ".cursor/",
     "settings.example.json",
     "README.md",
     "README.kr.md",
@@ -33,7 +34,9 @@
   ],
   "scripts": {
     "test": "node --test tests/*.test.mjs",
-    "doctor": "node scripts/doctor.mjs"
+    "doctor": "node scripts/doctor.mjs",
+    "sync:cursor": "node scripts/sync-cursor.mjs",
+    "install:cursor": "node scripts/install-cursor.mjs"
   },
   "pi": {
     "skills": ["./skills"],

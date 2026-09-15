@@ -79,6 +79,7 @@ test("package.json meets public publish metadata contract", async () => {
     "prompts/",
     "skills/",
     "scripts/",
+    ".cursor/",
     "settings.example.json",
     "README.md",
     "README.kr.md",

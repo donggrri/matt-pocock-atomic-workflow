@@ -18,6 +18,7 @@ A Pi-based coding workflow package.
 7. [How to change models per phase](#7-how-to-change-models-per-phase)
 8. [Don'ts](#8-donts)
 9. [Bundled matt-pocock skills](#9-bundled-matt-pocock-skills)
+10. [Use in Cursor](#10-use-in-cursor)
 
 ---
 
@@ -173,7 +174,7 @@ For more detail, run `/matt-pocock-atomic-models`.
 
 - **No push**: `git push` only when you explicitly want it. The agent does not push.
 - **No secrets**: Do not commit tokens, API keys, or `.env`, and do not put them in worker briefs.
-- **No Cursor IDE slash commands**: This package is for Pi. You do not need to configure slash commands in Cursor.
+- **No Cursor IDE slash commands**: This package is for Pi by default. To use it in Cursor, follow [Use in Cursor](#10-use-in-cursor) instead.
 - **Do not edit agent files directly**: Changes to `agents/*.md` and `prompts/*.md` are overwritten on package update. Change models only in settings.json.
 
 ---
@@ -193,3 +194,41 @@ Installing this package also installs the skills below as Pi package resources, 
 `grill-me` and `wayfinder` are upstream user-invoked orchestrators with `disable-model-invocation: true`. So `/matt-pocock-atomic-plan` reads and runs the model-invoked `grilling` skill that `grill-me` would otherwise delegate, at the parent stage. Large work is classified as tracker-less `local-wayfinding` by default. The upstream `wayfinder` tracker flow is used only when the user asks for it.
 
 The bundled snapshot's source repository, revision, and MIT license are recorded in `THIRD_PARTY_LICENSES/mattpocock-skills-*`. When you refresh upstream, update the selected directories together and run `npm test` to verify agent references.
+
+---
+
+## 10. Use in Cursor
+
+The same subagents and skills run in Cursor. `agents/`, `prompts/`, and `skills/` stay the single source; Cursor-ready files are generated from them.
+
+| Cursor file | Source | What it is |
+|---|---|---|
+| `.cursor/agents/*.md` (5: `explorer`, `planner`, `tasker`, `worker`, `reviewer`) | `agents/*.md` | Subagents with Cursor frontmatter (`name`, `description`, `model: inherit`, `readonly: false`, `is_background: true`). Invoke with `/explorer` … or "Use the planner subagent …". |
+| `.cursor/commands/matt-pocock-atomic-*.md` (12) | `prompts/*.md` | Slash commands as plain markdown (no frontmatter). Text after the command becomes the command's input. |
+| `skills/*` (copied as-is) | `skills/*` | Standard Agent Skills, no conversion needed. |
+
+### Install into a project
+
+```bash
+# from this repository (or the installed npm package)
+node scripts/install-cursor.mjs --target /path/to/project
+```
+
+This copies `skills/*` → `<project>/.agents/skills/*` (portable: Cursor, Claude Code, and Codex all read it; pass `--skills-dir .cursor/skills` for a Cursor-only install) plus `.cursor/agents/` and `.cursor/commands/`. Existing files are kept unless you pass `--force`. To pin a phase model at install time, repeat `--set-model`:
+
+```bash
+node scripts/install-cursor.mjs --target /path/to/project --set-model worker=composer-2.5[]
+```
+
+### Per-phase models and maintenance
+
+- In Cursor, pin a phase model in `.cursor/agents/<agent>.md` frontmatter (`model: composer-2.5[]`, `claude-opus-5[effort=high]`, …). There is no `settings.json` override or `fallbackModels` chain; Cursor falls back to a compatible model automatically.
+- Delegation uses the Task tool with background subagents (the Cursor equivalent of Pi's `async: true`).
+- After editing `agents/*.md` or `prompts/*.md`, regenerate and verify:
+
+```bash
+node scripts/sync-cursor.mjs          # regenerate .cursor/agents + .cursor/commands
+node scripts/sync-cursor.mjs --check  # drift check (for CI)
+npm test                              # includes cursor-sync tests
+node scripts/doctor.mjs               # section 3 checks Cursor sync + install state
+```
