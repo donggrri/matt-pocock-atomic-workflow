@@ -22,7 +22,8 @@ const workflowAgents = {
   tasker: ["matt-pocock-atomic-workflow", "to-tickets"],
   worker: ["matt-pocock-atomic-workflow", "tdd"],
   reviewer: ["matt-pocock-atomic-workflow", "code-review"],
-  tester: ["matt-pocock-atomic-workflow"]
+  tester: ["matt-pocock-atomic-workflow", "tdd", "codebase-design"],
+  "cli-delegate": ["matt-pocock-atomic-workflow"]
 };
 
 const oldAgentIds = ["g-explorer", "g-planner", "g-tasker", "g-worker", "g-reviewer"];
@@ -83,6 +84,7 @@ test("package.json meets public publish metadata contract", async () => {
     "prompts/",
     "skills/",
     "scripts/",
+    ".cursor/",
     "settings.example.json",
     "README.md",
     "README.kr.md",

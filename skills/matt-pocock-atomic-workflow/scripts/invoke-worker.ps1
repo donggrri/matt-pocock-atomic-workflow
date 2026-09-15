@@ -1,13 +1,13 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  matt-pocock-atomic-workflow 항목을 agy / codex / cursor / opencode CLI로 비대화형 실행한다.
+  matt-pocock-atomic-workflow 항목을 agy / pi / codex / claude / cursor / opencode CLI로 비대화형 실행한다.
 .EXAMPLE
-  ./invoke-worker.ps1 -Worker agy -Workspace C:\proj -PromptFile C:\brief.md -LogFile C:\run.log
+  ./invoke-worker.ps1 -Worker agy -Workspace C:\proj -PromptFile C:\brief.md -LogFile C:\run.log -Skills matt-pocock-atomic-workflow,tdd
 #>
 param(
   [Parameter(Mandatory)]
-  [ValidateSet('agy', 'codex', 'cursor', 'opencode')]
+  [ValidateSet('agy', 'pi', 'codex', 'claude', 'cursor', 'opencode')]
   [string]$Worker,
 
   [Parameter(Mandatory)]
@@ -19,6 +19,8 @@ param(
   [string]$LogFile,
 
   [string]$LastMessageFile,
+
+  [string]$Skills,
 
   [int]$TimeoutMin = 45
 )
@@ -40,6 +42,56 @@ function Resolve-Bin {
   return $null
 }
 
+function Find-SkillRoot {
+  param([string]$WorkspacePath)
+  $dir = (Resolve-Path -LiteralPath $WorkspacePath).Path
+  while ($dir) {
+    $candidate = Join-Path $dir '.agents\skills'
+    if (Test-Path -LiteralPath $candidate) { return $candidate }
+    $parent = Split-Path $dir -Parent
+    if (-not $parent -or $parent -eq $dir) { break }
+    $dir = $parent
+  }
+  return $null
+}
+
+function Build-SkillsBlock {
+  param([string]$WorkspacePath, [string]$SkillsCsv)
+  if ([string]::IsNullOrWhiteSpace($SkillsCsv)) { return '' }
+  $skillRoot = Find-SkillRoot $WorkspacePath
+  if (-not $skillRoot) { return '' }
+  $lines = @('MUST read skills (first tool calls):')
+  foreach ($name in ($SkillsCsv -split ',')) {
+    $name = $name.Trim()
+    if (-not $name) { continue }
+    $skillFile = Join-Path $skillRoot "$name\SKILL.md"
+    if (Test-Path -LiteralPath $skillFile) {
+      $lines += "- $skillFile"
+    }
+  }
+  if ($lines.Count -le 1) { return '' }
+  return ($lines -join "`n") + "`n`n"
+}
+
+function Get-SkillAddDirs {
+  param([string]$WorkspacePath)
+  $dirs = @((Resolve-Path -LiteralPath $WorkspacePath).Path)
+  $skillRoot = Find-SkillRoot $WorkspacePath
+  if ($skillRoot) { $dirs += $skillRoot }
+  return $dirs
+}
+
+function Resolve-PiPkg {
+  if ($env:MATT_POCOCK_PI_PKG -and (Test-Path -LiteralPath $env:MATT_POCOCK_PI_PKG)) {
+    return (Resolve-Path -LiteralPath $env:MATT_POCOCK_PI_PKG).Path
+  }
+  $default = Join-Path $env:USERPROFILE '.pi\agent\git\github.com\donggrri\matt-pocock-atomic-workflow'
+  if (Test-Path -LiteralPath (Join-Path $default 'agents\worker.md')) {
+    return (Resolve-Path -LiteralPath $default).Path
+  }
+  return $null
+}
+
 Refresh-Path
 
 if (-not (Test-Path -LiteralPath $Workspace)) {
@@ -56,10 +108,18 @@ if ([string]::IsNullOrWhiteSpace($prompt)) {
   throw "Prompt file is empty: $promptPath"
 }
 
+if ([string]::IsNullOrWhiteSpace($Skills)) {
+  $Skills = 'matt-pocock-atomic-workflow,tdd'
+}
+$skillsBlock = Build-SkillsBlock $ws $Skills
+if ($skillsBlock) { $prompt = $skillsBlock + $prompt }
+
 if (-not $LogFile) {
   $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
   $LogFile = Join-Path $env:TEMP "matt-pocock-atomic-workflow-$Worker-$stamp.log"
 }
+$effectivePromptFile = [System.IO.Path]::ChangeExtension($LogFile, '.effective-prompt.md')
+Set-Content -LiteralPath $effectivePromptFile -Value $prompt -Encoding UTF8 -NoNewline
 $logDir = Split-Path -Parent $LogFile
 if ($logDir) {
   New-Item -ItemType Directory -Force -Path $logDir | Out-Null
@@ -68,7 +128,6 @@ if (-not $LastMessageFile) {
   $LastMessageFile = [System.IO.Path]::ChangeExtension($LogFile, '.last.md')
 }
 
-$timeoutSpan = [TimeSpan]::FromMinutes($TimeoutMin)
 $agyTimeout = '{0}m0s' -f $TimeoutMin
 
 Push-Location -LiteralPath $ws
@@ -80,9 +139,26 @@ try {
     'agy' {
       $bin = Resolve-Bin @('agy.exe', 'agy')
       if (-not $bin) { throw 'agy not on PATH. Run scripts/ensure-workers.ps1 -Workers agy' }
-      # Never launch bare `agy` (that opens the TUI and hangs).
-      & $bin -p --output-format text --mode accept-edits --dangerously-skip-permissions --print-timeout $agyTimeout --add-dir $ws $prompt 2>&1 |
-        Tee-Object -FilePath $LogFile -Append
+      $agyArgs = @('--output-format', 'text', '--mode', 'accept-edits', '--dangerously-skip-permissions', '--print-timeout', $agyTimeout)
+      foreach ($dir in (Get-SkillAddDirs $ws)) { $agyArgs += @('--add-dir', $dir) }
+      $agyArgs += @('-p', $prompt)
+      & $bin @agyArgs 2>&1 | Tee-Object -FilePath $LogFile -Append
+      $exitCode = $LASTEXITCODE
+    }
+    'pi' {
+      $bin = Resolve-Bin @('pi.exe', 'pi')
+      if (-not $bin) { throw 'pi not on PATH. Run scripts/ensure-workers.ps1 -Workers pi' }
+      $piPkg = Resolve-PiPkg
+      if (-not $piPkg) { throw 'matt-pocock pi package not found (set MATT_POCOCK_PI_PKG)' }
+      $piArgs = @('-p', '--no-session', '-a', '--append-system-prompt', (Join-Path $piPkg 'agents\worker.md'))
+      foreach ($name in ($Skills -split ',')) {
+        $name = $name.Trim()
+        if (-not $name) { continue }
+        $skillPath = Join-Path $piPkg "skills\$name"
+        if (Test-Path -LiteralPath $skillPath) { $piArgs += @('--skill', $skillPath) }
+      }
+      $piArgs += "@$effectivePromptFile"
+      & $bin @piArgs 2>&1 | Tee-Object -FilePath $LogFile -Append
       $exitCode = $LASTEXITCODE
     }
     'codex' {
@@ -90,6 +166,15 @@ try {
       if (-not $bin) { throw 'codex not on PATH. Run scripts/ensure-workers.ps1 -Workers codex' }
       $prompt | & $bin exec - --sandbox workspace-write -c 'approval_policy="never"' -C $ws --color never -o $LastMessageFile 2>&1 |
         Tee-Object -FilePath $LogFile -Append
+      $exitCode = $LASTEXITCODE
+    }
+    'claude' {
+      $bin = Resolve-Bin @('claude.exe', 'claude')
+      if (-not $bin) { throw 'claude not on PATH. Run scripts/ensure-workers.ps1 -Workers claude' }
+      $claudeArgs = @('-p', '--dangerously-skip-permissions')
+      foreach ($dir in (Get-SkillAddDirs $ws)) { $claudeArgs += @('--add-dir', $dir) }
+      $claudeArgs += $prompt
+      & $bin @claudeArgs 2>&1 | Tee-Object -FilePath $LogFile -Append
       $exitCode = $LASTEXITCODE
     }
     'cursor' {

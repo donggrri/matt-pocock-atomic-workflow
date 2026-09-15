@@ -29,6 +29,10 @@
         "model": "YOUR_TESTER_MODEL",
         "fallbackModels": ["YOUR_TESTER_FALLBACK_MODEL"]
       },
+      "cli-delegate": {
+        "model": "YOUR_CLI_DELEGATE_MODEL",
+        "fallbackModels": ["YOUR_CLI_DELEGATE_FALLBACK_MODEL"]
+      },
       "scout": {
         "model": "YOUR_SCOUT_MODEL",
         "fallbackModels": ["YOUR_SCOUT_FALLBACK_MODEL"]

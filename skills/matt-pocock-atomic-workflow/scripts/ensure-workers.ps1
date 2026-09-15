@@ -7,8 +7,8 @@
   ./ensure-workers.ps1 -Workers agy,codex
 #>
 param(
-  [ValidateSet('agy', 'codex', 'cursor', 'opencode')]
-  [string[]]$Workers = @('agy', 'codex')
+  [ValidateSet('agy', 'pi', 'codex', 'claude', 'cursor', 'opencode')]
+  [string[]]$Workers = @('agy', 'pi', 'codex', 'claude', 'opencode')
 )
 
 $ErrorActionPreference = 'Stop'
@@ -49,6 +49,20 @@ foreach ($w in $Workers) {
         } else {
           $results += Write-State 'agy' 'missing' 'install.ps1 ran but agy is not on PATH. Open a new terminal.'
         }
+      }
+    }
+    'pi' {
+      if (Test-Bin @('pi', 'pi.exe')) {
+        $results += Write-State 'pi' 'ok' ((Get-Command pi).Source)
+      } else {
+        $results += Write-State 'pi' 'missing' 'Install pi CLI. Do not invent a downloader.'
+      }
+    }
+    'claude' {
+      if (Test-Bin @('claude', 'claude.exe')) {
+        $results += Write-State 'claude' 'ok' ((Get-Command claude).Source)
+      } else {
+        $results += Write-State 'claude' 'missing' 'Install Claude Code CLI. Do not invent a downloader.'
       }
     }
     'codex' {

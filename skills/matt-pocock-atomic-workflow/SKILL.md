@@ -180,10 +180,11 @@ Pi에서는 워크트리를 만든 뒤 그 경로를 작업 `cwd`로 쓴다. Cur
 부모는 파이프라인만 돌린다. 단계 일은 해당 모델의 자식이 한다. Commit만 부모.
 
 Pi 워커: `explorer` · `planner` · `tasker` · `worker` · `reviewer` · `scout` · `oracle` · `self`.
-Cursor CLI 워커: `agy` · `codex` · `cursor` · `opencode` · `self`.
+Cursor Task 워커: `explorer` · `planner` · `tasker` · `worker` · `reviewer` · `cli-delegate` · `self`.
+Cursor CLI 워커 (TASKS `worker:` opt-in): `agy` · `pi` · `opencode` · `codex` · `claude`.
 
-1. 사용자가 워커를 지목했거나 TASKS에 `worker:`가 있으면 [workers.md](workers.md)를 읽는다. 기본 구현 워커는 `worker`.
-2. Pi면 `subagent`만 호출한다. Cursor CLI 경로면 `ensure-workers.ps1` / `invoke-worker.ps1`만 쓴다.
+1. 사용자가 워커를 지목했거나 TASKS에 `worker:`가 있으면 [workers.md](workers.md)를 읽는다. 기본 구현 워커는 `worker`(Pi) 또는 Task `worker`(Cursor).
+2. Pi면 `subagent`만 호출한다. Cursor에서 TASKS `worker:`가 `agy|pi|opencode|codex|claude`이면 Task `cli-delegate`로 위임한다. `cli-delegate`는 `invoke-worker.sh`(bash) 또는 `invoke-worker.ps1`(Windows)만 실행한다. 부모는 bare `agy`/`pi`를 직접 실행하지 않는다.
 3. 브리프 첫 줄에 강제 스킬 경로. 비밀·토큰·`.env` 금지.
 4. 워커가 끝나면 오케스트레이터가 `git diff`와 테스트를 직접 확인한다. 「완료」로그를 믿지 않는다.
 5. 워크트리당 쓰기 워커는 하나. 워커는 커밋·푸시하지 않는다.
