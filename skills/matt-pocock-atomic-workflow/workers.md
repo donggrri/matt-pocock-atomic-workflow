@@ -56,26 +56,75 @@ Cursor/Antigravity는 확장 프로바이더라서 이 모델들을 쓰는 자�
 
 병렬: 파일이 겹치지 않고 워크트리가 다를 때만. **워크트리당 쓰기 워커는 하나.**
 
-## Cursor CLI (Pi가 아닐 때)
+## Cursor (Pi가 아닐 때)
 
-스크립트는 **실행**한다. 플래그를 다시 만들지 않는다.
+기본 구현 워커는 Task `worker`이다. TASKS `worker:`가 `agy|pi|opencode|codex|claude`이면 Task **`cli-delegate`**로 위임한다. `cli-delegate`만 `invoke-worker` 스크립트를 실행한다. 부모는 bare `agy`/`pi`를 직접 실행하지 않는다.
+
+### 브리프 (CLI worker 공통)
+
+```markdown
+역할: matt-pocock-atomic-workflow 구현 워커 (CLI: <worker>).
+MUST read skills (first tool calls):
+- <abs>/.agents/skills/matt-pocock-atomic-workflow/SKILL.md
+- <abs>/.agents/skills/tdd/SKILL.md
+작업공간: <절대 경로>
+항목: T1 <제목>
+할 일: <구체적>
+파일: <건드릴 경로>
+완료 조건: <테스트/확인>
+하지 말 것: git commit, git push, 범위 확대, 비밀 파일, PLAN/TASKS 삭제
+끝나면: 변경 파일, 실행한 테스트, 실패, 남은 위험을 짧게.
+```
+
+`--skills matt-pocock-atomic-workflow,tdd` 또는 `--skills-file`을 쓰면 `invoke-worker`가 위 블록을 brief 앞에 자동 prepend한다. `--dry-run`은 실제 CLI 대신 최종 명령줄만 로그에 남긴다.
+
+### Bash (WSL / Linux / macOS)
+
+- `scripts/ensure-workers.sh` — PATH에 5종 CLI 있는지 확인
+- `scripts/invoke-worker.sh` — 비대화형 실행 (단일 진입점)
+
+| 워커 | CLI | 비고 |
+|---|---|---|
+| `agy` | `agy -p …` | `--add-dir`로 workspace·skills |
+| `pi` | `pi -p --no-session` | matt-pocock pi 패키지·에이전트는 workspace에서 해석 |
+| `codex` | `codex exec` | stdin + workspace-write |
+| `opencode` | `opencode run --auto` | `--dir` workspace |
+| `claude` | `claude -p` | `--add-dir` + skills prepend |
+| `cli-delegate` | (위임 전용) | brief 작성 후 `invoke-worker.sh`만 Shell |
+| `self` | (없음) | 현재 에이전트가 구현 |
+
+```bash
+SKILL=".agents/skills/matt-pocock-atomic-workflow/scripts"
+RUNS="$HOME/.cursor/matt-pocock-atomic-workflow/runs/<slug>"
+mkdir -p "$RUNS"
+
+bash "$SKILL/invoke-worker.sh" \
+  --worker agy \
+  --workspace "<worktree>" \
+  --prompt-file "$RUNS/T1.brief.md" \
+  --log-file "$RUNS/T1.log" \
+  --timeout-min 45 \
+  --skills matt-pocock-atomic-workflow,tdd
+```
+
+### PowerShell (Windows)
 
 - `scripts/ensure-workers.ps1` — 없으면 설치
-- `scripts/invoke-worker.ps1` — 비대화형 실행
+- `scripts/invoke-worker.ps1` — 비대화형 실행 (`-Skills` 동일 계약)
 
-절대 경로:
-
-`$env:USERPROFILE\.agents\skills\matt-pocock-atomic-workflow\scripts\...`
+절대 경로: `$env:USERPROFILE\.agents\skills\matt-pocock-atomic-workflow\scripts\...`
 
 | 워커 | CLI | 비대화형 |
 |---|---|---|
 | `agy` | `agy` | `-p --mode accept-edits --dangerously-skip-permissions` |
+| `pi` | `pi` | `-p --no-session` |
 | `codex` | `codex exec` | stdin + `--sandbox workspace-write` + `approval_policy=never` |
-| `cursor` | `cursor-agent` | `-p --force --trust --workspace` |
+| `claude` | `claude` | `-p --dangerously-skip-permissions` |
+| `cursor` | `cursor-agent` | `-p --force --trust --workspace` (v1 TASKS roster 밖) |
 | `opencode` | `opencode run` | `--dir --auto` |
 | `self` | (없음) | 현재 에이전트가 구현 |
 
-`agy`를 인자 없이 실행하지 않는다. TUI가 떠서 멈춘다.
+`agy`/`pi`를 인자 없이 실행하지 않는다. TUI가 떠서 멈춘다.
 
 설치:
 

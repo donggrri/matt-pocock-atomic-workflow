@@ -108,7 +108,7 @@ test("convert functions stay pure and deterministic", async () => {
     convertCommand("matt-pocock-atomic-plan", prompt)
   );
   const mem = await generateCursorFiles({ root: ".", write: false });
-  assert.equal(Object.keys(mem.agents).length, 5);
+  assert.equal(Object.keys(mem.agents).length, 6);
   assert.equal(Object.keys(mem.commands).length, 12);
   assert.deepEqual(mem.written, []);
 });

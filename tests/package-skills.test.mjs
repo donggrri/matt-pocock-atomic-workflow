@@ -18,7 +18,8 @@ const workflowAgents = {
   planner: ["matt-pocock-atomic-workflow", "codebase-design", "domain-modeling", "grilling", "wayfinder"],
   tasker: ["matt-pocock-atomic-workflow", "to-tickets"],
   worker: ["matt-pocock-atomic-workflow", "tdd"],
-  reviewer: ["matt-pocock-atomic-workflow", "code-review"]
+  reviewer: ["matt-pocock-atomic-workflow", "code-review"],
+  "cli-delegate": ["matt-pocock-atomic-workflow"]
 };
 
 const oldAgentIds = ["g-explorer", "g-planner", "g-tasker", "g-worker", "g-reviewer"];

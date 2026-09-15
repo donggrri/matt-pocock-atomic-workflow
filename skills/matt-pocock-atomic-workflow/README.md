@@ -8,6 +8,25 @@
 
 에이전트 지시: [SKILL.md](SKILL.md). 템플릿: [reference.md](reference.md). 워커: [workers.md](workers.md). 모델: [models.md](models.md). 테스트: [testing.md](testing.md).
 
+## 헤드리스 CLI (bash)
+
+TASKS `worker:`가 `agy|pi|opencode|codex|claude`일 때 Cursor는 Task `cli-delegate`가 아래 스크립트만 실행한다.
+
+```bash
+# PATH 확인
+bash .agents/skills/matt-pocock-atomic-workflow/scripts/ensure-workers.sh
+
+# 비대화형 실행 (단일 진입점)
+bash .agents/skills/matt-pocock-atomic-workflow/scripts/invoke-worker.sh \
+  --worker agy \
+  --workspace "$(pwd)" \
+  --prompt-file /path/to/brief.md \
+  --log-file /path/to/run.log \
+  --skills matt-pocock-atomic-workflow,tdd
+```
+
+Windows는 동일 계약의 `invoke-worker.ps1` / `ensure-workers.ps1`을 쓴다. `agy`/`pi`를 인자 없이 실행하지 마라 (TUI 정지).
+
 진입점:
 
 - Pi 프롬프트: 패키지 `prompts/matt-pocock-atomic-*.md` (설치 시 자동 등록. 사용자 홈 복사본을 남기지 말 것)

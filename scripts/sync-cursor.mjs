@@ -17,7 +17,7 @@ import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
-export const AGENT_NAMES = ["explorer", "planner", "tasker", "worker", "reviewer"];
+export const AGENT_NAMES = ["explorer", "planner", "tasker", "worker", "reviewer", "cli-delegate"];
 
 // Pi agents/*.md 는 async:true 로 동작하므로 Cursor에서도 백그라운드가 기본이다.
 export const CURSOR_AGENT_DEFAULTS = {
@@ -31,7 +31,9 @@ const AGENT_DESCRIPTION_SUFFIX = {
   planner: " Use after requirements are clarified to write the implementation plan.",
   tasker: " Use after the plan is confirmed to split it into verifiable tasks.",
   worker: " Use to implement one task item at a time.",
-  reviewer: " Use after implementation to verify tasks, diff, and tests."
+  reviewer: " Use after implementation to verify tasks, diff, and tests.",
+  "cli-delegate":
+    " Use when TASKS worker is agy|pi|opencode|codex|claude to run invoke-worker headlessly."
 };
 
 // Pi 전용 frontmatter 키. Cursor 파일에 남기면 무시되거나 혼란을 주므로 제거한다.
@@ -124,13 +126,23 @@ const PI_TO_CURSOR_PHRASES = [
   ["Pi 세션이다.", "Cursor 세션이다."],
   ["`subagent` 툴만 쓰고 `async: true`로 띄운 뒤 완료를 기다린다", "Task 툴만 쓰고 백그라운드로 띄운 뒤 완료를 기다린다"],
   ["위임은 `subagent`만 쓴다", "위임은 Task 툴만 쓴다"],
+  ["`subagent` 툴만 쓴다.", "Task 툴만 쓴다."],
+  ["Task 툴로 `worker`를 `async: true`로.", "Task `worker`를 백그라운드로 띄운다."],
   ["위임은 `subagent`로 위임한다", "위임은 Task 툴로 위임한다"],
   ["`subagent`로 `", "Task 툴로 `"],
   ["`subagent`만 호출한다", "Task 툴만 호출한다"],
   ["를 `async: true`로 띄운다", "를 백그라운드로 띄운다"],
   ["`async: true`로 이어서 띄운다", "백그라운드로 이어서 띄운다"],
   ["`async: true`로 띄운다", "백그라운드로 띄운다"],
-  ["PowerShell `invoke-worker.ps1`을 쓰지 마라.", "PowerShell `invoke-worker.ps1` 대신 Task 툴을 쓴다."],
+  ["PowerShell `invoke-worker.ps1`을 쓰지 마라.", "bare `agy`/`pi` CLI를 직접 호출하지 마라. Task 툴만 쓴다."],
+  [
+    "TASKS `worker:` 또는 인자가 `agy|pi|opencode|codex|claude`이면 `subagent`로 `cli-delegate`를 `async: true`로 띄운다.",
+    "TASKS `worker:` 또는 인자가 `agy|pi|opencode|codex|claude`이면 Task **`cli-delegate`**를 백그라운드로 띄운다."
+  ],
+  [
+    "TASKS 항목 `worker:`가 `agy|pi|opencode|codex|claude`이면 `subagent`로 `cli-delegate`를 `async: true`로 띄운다 (`workers.md`·`invoke-worker.sh`).",
+    "TASKS 항목 `worker:`가 `agy|pi|opencode|codex|claude`이면 Task **`cli-delegate`**를 백그라운드로 띄운다 (`workers.md`·`invoke-worker.sh`)."
+  ],
   ["모델 폴백은 `fallbackModels`에 맡기고", "모델 폴백은 에이전트 `model` 설정에 맡기고"],
   ["쿼터 부족은 `fallbackModels`가 처리한다", "쿼터 부족은 에이전트 `model` 설정이 처리한다"],
   ["폴백이 실패하면 그 사실을 보고한다", "지정 모델이 실패하면 그 사실을 보고한다"]
