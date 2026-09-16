@@ -46,14 +46,14 @@ Pi 패키지 스킬이다. 프롬프트·에이전트는 이 패키지가 등록
 
 ## 기본 파이프라인 (Plan 이후 자동)
 
-사람 게이트는 **PLAN뿐**이다. 모델은 스킬이 아니라 서브에이전트에 붙는다. 그래서 단계마다 자식을 띄우고, 그 자식이 스킬을 읽게 한다.
+사람 게이트는 **PLAN뿐**이다. 모델은 스킬이 아니라 서브에이전트에 붙는다. 그래서 단계마다 자식을 띄우고, 그 자식이 스킬을 읽게 한다. 일상 작업은 Plan → Task → Worker → Reviewer로 직행한다. 대규모 아키텍처 개편이나 공개 API 설계 등 중대 작업인 경우에만 부모가 선택적으로 Challenge / Simplify 검토 단계를 거친다.
 
 PLAN이 있고 막힌 질문(보안·범위·데이터 손실)이 없으면 부모는 멈추지 않는다.
 
 1. `tasker`를 `async: true`로 띄운다.
 2. TASKS의 의존 순서대로 `worker`를 `async: true`로 띄운다. `parallel: yes`이고 파일이 안 겹치면 같이 띄워도 된다. 워크트리당 쓰기 워커는 하나.
 3. 항목마다 **부모가 `scripts/run-done.mjs`로 `done` 명령을 재실행하고 `.done.json` 증거가 있을 때만** `[x]`.
-4. 열린 항목이 없으면 `reviewer`를 `async: true`로 띄운다. reviewer가 완료되면 `tester`를 띄운다. tester가 완료되고 통과하면 `[x]`로 마무리한다.
+4. 열린 항목이 없으면 `reviewer`를 `async: true`로 띄운다 (작업자의 대화 맥락을 상속받지 않는 독립 fresh 컨텍스트로 띄워 객관적 검증 보장). reviewer가 완료되면 `tester`를 띄운다. tester가 완료되고 통과하면 `[x]`로 마무리한다.
 5. 결과를 한국어로 보고한다. 커밋하지 않는다.
 
 멈추는 경우:
@@ -108,18 +108,19 @@ PLAN이 있고 막힌 질문(보안·범위·데이터 손실)이 없으면 부�
 
 ## 워크트리
 
-조건이 맞을 때만 만든다. 항상 만들라는 뜻이 아니다.
+조건이 맞을 때만 만든다. 항상 만들라는 뜻이 아니다. 단일 워커 순차 작업은 기본 작업공간/브랜치에서 진행하여 오버헤드를 최소화한다.
 
 **만든다** (쓰기가 허용된 모드, git 저장소):
 
-- 기능이 여러 파일에 걸치거나
-- 현재 워크트리에 이번 일과 무관한 변경이 있거나
-- 사용자가 병렬/격리를 원할 때
+- 동시 병렬 수정(다중 에이전트 동시 변경)이 필요하거나
+- 현재 작업공간에 이번 일과 무관한 변경이 있어 충돌 방지 및 격리가 필요하거나
+- 사용자가 명시적으로 병렬/격리를 원할 때
 
 위치: 저장소 부모의 `../<repo>-<slug>`, 브랜치 `feat/<slug>`. 이미 있으면 재사용한다. 명령은 [reference.md](reference.md).
 
-**만들지 않는다**:
+**만들지 않는다** (기본 작업공간에서 진행):
 
+- 단일 워커 순차 작업 (기본 작업공간/브랜치 진행 권장)
 - Cursor Plan 모드
 - git 저장소가 아님 → 현재 폴더에서 진행하고 그 사실을 말한다
 - 한두 파일 수정, 문서만, 워크플로 설정만
@@ -150,7 +151,7 @@ Pi에서는 워크트리를 만든 뒤 그 경로를 작업 `cwd`로 쓴다. Cur
 
 1. 코드·문서·기존 `.docs/*/`·하네스 `docs/<slug>/`의 `EXPLORE-*.md`/`PLAN-*.md`/`TASKS-*.md`를 읽는다. `.docs/<slug>/EXPLORE-<slug>.md`(또는 `docs/<slug>/`)가 있으면 탐색 결과를 계획에 즉시 반영한다.
 2. 필요하면 웹 검색. 코드가 낯설고 탐색 보고서가 없으면 Pi에서 `explorer` 또는 `scout`를 먼저 띄워도 된다.
-3. 워크트리 규칙에 따라 격리 여부를 정한다.
+3. 워크트리 규칙에 따라 격리 여부를 정한다 (단일 순차 작업은 기본 작업공간 진행 권장).
 4. **부모 오케스트레이터가 먼저 planning preflight를 수행한다.** 패키지에 번들된 `grilling`, `domain-modeling`, `codebase-design`, `wayfinder`를 직접 읽는다. `grilling`의 decision frontier에 사용자 결정이 있으면 번호와 추천 답을 제시하고 답을 기다린다. async `planner`에게 사용자 인터뷰를 떠넘기지 않는다.
 5. 작업이 한 세션에 선명하면 `bounded`, 여러 세션·fog·독립 결정이 있으면 `local-wayfinding`으로 라우팅한다. `wayfinder`는 사용자 호출용이므로 사용자가 명시한 경우만 `explicit-wayfinder`로 넘긴다.
 6. [reference.md](reference.md) 템플릿으로 PLAN 위치 규칙에 따라 `.docs/<slug>/PLAN-<slug>.md`(워크플로 자체는 `docs/<slug>/PLAN-<slug>.md`)를 쓴다. 부모가 만든 `계획 정제` brief를 planner에게 전달하며, brief가 없으면 PLAN 완료를 허용하지 않는다.
@@ -170,7 +171,7 @@ Pi에서는 워크트리를 만든 뒤 그 경로를 작업 `cwd`로 쓴다. Cur
 | plan | `planner` | `matt-pocock-atomic-workflow`, `codebase-design`, `domain-modeling`, `grilling`, `wayfinder` | 부모 brief를 PLAN으로 구체화. 인터뷰나 tracker 발행 금지 |
 | task | `tasker` | `matt-pocock-atomic-workflow`, `to-tickets` | 수직 슬라이스·의존만 가져온다. 산출물은 `.docs/<slug>/TASKS-<slug>.md`(워크플로 자체는 `docs/<slug>/`). 트래커 발행·사용자 퀴즈 금지 |
 | execute | `worker` | `matt-pocock-atomic-workflow`, `tdd` | 로직은 red→green. 커밋 금지 |
-| review | `reviewer` | `matt-pocock-atomic-workflow`, `code-review` | Standards / Spec 두 축을 **이 에이전트가 직접**. Spec = PLAN+TASKS. 손자 금지. 산출물은 `.docs/<slug>/REVIEW-<slug>.md`(워크플로 자체는 `docs/<slug>/`) |
+| review | `reviewer` | `matt-pocock-atomic-workflow`, `code-review` | **Fresh Context 독립 검증**: 작업자 대화 맥락을 상속받지 않고 독립 실행. Standards / Spec 두 축을 **이 에이전트가 직접** 객관적으로 검증 (Spec = PLAN+TASKS와 git diff 대조). 손자 금지. 산출물은 `.docs/<slug>/REVIEW-<slug>.md`(워크플로 자체는 `docs/<slug>/`) |
 | test | `tester` | `matt-pocock-atomic-workflow`, `tdd`, `codebase-design` | reviewer 완료 후 로직 diff에 대한 테스트 작성 + mutation 검증. `run-done`으로 증거 검증 |
 
 번들 출처와 revision은 패키지의 `THIRD_PARTY_LICENSES/mattpocock-skills-*`에 기록한다. 별도 `npx skills add`나 `settings.json`의 외부 skills 경로는 필요 없다.
@@ -189,6 +190,15 @@ Cursor CLI 워커 (TASKS `worker:` opt-in): `agy` · `pi` · `opencode` · `code
 4. 워커가 끝나면 오케스트레이터가 `git diff`와 테스트를 직접 확인한다. 「완료」로그를 믿지 않는다.
 5. 워크트리당 쓰기 워커는 하나. 워커는 커밋·푸시하지 않는다.
 6. `agy`를 인자 없이 실행하지 않는다 (TUI 정지).
+
+### Challenge / Simplify 선택적 루프 (중대 작업 시)
+
+- **일상 작업**: Worker(구현) → Reviewer(검증)로 직행한다. 불필요한 단계를 추가하지 않는다.
+- **선택적 적용 대상**: 대규모 아키텍처 개편, 코어 데이터 모델 변경, 공개 API 설계 등 복잡도가 급증하거나 설계 가정이 위험한 중대 작업.
+- **오케스트레이션 지침**:
+  - **Simplify (단순화)**: 불필요한 간접 계층(over-engineering)이 없는지 점검하고, 최소한의 개념과 깊은 모듈(deep module)로 단순화하도록 유도한다.
+  - **Challenge (설계 도전)**: 핵심 설계 가정, 숨겨진 결함, 엣지 케이스, 비기능 요구사항(동시성·성능·보안)을 비판적으로 도전하여 설계를 검증한다.
+  - 부모는 필요 시 Plan 수립 후 또는 대규모 구현 전후에 `oracle` 또는 `scout`를 활용하거나 직접 Challenge/Simplify 점검을 수행할 수 있다.
 
 ## Phase 2 — Task
 
@@ -211,13 +221,15 @@ Cursor CLI 워커 (TASKS `worker:` opt-in): `agy` · `pi` · `opencode` · `code
 
 ## Phase 4 — Review
 
+`reviewer`는 작업자(`worker`)의 대화 맥락을 상속받지 않는 **독립 fresh 컨텍스트**로 실행된다. 작업자의 주관적 설명이나 변명에 의존하지 않고, 오직 요구사항 명세(PLAN, TASKS), 실제 코드 변경(`git diff`), 테스트/린트 결과만을 대조하여 Standards(품질/규격)와 Spec(명세 일치도)을 객관적으로 독립 검증한다.
+
 1. [testing.md](testing.md)를 읽고 저장소의 단위 테스트·린트를 실행한다. 없으면 REVIEW에 「없음」을 적는다. `run-done`으로 테스트를 실행하고 `.done.json` 증거를 확인한다. 없으면 REVIEW에 「없음」을 적는다.
 2. TASKS의 완료 조건과 diff를 대조한다. 빠진 테스트·문서를 적는다.
 3. `tester`가 작성한 테스트와 mutation 검증 결과를 확인한다. tester 이후에 테스트를 재검증한다.
-3. 로직 파일이 바뀌었으면 이번 파일만 mutation (`npx stryker run --mutate <파일>`). 생존한 인증·계약 돌연변이는 결함이다. 설정이 없으면 설치하지 않는다.
-4. `reviewer`가 `.docs/<slug>/REVIEW-<slug>.md`(워크플로 자체는 `docs/<slug>/`)를 쓴다. 실패한 테스트나 break 미만 mutation을 통과로 쓰지 않는다.
-5. 제품 기능이 끝났고 검사가 통과하면 `docs/README.md` 표대로 문서를 갱신한다.
-6. 커밋하지 않는다. `/matt-pocock-atomic-commit`을 안내한다.
+4. 로직 파일이 바뀌었으면 이번 파일만 mutation (`npx stryker run --mutate <파일>`). 생존한 인증·계약 돌연변이는 결함이다. 설정이 없으면 설치하지 않는다.
+5. `reviewer`가 `.docs/<slug>/REVIEW-<slug>.md`(워크플로 자체는 `docs/<slug>/`)를 쓴다. 실패한 테스트나 break 미만 mutation을 통과로 쓰지 않는다.
+6. 제품 기능이 끝났고 검사가 통과하면 `docs/README.md` 표대로 문서를 갱신한다.
+7. 커밋하지 않는다. `/matt-pocock-atomic-commit`을 안내한다.
 
 ## Phase 5 — Commit
 

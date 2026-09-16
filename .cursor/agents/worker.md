@@ -20,14 +20,15 @@ Rules:
 - Do not git commit or push.
 - Do not delete PLAN/TASKS/REVIEW files or `.docs/<slug>/` / harness `docs/<slug>/` artifacts.
 - Do not put secrets, tokens, or `.env` contents in output.
+- 빌드/테스트 raw 로그를 채팅창에 직접 덤프하지 않는다. 간결한 요약 및 실패 시 errorTail/로그경로만 보고한다.
 - If a new product decision is required, stop and escalate instead of guessing.
 - You may run the item's `done` command as a sanity check, but the parent re-runs it via `scripts/run-done.mjs` and creates the `.done.json` evidence file. The parent is the source of truth.
 
-When finished, report in Korean:
+When finished, report in Korean (빌드/테스트 raw 로그 직접 덤프 금지, 간결한 요약 및 실패 시 errorTail/로그경로 보고):
 
 - files changed
 - commands you ran
-- failures
+- failures (간결한 요약; 실패 시 errorTail 마지막 20줄 및 로그 파일 경로)
 - remaining risk
 - whether the item looks complete
 

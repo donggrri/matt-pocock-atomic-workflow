@@ -355,3 +355,50 @@ test("run-done creates .done.json at logPath", async () => {
   }
 });
 
+test("run-done extracts errorTail of last 20 lines on command failure", async () => {
+  const tmpDir = mkdtempSync(join(tmpdir(), "test-run-done-"));
+  try {
+    const logPath = join(tmpDir, "output.log");
+    const result = await runDone({
+      cwd: tmpDir,
+      command: `node -e "for (let i = 1; i <= 25; i++) console.log('line ' + i); process.exit(1);"`,
+      logPath,
+      timeoutMs: 5000,
+    });
+    assert.equal(result.ok, false);
+    assert.equal(result.exitCode, 1);
+    assert.ok(typeof result.errorTail === "string", "result.errorTail must be a string");
+    const tailLines = result.errorTail.trim().split("\n");
+    assert.equal(tailLines.length, 20);
+    assert.equal(tailLines[0].trim(), "line 6");
+    assert.equal(tailLines[tailLines.length - 1].trim(), "line 25");
+
+    const summary = JSON.parse(await readFile(`${result.outputPath}`, "utf8"));
+    assert.equal(summary.errorTail, result.errorTail);
+  } finally {
+    rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test("run-done extracts errorTail on command timeout", async () => {
+  const tmpDir = mkdtempSync(join(tmpdir(), "test-run-done-"));
+  try {
+    const logPath = join(tmpDir, "output.log");
+    const result = await runDone({
+      cwd: tmpDir,
+      command: `node -e "console.log('timeout log line'); setTimeout(() => {}, 5000);"`,
+      logPath,
+      timeoutMs: 100,
+    });
+    assert.equal(result.ok, false);
+    assert.equal(result.exitCode, -1);
+    assert.ok(typeof result.errorTail === "string", "result.errorTail must be a string");
+    assert.ok(result.errorTail.includes("timeout log line"));
+
+    const summary = JSON.parse(await readFile(`${result.outputPath}`, "utf8"));
+    assert.equal(summary.errorTail, result.errorTail);
+  } finally {
+    rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+

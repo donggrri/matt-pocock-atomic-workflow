@@ -4,6 +4,9 @@ SKILL.md를 먼저 읽는다. 파일을 쓸 때만 이 문서를 연다.
 
 ## 워크트리 (PowerShell)
 
+단일 워커 순차 작업은 기본 작업공간/현재 브랜치에서 진행하여 오버헤드를 최소화한다 (워크트리 생성 생략 권장).
+동시 병렬 수정(다중 에이전트 동시 변경)이나 무관한 변경과의 충돌 방지·격리가 필요한 경우에만 아래와 같이 워크트리를 생성한다.
+
 저장소 루트에서:
 
 ```powershell
@@ -168,11 +171,16 @@ PLAN: PLAN-<slug>.md
 
 ## REVIEW-\<slug\>.md
 
+Reviewer는 작업자의 대화 맥락을 상속받지 않는 독립 **fresh 컨텍스트**로 실행된다. 작업자 설명에 의존하지 않고 PLAN, TASKS 명세와 실제 `git diff`, 실행 테스트 결과만을 대조하여 Standards(표준/품질)와 Spec(명세 일치도) 두 축을 객관적으로 독립 검증한다.
+
 ```markdown
 # REVIEW: <제목>
 
 TASKS: TASKS-<slug>.md
 상태: Phase 4
+
+## 원칙 (Fresh Context 독립 검증)
+<!-- Reviewer는 작업자 대화 맥락 없이 독립 fresh 컨텍스트로 실행되어, PLAN/TASKS 명세와 실제 git diff만을 대조하여 검증합니다. -->
 
 ## 명령
 
@@ -180,7 +188,7 @@ TASKS: TASKS-<slug>.md
 - mutation `<파일>` → 점수 / survived 요약 / 건너뜀 이유
 - `<린트>` → 통과/실패/없음
 
-## TASKS 대조
+## TASKS 대조 (Spec 검증)
 
 - T1: 충족 / 빠짐
 - T2: ...
