@@ -13,6 +13,8 @@ import {
   updateStatus,
   listAllStatuses,
   syncFromFiles,
+  syncSlug,
+  inferPhase,
   importDocs,
 } from "../scripts/work-status.mjs";
 
@@ -177,6 +179,83 @@ test("listAllStatuses returns all recorded statuses across repos", async () => {
     assert.equal(list.length, 2);
     const slugs = list.map((item) => item.slug).sort();
     assert.deepEqual(slugs, ["slug-1", "slug-2"]);
+  } finally {
+    rmSync(tmpRoot, { recursive: true, force: true });
+    if (orig !== undefined) process.env.MATT_POCOCK_WORKFLOW_HOME = orig;
+    else delete process.env.MATT_POCOCK_WORKFLOW_HOME;
+  }
+});
+
+test("inferPhase derives phase from artifacts and task progress", () => {
+  assert.equal(inferPhase({ explore: true }, {}), "explore");
+  assert.equal(inferPhase({ plan: true }, {}), "plan");
+  assert.equal(inferPhase({ tasks: true }, { total: 2, done: 0 }), "task");
+  assert.equal(inferPhase({ tasks: true }, { total: 2, done: 1 }), "execute");
+  assert.equal(
+    inferPhase({ tasks: true }, { total: 2, done: 2 }),
+    "review"
+  );
+  assert.equal(
+    inferPhase({ review: true }, { total: 2, done: 2 }),
+    "review"
+  );
+  assert.equal(
+    inferPhase({ tasks: true }, { total: 2, done: 1, blockedId: "T2" }),
+    "execute"
+  );
+});
+
+test("syncSlug writes STATUS.json from slug-folder artifacts", async () => {
+  const tmpRoot = mkdtempSync(join(tmpdir(), "wf-test-"));
+  const repo = mkdtempSync(join(tmpdir(), "repo-"));
+  const orig = process.env.MATT_POCOCK_WORKFLOW_HOME;
+  try {
+    process.env.MATT_POCOCK_WORKFLOW_HOME = tmpRoot;
+    const slug = "auto-sync";
+    const paths = getWorkflowPaths(repo, slug);
+    mkdirSync(paths.docsDir, { recursive: true });
+    writeFileSync(join(paths.docsDir, `PLAN-${slug}.md`), "# PLAN\n", "utf8");
+    writeFileSync(
+      join(paths.docsDir, `TASKS-${slug}.md`),
+      "- [x] T1 done\n- [ ] T2 open\n",
+      "utf8"
+    );
+
+    const synced = await syncSlug(repo, slug);
+    assert.equal(synced.slug, slug);
+    assert.equal(synced.phase, "execute");
+    assert.equal(synced.artifacts.plan, true);
+    assert.equal(synced.artifacts.tasks, true);
+    assert.equal(synced.tasks.total, 2);
+    assert.equal(synced.tasks.done, 1);
+
+    const loaded = await readStatus(repo, slug);
+    assert.equal(loaded.phase, "execute");
+  } finally {
+    rmSync(tmpRoot, { recursive: true, force: true });
+    rmSync(repo, { recursive: true, force: true });
+    if (orig !== undefined) process.env.MATT_POCOCK_WORKFLOW_HOME = orig;
+    else delete process.env.MATT_POCOCK_WORKFLOW_HOME;
+  }
+});
+
+test("syncSlug preserves complete phase unless phase is explicit", async () => {
+  const tmpRoot = mkdtempSync(join(tmpdir(), "wf-test-"));
+  const repo = "/fake/my-repo";
+  const orig = process.env.MATT_POCOCK_WORKFLOW_HOME;
+  try {
+    process.env.MATT_POCOCK_WORKFLOW_HOME = tmpRoot;
+    const slug = "done-slug";
+    await writeStatus(repo, slug, { phase: "complete" });
+    const paths = getWorkflowPaths(repo, slug);
+    mkdirSync(paths.docsDir, { recursive: true });
+    writeFileSync(join(paths.docsDir, `PLAN-${slug}.md`), "# PLAN\n", "utf8");
+
+    const kept = await syncSlug(repo, slug);
+    assert.equal(kept.phase, "complete");
+
+    const forced = await syncSlug(repo, slug, { phase: "commit" });
+    assert.equal(forced.phase, "commit");
   } finally {
     rmSync(tmpRoot, { recursive: true, force: true });
     if (orig !== undefined) process.env.MATT_POCOCK_WORKFLOW_HOME = orig;

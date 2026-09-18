@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { mkdtemp, rm } from "node:fs/promises";
@@ -130,6 +131,19 @@ test("installer copies skills, agents, and commands into a target project", asyn
     }
     const installedCommands = await readdir(join(target, ".cursor", "commands"));
     assert.equal(installedCommands.length, 12);
+
+    const bundledStatus = join(
+      target,
+      ".agents",
+      "skills",
+      "matt-pocock-atomic-workflow",
+      "scripts",
+      "work-status.mjs"
+    );
+    assert.ok(existsSync(bundledStatus), "installer must bundle work-status.mjs in workflow skill");
+    const rootStatus = await readFile("scripts/work-status.mjs", "utf8");
+    const installedStatus = await readFile(bundledStatus, "utf8");
+    assert.equal(installedStatus, rootStatus, "bundled work-status.mjs must match scripts/work-status.mjs");
 
     const second = await installCursor({ root: ".", target, force: false });
     assert.ok(second.skipped.length > 0, "second install must skip existing files");

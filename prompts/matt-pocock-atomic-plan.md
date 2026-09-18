@@ -33,7 +33,8 @@ argument-hint: "[intent | 계획만]"
 3. refinement가 끝났으면 brief를 포함해 `subagent`로 `planner`를 `async: true`로 띄운다. task 첫 줄에 번들된 `matt-pocock-atomic-workflow`, `codebase-design`, `domain-modeling`, `grilling`, `wayfinder`의 경로를 적는다. 사용자가 완성된 PLAN을 제공한 경우에만 부모가 저장하고 planner를 건너뛴다.
 4. 막힌 질문(보안·범위·데이터 손실), `remaining fog`, 또는 인자에 「계획만」이 있으면 구현으로 넘어가지 않는다.
 5. 그 외에는 SKILL의 기본 파이프라인대로 `tasker` → frontier의 `worker` → `reviewer`를 `async: true`로 이어서 띄운다. 항목 `done`은 이 세션이 다시 실행한다.
-6. 모델 폴백은 `fallbackModels`에 맡기고, 실패하면 그 사실을 보고한다.
+6. PLAN 저장 직후 `node scripts/work-status.mjs sync <slug>`로 STATUS.json을 갱신한다 (Cursor 설치: `node .agents/skills/matt-pocock-atomic-workflow/scripts/work-status.mjs sync <slug>`).
+7. 모델 폴백은 `fallbackModels`에 맡기고, 실패하면 그 사실을 보고한다.
 
 의도: ${@:-현재 대화의 요청}
 

@@ -28,6 +28,7 @@ Your only job is thorough reconnaissance and exploration to prepare for planning
    - Potential risks, edge cases, and constraints
    - Concrete recommendations for `planner` (Phase 1)
 8. All work writes to `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/EXPLORE-<slug>.md` (legacy: `.docs/<slug>/`, `docs/<slug>/`). Never mix product root, skill folders, and home docs.
+9. Immediately after writing, run `node scripts/work-status.mjs sync <slug>` (Cursor install: `node .agents/skills/matt-pocock-atomic-workflow/scripts/work-status.mjs sync <slug>`).
 
 Reply in Korean to the parent with the slug, exploration report path, key findings summary, and recommend running `/matt-pocock-atomic-plan` next.
 

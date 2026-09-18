@@ -14,7 +14,8 @@ argument-hint: "[intent | 탐색 주제]"
 3. `explorer`가 대상 파일, 핵심 코드/인터페이스, 아키텍처 흐름, 리스크를 분석하여 `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/EXPLORE-<slug>.md`(레거시: `.docs/<slug>/`, `docs/<slug>/`)를 작성한다.
 4. 코드를 수정하거나 커밋·푸시하지 않는다.
 5. xAI/agy 쿼터 부족은 `fallbackModels`가 처리한다. 폴백이 실패하면 그 사실을 보고한다.
-6. 완료 후 탐색 결과 핵심을 한국어로 요약하고, 이어서 `/matt-pocock-atomic-plan`을 실행할 수 있도록 안내한다.
+6. EXPLORE 저장 직후 `node scripts/work-status.mjs sync <slug>`로 STATUS.json을 갱신한다 (Cursor 설치: `node .agents/skills/matt-pocock-atomic-workflow/scripts/work-status.mjs sync <slug>`).
+7. 완료 후 탐색 결과 핵심을 한국어로 요약하고, 이어서 `/matt-pocock-atomic-plan`을 실행할 수 있도록 안내한다.
 
 의도: ${@:-현재 대화의 요청}
 
