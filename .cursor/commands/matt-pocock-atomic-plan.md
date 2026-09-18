@@ -8,7 +8,7 @@ matt-pocock-atomic-workflow Phase 1. grilling preflight 후 PLAN을 작성하고
 
 Cursor 세션에서는 Task 툴로 아래 서브에이전트를 호출한다. CLI 워커를 직접 설치하거나 `agy`/`codex`를 인자 없이 실행하지 마라.
 
-제품 기능이면 `<workspace>/.docs/<slug>/PLAN-<slug>.md`, 워크플로 자체(matt-pocock-atomic-workflow·스킬·커맨드·패키지) 수정·검토면 `~/.pi/agent/matt-pocock-atomic-workflow/docs/<slug>/PLAN-<slug>.md`(Cursor: `~/.cursor/matt-pocock-atomic-workflow/docs/<slug>/`)를 쓴다. 쓰기 전 슬러그 디렉토리를 만든다. 홈·스킬·제품 루트·제품 `docs/`를 서로 혼용하지 않는다.
+모든 작업(제품 기능 및 워크플로 자체)은 단일 전역 홈 `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/PLAN-<slug>.md`에 쓴다 (레거시: `.docs/<slug>/`, `docs/<slug>/`). 쓰기 전 슬러그 디렉토리를 만든다. 홈·스킬·제품 루트·제품 `docs/`를 서로 혼용하지 않는다.
 
 ## Planning preflight — 부모가 직접 수행
 
@@ -30,8 +30,8 @@ Cursor 세션에서는 Task 툴로 아래 서브에이전트를 호출한다. CL
 
 ## PLAN 및 다음 단계
 
-1. 코드·문서·기존 `.docs/*/`·하네스 `docs/<slug>/`의 EXPLORE/PLAN/TASKS를 읽는다. `.docs/<slug>/EXPLORE-<slug>.md`(또는 `docs/<slug>/`)가 있으면 즉시 반영한다.
-2. 사용자가 이미 계획을 줬거나 `.docs/<slug>/PLAN-<slug>.md`(또는 `docs/<slug>/`)가 있어도 refinement brief가 없으면 preflight를 건너뛰지 않는다.
+1. 코드·문서·전역 홈 및 기존 `.docs/*/`·하네스 `docs/<slug>/`의 EXPLORE/PLAN/TASKS를 읽는다. `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/EXPLORE-<slug>.md`(또는 레거시 `.docs/<slug>/`, `docs/<slug>/`)가 있으면 즉시 반영한다.
+2. 사용자가 이미 계획을 줬거나 `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/PLAN-<slug>.md`(또는 레거시 `.docs/<slug>/`, `docs/<slug>/`)가 있어도 refinement brief가 없으면 preflight를 건너뛰지 않는다.
 3. refinement가 끝났으면 brief를 포함해 Task 툴로 `planner`를 백그라운드로 띄운다. task 첫 줄에 번들된 `matt-pocock-atomic-workflow`, `codebase-design`, `domain-modeling`, `grilling`, `wayfinder`의 경로를 적는다. 사용자가 완성된 PLAN을 제공한 경우에만 부모가 저장하고 planner를 건너뛴다.
 4. 막힌 질문(보안·범위·데이터 손실), `remaining fog`, 또는 인자에 「계획만」이 있으면 구현으로 넘어가지 않는다.
 5. 그 외에는 SKILL의 기본 파이프라인대로 `tasker` → frontier의 `worker` → `reviewer`를 백그라운드로 이어서 띄운다. 항목 `done`은 이 세션이 다시 실행한다.

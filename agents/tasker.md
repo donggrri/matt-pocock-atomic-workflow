@@ -23,9 +23,9 @@ MUST: first tool calls read every skill listed in `available_skills` (at least `
 
 Take vertical-slice and blocking-edge rules from `to-tickets`. Do not publish to GitHub/Linear/.scratch. Do not quiz the user. Do not run `setup-matt-pocock-skills`. The file you write is still `TASKS-<slug>.md` in the matt-pocock-atomic-workflow template, inside the slug folder.
 
-Find the matching `.docs/<slug>/PLAN-<slug>.md` (workflow-itself: harness `docs/<slug>/PLAN-<slug>.md`). If missing, stop and tell the parent to run Phase 1.
+Find the matching `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/PLAN-<slug>.md` (legacy: `.docs/<slug>/PLAN-<slug>.md`, `docs/<slug>/PLAN-<slug>.md`). If missing, stop and tell the parent to run Phase 1.
 
-Create the slug directory if needed, then write `TASKS-<slug>.md` beside the PLAN from the template:
+Create the slug directory if needed, then write `TASKS-<slug>.md` beside the PLAN in `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/` from the template:
 
 - Each item is one verifiable unit with `id`, checkbox, `files`, `depends`, `parallel`, `worker`, `done`.
 - Prefer tracer-bullet slices (narrow path through behavior), not horizontal layer tickets.

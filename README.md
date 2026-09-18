@@ -126,14 +126,14 @@ Default: once **PLAN is confirmed**, task → execute → review run automatical
 
 | Command | Role | Output |
 |---|---|---|
-| `/matt-pocock-atomic-explore` | Phase 0: explore the codebase and tech in advance (optional) | `.docs/<slug>/EXPLORE-<slug>.md` (workflow-itself: `docs/<slug>/`) |
-| `/matt-pocock-atomic-plan` | Default pipeline after Phase 1 | `.docs/<slug>/PLAN-<slug>.md` + TASKS/code/REVIEW automatically |
-| `/matt-pocock-atomic-task` | Force Phase 2 only, or continue automatically | `.docs/<slug>/TASKS-<slug>.md` |
+| `/matt-pocock-atomic-explore` | Phase 0: explore the codebase and tech in advance (optional) | `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/EXPLORE-<slug>.md` (legacy: `.docs/<slug>/`) |
+| `/matt-pocock-atomic-plan` | Default pipeline after Phase 1 | `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/PLAN-<slug>.md` + TASKS/code/REVIEW automatically |
+| `/matt-pocock-atomic-task` | Force Phase 2 only, or continue automatically | `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/TASKS-<slug>.md` |
 | `/matt-pocock-atomic-execute` | Force Phase 3 only, or continue automatically | code changes + checked-off TASKS |
 | `/matt-pocock-atomic-delegate` | Phase 3: delegate to a specific worker | same |
-| `/matt-pocock-atomic-review` | Phase 4 | `.docs/<slug>/REVIEW-<slug>.md` |
+| `/matt-pocock-atomic-review` | Phase 4 | `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/REVIEW-<slug>.md` |
 | `/matt-pocock-atomic-commit` | Phase 5: commit (no push) | git commit |
-| `/matt-pocock-atomic-status` | Progress report | text summary |
+| `/matt-pocock-atomic-status` | Progress report (`npm run status` / `STATUS.json`) | text summary / table |
 | `/matt-pocock-atomic-config` | Manage matt-pocock-atomic-workflow model/skill settings (`/matt-pocock-atomic-settings`) | text/interactive settings |
 | `/matt-pocock-atomic-models` | Model settings guide (read-only) | text guide |
 | `/matt-pocock-atomic-doctor` | Diagnose skill collisions, YAML frontmatter syntax, and apply auto-fix | text report / auto-fix |

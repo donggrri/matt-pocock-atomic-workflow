@@ -21,8 +21,9 @@ Pi 패키지 스킬이다. 프롬프트·에이전트는 이 패키지가 등록
 
 **PLAN 위치 규칙** (템플릿 필드는 양쪽 동일. `PREFIX-<slug>.md` 파일명은 유지. 쓰기 전 슬러그 디렉토리를 만든다):
 
-- **제품 기능**: `<workspace>/.docs/<slug>/PLAN-<slug>.md` (같은 폴더에 EXPLORE/TASKS/REVIEW). 홈·스킬 폴더·제품 `docs/`와 혼용하지 않는다.
-- **워크플로 자체** (matt-pocock-atomic-workflow·스킬·커맨드·패키지 수정·검토): `~/.pi/agent/matt-pocock-atomic-workflow/docs/<slug>/PLAN-<slug>.md`. Cursor 하네스는 `~/.cursor/matt-pocock-atomic-workflow/docs/<slug>/`. 제품 루트에 쓰지 않는다.
+- **단일 전역 홈**: 모든 작업(제품 기능 및 워크플로 자체)은 `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/PLAN-<slug>.md`에 쓴다 (같은 폴더에 `STATUS.json`, EXPLORE/TASKS/REVIEW). 홈·스킬 폴더·제품 `docs/`와 혼용하지 않는다.
+- `shortRepo`: `path.basename(repoRoot)` 기반 소문자 kebab-case 정규화 (최대 24자).
+- **레거시 호환**: 기존 저장소 `.docs/<slug>/` 및 하네스 `docs/<slug>/`는 상태 조회 시 읽기 전용 fallback으로만 지원하며, 신규 쓰기는 하지 않는다.
 
 워크플로 자체일 때 같이 맞추는 파일 목록:
 
@@ -33,13 +34,13 @@ Pi 패키지 스킬이다. 프롬프트·에이전트는 이 패키지가 등록
 
 | 단계 | 커맨드 | 산출물 | 다음 |
 |---|---|---|---|
-| 0 | `/matt-pocock-atomic-explore` | `.docs/<slug>/EXPLORE-<slug>.md` (워크플로 자체는 `docs/<slug>/`) | 탐색 보고 후 `/matt-pocock-atomic-plan` 안내 |
-| 1 | `/matt-pocock-atomic-plan` 또는 사용자가 쓴 PLAN | `.docs/<slug>/PLAN-<slug>.md` (워크플로 자체는 `docs/<slug>/`) | 막힌 질문 없으면 **자동** Phase 2 |
-| 2 | (자동) `tasker` | `.docs/<slug>/TASKS-<slug>.md` (워크플로 자체는 `docs/<slug>/`) | **자동** Phase 3 |
+| 0 | `/matt-pocock-atomic-explore` | `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/EXPLORE-<slug>.md` (레거시: `.docs/<slug>/`, `docs/<slug>/`) | 탐색 보고 후 `/matt-pocock-atomic-plan` 안내 |
+| 1 | `/matt-pocock-atomic-plan` 또는 사용자가 쓴 PLAN | `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/PLAN-<slug>.md` | 막힌 질문 없으면 **자동** Phase 2 |
+| 2 | (자동) `tasker` | `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/TASKS-<slug>.md` | **자동** Phase 3 |
 | 3 | (자동) `worker` | 코드 + 체크된 TASKS | **자동** Phase 4 |
-| 4 | (자동) `reviewer` | `.docs/<slug>/REVIEW-<slug>.md` (워크플로 자체는 `docs/<slug>/`) + 테스트 | 보고. 커밋은 수동 |
+| 4 | (자동) `reviewer` | `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/REVIEW-<slug>.md` + 테스트 | 보고. 커밋은 수동 |
 | 5 | `/matt-pocock-atomic-commit` | 커밋 (푸시 없음) | 사용자가 원할 때만 PR |
-| — | `/matt-pocock-atomic-status` | 진행 보고 | 이어서 할 커맨드 |
+| — | `/matt-pocock-atomic-status` | 진행 보고 (`work-status.mjs` 조회) | 이어서 할 커맨드 |
 | — | `/matt-pocock-atomic-config` (`/matt-pocock-atomic-settings`) | 설정 조회 및 대화형 변경 | 설정 확인 및 저장 |
 
 슬러그: 의도에서 만든 짧은 ASCII kebab-case (`space-notes`, `mcp-http`).
@@ -84,8 +85,8 @@ PLAN이 있고 막힌 질문(보안·범위·데이터 손실)이 없으면 부�
 | test | `tester` | reviewer 완료 후, 테스트 작성 + mutation 검증 |
 | commit/status/config | self | 서브에이전트 금지 |
 
-런 로그: `~/.pi/agent/matt-pocock-atomic-workflow/runs/<slug>/`
-증거: `~/.pi/agent/matt-pocock-atomic-workflow/evidence/<YYYY-MM-DD>-<slug>/`
+런 로그: `~/.matt-pocock-workflow/runs/{shortRepo}/{slug}/`
+증거: `~/.matt-pocock-workflow/evidence/{shortRepo}/<YYYY-MM-DD>-<slug>/`
 
 - `rename_chat`, `move_agent_to_root`를 호출하지 않는다.
 - `scripts/ensure-workers.ps1`으로 CLI를 설치하지 않는다.
@@ -102,8 +103,8 @@ PLAN이 있고 막힌 질문(보안·범위·데이터 손실)이 없으면 부�
 - 셸은 PowerShell이다. heredoc 대신 here-string.
 - 이 머신 git 설정·`--no-verify`·force push는 하지 않는다.
 
-런 로그: `~/.cursor/matt-pocock-atomic-workflow/runs/<slug>/`
-증거: `~/.cursor/matt-pocock-atomic-workflow/evidence/<YYYY-MM-DD>-<slug>/`
+런 로그: `~/.matt-pocock-workflow/runs/{shortRepo}/{slug}/`
+증거: `~/.matt-pocock-workflow/evidence/{shortRepo}/<YYYY-MM-DD>-<slug>/`
 
 구현을 CLI에 넘길 때만 [workers.md](workers.md)의 PowerShell 경로를 쓴다.
 
@@ -243,4 +244,4 @@ Cursor CLI 워커 (TASKS `worker:` opt-in): `agy` · `pi` · `opencode` · `code
 
 ## Status
 
-활성 `PLAN-*.md`/`TASKS-*.md`를 `.docs/*/`, 형제 워크트리 `.docs/*/`, 하네스 `docs/<slug>/`에서 찾는다. 루트/홈에 남은 레거시 평탄 파일이 있으면 언급하되 자동 이동하지 않는다. 체크 비율, `worker`, 하네스 `runs/<slug>/` 로그, 막힘, 다음에 칠 커맨드를 짧게 보고한다. 막힘 발생 시 실패한 항목만 재시도하도록 다음 커맨드로 `/matt-pocock-atomic-execute`를 안내한다.
+기본은 전역 목록이다. `node scripts/work-status.mjs list` (`npm run status`)로 `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/STATUS.json` 전체를 보고한다. 현재 작업공간 하나만 보여 주지 않는다. 인자에 슬러그가 있으면 `show <slug>`다. 레거시 `.docs/*/`, 형제 워크트리 `.docs/*/`, 하네스 `docs/<slug>/`는 목록에 없는 것만 덧붙인다. 루트/홈에 남은 레거시 평탄 파일은 언급만 하고 자동 이동하지 않는다. 막힘 발생 시 실패한 항목만 재시도하도록 다음 커맨드로 `/matt-pocock-atomic-execute`를 안내한다.

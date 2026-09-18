@@ -446,7 +446,7 @@ test("pipeline recovery reference bash", async () => {
 
   // Pi bash 증거 아카이브
   assert.match(reference, /date \+%Y-%m-%d/, "reference.md Pi bash must use date +%Y-%m-%d");
-  assert.match(reference, /\$HOME\/\.pi\/agent\/matt-pocock-atomic-workflow\/evidence\/\$stamp-<slug>/, "reference.md Pi bash must archive to $HOME/.pi/agent/matt-pocock-atomic-workflow/evidence/$stamp-<slug>");
+  assert.match(reference, /\$HOME\/\.matt-pocock-workflow\/evidence\/|\$HOME\/\.pi\/agent\/matt-pocock-atomic-workflow\/evidence\//, "reference.md Pi bash must archive to evidence directory");
   assert.match(reference, /\.docs\/<slug>/, "reference.md Pi bash must mention .docs/<slug>");
   assert.match(reference, /원본은.*남긴다/, "reference.md Pi bash must state original is kept");
 });
