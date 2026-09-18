@@ -35,6 +35,8 @@ Cursor 설치 프로젝트(`scripts/` 없음): `node .agents/skills/matt-pocock-
 
 Wrapup 커밋 후: `sync <slug> commit`. 파이프라인 종료: `sync <slug> complete` (또는 `complete <slug>`).
 
+Cursor Cloud Agent는 `CURSOR_CONVERSATION_ID`(`bc-…`)를 `STATUS.json`의 `sessionId`에 기록한다. 로컬 Cursor는 환경 변수가 없으면 `--session-id <id>`로 넘긴다.
+
 워크플로 자체일 때 같이 맞추는 파일 목록:
 
 - 패키지 저장소: `skills/matt-pocock-atomic-workflow/`, `prompts/`, `agents/`, `README.md`, `settings.example.json`
@@ -257,4 +259,4 @@ Cursor CLI 워커 (TASKS `worker:` opt-in): `agy` · `pi` · `opencode` · `code
 
 ## Status
 
-기본은 전역 목록이다. `node scripts/work-status.mjs list` (`npm run status`)로 `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/STATUS.json` 전체를 보고한다. 현재 작업공간 하나만 보여 주지 않는다. 인자에 슬러그가 있으면 `show <slug>`다. 레거시 `.docs/*/`, 형제 워크트리 `.docs/*/`, 하네스 `docs/<slug>/`는 목록에 없는 것만 덧붙인다. 루트/홈에 남은 레거시 평탄 파일은 언급만 하고 자동 이동하지 않는다. 막힘 발생 시 실패한 항목만 재시도하도록 다음 커맨드로 `/matt-pocock-atomic-execute`를 안내한다.
+기본은 전역 목록이다. `node scripts/work-status.mjs list` (`npm run status`)로 `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/STATUS.json` 전체를 보고한다. 현재 작업공간 하나만 보여 주지 않는다. 인자에 슬러그가 있으면 `show <slug>`다. 목록·상세에는 Cursor `sessionId`를 포함한다. 레거시 `.docs/*/`, 형제 워크트리 `.docs/*/`, 하네스 `docs/<slug>/`는 목록에 없는 것만 덧붙인다. 루트/홈에 남은 레거시 평탄 파일은 언급만 하고 자동 이동하지 않는다. 막힘 발생 시 실패한 항목만 재시도하도록 다음 커맨드로 `/matt-pocock-atomic-execute`를 안내한다.

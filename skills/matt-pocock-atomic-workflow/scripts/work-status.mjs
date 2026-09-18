@@ -29,6 +29,26 @@ export function getWorkflowRoot() {
  * Derives a short, clean identifier for a repository folder.
  * Converts to lowercase kebab-case and limits length to max 24 characters.
  */
+/**
+ * Cursor session/conversation id.
+ * Cloud Agent injects CURSOR_CONVERSATION_ID (`bc-…`).
+ * Local Cursor IDE does not set this; pass --session-id instead.
+ */
+export function detectCursorSessionId(env = process.env) {
+  const id = (env.CURSOR_CONVERSATION_ID || "").trim();
+  return id || null;
+}
+
+/**
+ * Prefer an explicit CLI override, then the current Cursor env, then the stored value.
+ */
+export function resolveSessionId(explicit, existingId, env = process.env) {
+  if (explicit != null && String(explicit).trim()) {
+    return String(explicit).trim();
+  }
+  return detectCursorSessionId(env) ?? existingId ?? null;
+}
+
 export function getShortRepo(repoRoot) {
   if (!repoRoot) return "unknown-repo";
   const base = basename(resolve(repoRoot));
@@ -120,6 +140,7 @@ export async function writeStatus(repoRoot, slug, data = {}) {
     },
     lastCommand: data.lastCommand ?? existing?.lastCommand ?? "",
     sourceDocs: data.sourceDocs ?? existing?.sourceDocs ?? null,
+    sessionId: resolveSessionId(data.sessionIdOverride, existing?.sessionId),
     updatedAt: new Date().toISOString(),
   };
 
@@ -243,6 +264,7 @@ export async function syncSlug(startDir, slug, options = {}) {
     branch: origin.branch,
     lastCommand: options.lastCommand || `work-status sync ${slug}`,
     ...(options.sourceDocs !== undefined ? { sourceDocs: options.sourceDocs } : {}),
+    ...(options.sessionId !== undefined ? { sessionIdOverride: options.sessionId } : {}),
   });
 
   const synced = await syncFromFiles(targetRepo, slug);
@@ -371,9 +393,27 @@ export async function listAllStatuses() {
   );
 }
 
+function takeSessionIdArg(argv) {
+  const rest = [];
+  let sessionId;
+  for (let i = 0; i < argv.length; i++) {
+    if (
+      (argv[i] === "--session-id" || argv[i] === "--sessionId") &&
+      argv[i + 1]
+    ) {
+      sessionId = argv[++i];
+    } else {
+      rest.push(argv[i]);
+    }
+  }
+  return { args: rest, sessionId };
+}
+
 // CLI entrypoint
 if (process.argv[1] && process.argv[1].endsWith("work-status.mjs")) {
-  const args = process.argv.slice(2);
+  const parsed = takeSessionIdArg(process.argv.slice(2));
+  const args = parsed.args;
+  const cliSessionId = parsed.sessionId;
   const command = args[0] || "list";
 
   (async () => {
@@ -389,11 +429,12 @@ if (process.argv[1] && process.argv[1].endsWith("work-status.mjs")) {
           "Repo".padEnd(20),
           "Branch".padEnd(16),
           "Phase".padEnd(10),
-          "Progress".padEnd(14),
+          "Progress".padEnd(10),
+          "Session".padEnd(24),
           "Updated",
         ].join(" ")
       );
-      console.log("-".repeat(95));
+      console.log("-".repeat(120));
       for (const item of list) {
         const prog = `${item.tasks?.done ?? 0}/${item.tasks?.total ?? 0}`;
         console.log(
@@ -402,7 +443,8 @@ if (process.argv[1] && process.argv[1].endsWith("work-status.mjs")) {
             (item.shortRepo || "").slice(0, 19).padEnd(20),
             (item.branch || "").slice(0, 15).padEnd(16),
             (item.phase || "").slice(0, 9).padEnd(10),
-            prog.padEnd(14),
+            prog.padEnd(10),
+            (item.sessionId || "").slice(0, 23).padEnd(24),
             (item.updatedAt || "").slice(0, 19),
           ].join(" ")
         );
@@ -430,6 +472,7 @@ if (process.argv[1] && process.argv[1].endsWith("work-status.mjs")) {
       const updated = await syncSlug(process.cwd(), slug, {
         phase,
         lastCommand: process.argv.join(" "),
+        ...(cliSessionId !== undefined ? { sessionId: cliSessionId } : {}),
       });
       console.log(JSON.stringify(updated, null, 2));
     } else if (command === "record") {
@@ -442,6 +485,7 @@ if (process.argv[1] && process.argv[1].endsWith("work-status.mjs")) {
       const updated = await syncSlug(process.cwd(), slug, {
         phase,
         lastCommand: process.argv.join(" "),
+        ...(cliSessionId !== undefined ? { sessionId: cliSessionId } : {}),
       });
       console.log(JSON.stringify(updated, null, 2));
     } else if (command === "complete") {
@@ -453,6 +497,7 @@ if (process.argv[1] && process.argv[1].endsWith("work-status.mjs")) {
       const updated = await syncSlug(process.cwd(), slug, {
         phase: "complete",
         lastCommand: process.argv.join(" "),
+        ...(cliSessionId !== undefined ? { sessionId: cliSessionId } : {}),
       });
       console.log(JSON.stringify(updated, null, 2));
     } else if (command === "import-docs") {
@@ -474,7 +519,7 @@ if (process.argv[1] && process.argv[1].endsWith("work-status.mjs")) {
       }
     } else {
       console.error(`Unknown command: ${command}`);
-      console.error("Usage: node scripts/work-status.mjs list|show <slug>|sync <slug> [phase]|record <slug> [phase]|complete <slug>|import-docs [srcDir]");
+      console.error("Usage: node scripts/work-status.mjs list|show <slug>|sync <slug> [phase]|record <slug> [phase]|complete <slug>|import-docs [srcDir] [--session-id <id>]");
       process.exit(1);
     }
   })().catch((err) => {
