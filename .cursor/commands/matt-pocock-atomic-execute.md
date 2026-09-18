@@ -17,6 +17,8 @@ Cursor 세션이다. `agy`/`pi`/`codex` CLI를 직접 호출하지 마라. 위�
 - 인자가 `agy` / `flash` / `pro` / `sonnet`이면 `worker`를 해당 Antigravity 모델로 백그라운드로 띄운다 (`antigravity/gemini-3-8-flash:high`, `antigravity/gemini-3-1-pro:high`, `antigravity/claude-sonnet-4-6`).
 - 그 외 구현 항목은 `worker`를 `async: true`로. task 첫 줄에 `matt-pocock-atomic-workflow`·`tdd` 경로를 적는다. 로직은 `tdd`를 강제한다.
 - 항목마다 구현 후 **부모가 `run-done`으로 증거를 확인하고 통과할 때만** `[x]`. 실패면 `막힘:`과 로그를 남기고 멈춘다.
+- 막힘 재개: 실패한 항목만 재시도한다. 이미 [x]는 유지한다. 재시도 시작 때 그 항목의 `막힘:`만 지운다. 입구는 `/matt-pocock-atomic-execute`이다.
+- 사람 게이트: 사람 게이트는 PLAN(Phase 1)만이다. 막힘 재개는 정책으로 자동 실행된다.
 - AskAntigravity는 사용자가 agy CLI 원샷을 분명히 원할 때만. 폴백 체인이 없다.
 
 커밋·푸시하지 않는다. 한국어로 무엇이 끝났는지 보고한다.

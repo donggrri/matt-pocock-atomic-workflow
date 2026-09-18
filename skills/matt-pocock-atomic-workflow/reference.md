@@ -2,10 +2,40 @@
 
 SKILL.md를 먼저 읽는다. 파일을 쓸 때만 이 문서를 연다.
 
-## 워크트리 (PowerShell)
+## 워크트리
 
 단일 워커 순차 작업은 기본 작업공간/현재 브랜치에서 진행하여 오버헤드를 최소화한다 (워크트리 생성 생략 권장).
 동시 병렬 수정(다중 에이전트 동시 변경)이나 무관한 변경과의 충돌 방지·격리가 필요한 경우에만 아래와 같이 워크트리를 생성한다.
+
+### Pi (bash)
+
+저장소 루트에서:
+
+```bash
+repoRoot=$(git rev-parse --show-toplevel)
+repoName=$(basename "$repoRoot")
+slug="example-slug"   # PLAN과 동일한 슬러그
+branch="feat/$slug"
+wt="../$repoName-$slug"
+
+# 이미 있으면 add 하지 않고 재사용
+if [ -d "$wt" ]; then
+  echo "Worktree already exists: $wt"
+else
+  git fetch origin 2>/dev/null || true
+  git worktree add -b "$branch" "$wt" HEAD
+fi
+```
+
+Pi에서는 생성된 워크트리 경로(`$wt`)를 작업 `cwd`로 사용한다.
+
+형제 워크트리 목록:
+
+```bash
+git worktree list
+```
+
+### Cursor (PowerShell)
 
 저장소 루트에서:
 
@@ -212,17 +242,27 @@ TASKS: TASKS-<slug>.md
 제품 기능 원본: `<workspace>/.docs/<slug>/`
 워크플로 자체 원본: `~/.pi/agent/matt-pocock-atomic-workflow/docs/<slug>/` (Cursor: `~/.cursor/matt-pocock-atomic-workflow/docs/<slug>/`)
 
-Pi:
+### Pi (bash)
+
+```bash
+stamp=$(date +%Y-%m-%d)
+dest="$HOME/.pi/agent/matt-pocock-atomic-workflow/evidence/$stamp-<slug>"
+src="$HOME/.pi/agent/matt-pocock-atomic-workflow/docs/<slug>"
+# 제품 기능이면 src=".docs/<slug>"
+
+mkdir -p "$dest"
+cp "$src"/EXPLORE-<slug>.md "$src"/PLAN-<slug>.md "$src"/TASKS-<slug>.md "$src"/REVIEW-<slug>.md "$dest"/ 2>/dev/null || true
+```
+
+### Cursor (PowerShell)
 
 ```powershell
 $stamp = Get-Date -Format "yyyy-MM-dd"
-$dest = Join-Path $env:USERPROFILE ".pi\agent\matt-pocock-atomic-workflow\evidence\$stamp-<slug>"
-$src = Join-Path $env:USERPROFILE ".pi\agent\matt-pocock-atomic-workflow\docs\<slug>"
+$dest = Join-Path $env:USERPROFILE ".cursor\matt-pocock-atomic-workflow\evidence\$stamp-<slug>"
+$src = Join-Path $env:USERPROFILE ".cursor\matt-pocock-atomic-workflow\docs\<slug>"
 # 제품 기능이면 $src = Join-Path <workspace> ".docs\<slug>"
 New-Item -ItemType Directory -Force -Path $dest | Out-Null
 Copy-Item (Join-Path $src "EXPLORE-<slug>.md"), (Join-Path $src "PLAN-<slug>.md"), (Join-Path $src "TASKS-<slug>.md"), (Join-Path $src "REVIEW-<slug>.md") $dest -ErrorAction SilentlyContinue
 ```
-
-Cursor는 `.pi\agent` 대신 `.cursor`를 쓴다.
 
 원본은 슬러그 폴더에 남긴다. `~/.gemini/evidence`는 쓰지 않는다.

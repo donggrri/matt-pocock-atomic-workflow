@@ -19,6 +19,7 @@ A Pi-based coding workflow package.
 8. [Don'ts](#8-donts)
 9. [Bundled matt-pocock skills](#9-bundled-matt-pocock-skills)
 10. [Use in Cursor](#10-use-in-cursor)
+11. [Future work](#11-future-work)
 
 ---
 
@@ -232,3 +233,15 @@ node scripts/sync-cursor.mjs --check  # drift check (for CI)
 npm test                              # includes cursor-sync tests
 node scripts/doctor.mjs               # section 3 checks Cursor sync + install state
 ```
+
+---
+
+## 11. Future work
+
+These items are documented only. They are not implemented in this package yet:
+
+- **Cursor sync drift**: `tester` is not in Cursor `AGENT_NAMES`. After `prompts/` or `agents/` edits, `node scripts/sync-cursor.mjs` is allowed; do not add `tester` to Cursor `AGENT_NAMES` in this slice.
+- **README agent keys**: some package agents (for example `tester`, `cli-delegate`) are missing from the settings key list above.
+- **CONTEXT.md vs `run-done` evidence path**: CONTEXT.md documents `runs/<slug>/<id>.done.json`, while `scripts/run-done.mjs` writes `${logPath}.done.json`.
+- **Parallel worktree integration**: there is no merge step for sibling worktrees.
+- **PR/CI**: this workflow has no pull-request or CI pipeline.

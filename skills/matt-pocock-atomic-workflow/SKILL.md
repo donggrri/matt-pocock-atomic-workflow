@@ -46,21 +46,22 @@ Pi 패키지 스킬이다. 프롬프트·에이전트는 이 패키지가 등록
 
 ## 기본 파이프라인 (Plan 이후 자동)
 
-사람 게이트는 **PLAN뿐**이다. 모델은 스킬이 아니라 서브에이전트에 붙는다. 그래서 단계마다 자식을 띄우고, 그 자식이 스킬을 읽게 한다. 일상 작업은 Plan → Task → Worker → Reviewer로 직행한다. 대규모 아키텍처 개편이나 공개 API 설계 등 중대 작업인 경우에만 부모가 선택적으로 Challenge / Simplify 검토 단계를 거친다.
+사람 게이트는 **PLAN(Phase 1)뿐**이다. 리뷰 재작업 1회·막힘 재개는 정책으로 자동 실행된다. 모델은 스킬이 아니라 서브에이전트에 붙는다. 그래서 단계마다 자식을 띄우고, 그 자식이 스킬을 읽게 한다. 일상 작업은 Plan → Task → Worker → Reviewer로 직행한다. 대규모 아키텍처 개편이나 공개 API 설계 등 중대 작업인 경우에만 부모가 선택적으로 Challenge / Simplify 검토 단계를 거친다.
 
 PLAN이 있고 막힌 질문(보안·범위·데이터 손실)이 없으면 부모는 멈추지 않는다.
 
 1. `tasker`를 `async: true`로 띄운다.
 2. TASKS의 의존 순서대로 `worker`를 `async: true`로 띄운다. `parallel: yes`이고 파일이 안 겹치면 같이 띄워도 된다. 워크트리당 쓰기 워커는 하나.
 3. 항목마다 **부모가 `scripts/run-done.mjs`로 `done` 명령을 재실행하고 `.done.json` 증거가 있을 때만** `[x]`.
-4. 열린 항목이 없으면 `reviewer`를 `async: true`로 띄운다 (작업자의 대화 맥락을 상속받지 않는 독립 fresh 컨텍스트로 띄워 객관적 검증 보장). reviewer가 완료되면 `tester`를 띄운다. tester가 완료되고 통과하면 `[x]`로 마무리한다.
+4. 열린 항목이 없으면 `reviewer`를 `async: true`로 띄운다 (작업자의 대화 맥락을 상속받지 않는 독립 fresh 컨텍스트로 띄워 객관적 검증 보장). 결함이 있으면 REVIEW 결함을 열린 TASKS로 되돌리거나 새 항목을 붙인 뒤 worker → reviewer를 한 번만 자동 재실행한다. 한 바퀴 후에도 결함이면 멈추고 보고한다. reviewer가 완료되면 `tester`를 띄운다. tester가 완료되고 통과하면 `[x]`로 마무리한다.
 5. 결과를 한국어로 보고한다. 커밋하지 않는다.
 
 멈추는 경우:
 
 - PLAN에 막힌 질문이 있다
 - 사용자가 「계획만」/「태스크만」/「구현만」이라고 했다
-- 항목 `done`이 실패했다
+- 항목 `done`이 실패했다 (막힘 재개: 실패한 항목만 재시도. 이미 [x]는 유지. 재시도 시작 때 그 항목의 `막힘:`만 지운다. 입구는 `/matt-pocock-atomic-execute`)
+- 리뷰 재작업 한 바퀴 후에도 결함이 남았다 (한 바퀴 후에도 결함이면 멈추고 보고)
 - `/matt-pocock-atomic-commit` 또는 「커밋해」가 없다 → 커밋하지 않는다
 
 사용자가 이미 `.docs/<slug>/PLAN-<slug>.md`(또는 워크플로 자체 `docs/<slug>/PLAN-<slug>.md`)를 써 두었거나 메시지에 계획을 주면 Phase 1 자식을 건너뛴다. `/matt-pocock-atomic-plan`에 의도만 있으면 `planner`가 PLAN을 쓴 뒤 위 루프로 들어간다.
@@ -216,8 +217,9 @@ Cursor CLI 워커 (TASKS `worker:` opt-in): `agy` · `pi` · `opencode` · `code
 2. `worker`가 `self`이거나 사용자가 `self`를 말한 경우만 이 세션이 구현한다. 기본은 `worker`.
 3. Pi에서 `worker` / 모델 별칭은 `subagent`로 위임한다. Cursor CLI면 invoke 스크립트만 쓴다.
 4. 항목마다: 위임 → [testing.md](testing.md)의 `done` 명령을 오케스트레이터가 `run-done`으로 실행 → `.done.json` 증거 확인 → `[x]`. 실패하면 `막힘:`과 로그 경로를 남기고 멈춘다.
-5. PLAN의 「하지 않을 것」을 지킨다. 커밋하지 않는다.
-6. 열린 항목이 없고 「구현만」이 아니면 **기본 파이프라인**으로 Phase 4로 간다.
+5. **막힘 재개**: 실패한 항목만 재시도한다. 이미 [x]는 유지한다. 재시도 시작 때 그 항목의 `막힘:`만 지운다. 입구는 `/matt-pocock-atomic-execute`이다. 사람 게이트는 PLAN(Phase 1)만이며 막힘 재개는 정책으로 자동 실행된다.
+6. PLAN의 「하지 않을 것」을 지킨다. 커밋하지 않는다.
+7. 열린 항목이 없고 「구현만」이 아니면 **기본 파이프라인**으로 Phase 4로 간다.
 
 ## Phase 4 — Review
 
@@ -228,8 +230,9 @@ Cursor CLI 워커 (TASKS `worker:` opt-in): `agy` · `pi` · `opencode` · `code
 3. `tester`가 작성한 테스트와 mutation 검증 결과를 확인한다. tester 이후에 테스트를 재검증한다.
 4. 로직 파일이 바뀌었으면 이번 파일만 mutation (`npx stryker run --mutate <파일>`). 생존한 인증·계약 돌연변이는 결함이다. 설정이 없으면 설치하지 않는다.
 5. `reviewer`가 `.docs/<slug>/REVIEW-<slug>.md`(워크플로 자체는 `docs/<slug>/`)를 쓴다. 실패한 테스트나 break 미만 mutation을 통과로 쓰지 않는다.
-6. 제품 기능이 끝났고 검사가 통과하면 `docs/README.md` 표대로 문서를 갱신한다.
-7. 커밋하지 않는다. `/matt-pocock-atomic-commit`을 안내한다.
+6. **리뷰 재작업**: REVIEW 결함을 열린 TASKS로 되돌리거나 새 항목을 붙인 뒤 worker → reviewer를 한 번만 자동 재실행한다. 한 바퀴 후에도 결함이면 멈추고 보고한다. 사람 게이트는 PLAN(Phase 1)만이며 리뷰 재작업 1회는 정책으로 자동 실행된다.
+7. 제품 기능이 끝났고 검사가 통과하면 `docs/README.md` 표대로 문서를 갱신한다.
+8. 커밋하지 않는다. `/matt-pocock-atomic-commit`을 안내한다.
 
 ## Phase 5 — Commit
 
@@ -240,4 +243,4 @@ Cursor CLI 워커 (TASKS `worker:` opt-in): `agy` · `pi` · `opencode` · `code
 
 ## Status
 
-활성 `PLAN-*.md`/`TASKS-*.md`를 `.docs/*/`, 형제 워크트리 `.docs/*/`, 하네스 `docs/<slug>/`에서 찾는다. 루트/홈에 남은 레거시 평탄 파일이 있으면 언급하되 자동 이동하지 않는다. 체크 비율, `worker`, 하네스 `runs/<slug>/` 로그, 막힘, 다음에 칠 커맨드를 짧게 보고한다.
+활성 `PLAN-*.md`/`TASKS-*.md`를 `.docs/*/`, 형제 워크트리 `.docs/*/`, 하네스 `docs/<slug>/`에서 찾는다. 루트/홈에 남은 레거시 평탄 파일이 있으면 언급하되 자동 이동하지 않는다. 체크 비율, `worker`, 하네스 `runs/<slug>/` 로그, 막힘, 다음에 칠 커맨드를 짧게 보고한다. 막힘 발생 시 실패한 항목만 재시도하도록 다음 커맨드로 `/matt-pocock-atomic-execute`를 안내한다.

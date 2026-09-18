@@ -19,6 +19,7 @@ Pi 기반 코딩 워크플로 패키지.
 8. [하지 말 것](#8-하지-말-것)
 9. [번들된 matt-pocock 스킬](#9-번들된-matt-pocock-스킬)
 10. [Cursor에서 쓰기](#10-cursor에서-쓰기)
+11. [추후 과제](#11-추후-과제)
 
 ---
 
@@ -232,3 +233,15 @@ node scripts/sync-cursor.mjs --check  # 드리프트 검사(CI용)
 npm test                              # cursor-sync 테스트 포함
 node scripts/doctor.mjs               # 3번 섹션에서 Cursor 동기화·설치 상태 점검
 ```
+
+---
+
+## 11. 추후 과제
+
+이번 패키지에서 구현하지 않고 README에만 남긴 항목:
+
+- **Cursor 동기화 드리프트**: `tester`는 Cursor `AGENT_NAMES`에 없다. `prompts/`·`agents/` 변경 후 `node scripts/sync-cursor.mjs`는 허용하되, tester를 `AGENT_NAMES`에 추가하지 않는다.
+- **README 에이전트 키 누락**: 패키지 에이전트 일부(`tester`, `cli-delegate` 등)가 위 설정 키 목록에 없다.
+- **CONTEXT.md vs `run-done` 증거 경로**: CONTEXT.md는 `runs/<slug>/<id>.done.json`인데 `scripts/run-done.mjs`는 `${logPath}.done.json`을 쓴다.
+- **병렬 워크트리 통합**: 형제 워크트리 merge 단계가 없다.
+- **PR/CI**: 이 워크플로에 대한 pull request·CI 파이프라인이 없다.

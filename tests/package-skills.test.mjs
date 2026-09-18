@@ -402,3 +402,157 @@ test("run-done extracts errorTail on command timeout", async () => {
   }
 });
 
+test("pipeline recovery CONTEXT glossary", async () => {
+  const context = await readFile("skills/matt-pocock-atomic-workflow/CONTEXT.md", "utf8");
+
+  // 리뷰 재작업
+  assert.match(context, /## 리뷰 재작업/, "CONTEXT.md must have section '## 리뷰 재작업'");
+  assert.match(context, /REVIEW 결함을 열린 TASKS로 되돌리거나 새 항목을 붙인 뒤/, "CONTEXT.md must specify review defect task handling");
+  assert.match(context, /worker→reviewer를 최대 1회 자동 재실행/, "CONTEXT.md must specify worker→reviewer retry limit (max 1)");
+  assert.match(context, /한 바퀴 후에도 결함이면 멈추고 보고/, "CONTEXT.md must specify stop and report if defect persists after 1 retry");
+
+  // 막힘 재개
+  assert.match(context, /## 막힘 재개/, "CONTEXT.md must have section '## 막힘 재개'");
+  assert.match(context, /실패한 항목만 재시도/, "CONTEXT.md must specify retrying only failed items");
+  assert.match(context, /이미 \[x\]는 유지/, "CONTEXT.md must specify keeping already checked items");
+  assert.match(context, /재시도 시작 때 그 항목의 `막힘:`만 지운다/, "CONTEXT.md must specify clearing 막힘: before retry");
+  assert.match(context, /입구는 `?\/matt-pocock-atomic-execute`?/, "CONTEXT.md must specify entrypoint as /matt-pocock-atomic-execute");
+
+  // 사람 게이트
+  assert.match(context, /## 사람 게이트/, "CONTEXT.md must have section '## 사람 게이트'");
+  assert.match(context, /PLAN\(Phase 1\)만/, "CONTEXT.md must specify human gate is PLAN(Phase 1) only");
+  assert.match(context, /리뷰 재작업 1회·막힘 재개는 정책으로 자동/, "CONTEXT.md must specify review rework and retry are automated by policy");
+
+  // 용어 요약 테이블 검증
+  assert.match(context, /\|\s*리뷰 재작업\s*\|/, "CONTEXT.md summary table must contain 리뷰 재작업");
+  assert.match(context, /\|\s*막힘 재개\s*\|/, "CONTEXT.md summary table must contain 막힘 재개");
+  assert.match(context, /\|\s*사람 게이트\s*\|/, "CONTEXT.md summary table must contain 사람 게이트");
+});
+
+test("pipeline recovery reference bash", async () => {
+  const reference = await readFile("skills/matt-pocock-atomic-workflow/reference.md", "utf8");
+
+  // Cursor / PowerShell 블록 유지 및 분리 라벨
+  assert.match(reference, /Cursor.*PowerShell/i, "reference.md must separate and label Cursor/PowerShell");
+  assert.match(reference, /\$repoRoot = git rev-parse --show-toplevel/, "reference.md must retain PowerShell worktree snippet");
+  assert.match(reference, /Get-Date -Format "yyyy-MM-dd"/, "reference.md must retain PowerShell evidence snippet");
+
+  // Pi bash 워크트리 스니펫
+  assert.match(reference, /Pi.*(?:bash)/i, "reference.md must have Pi (bash) section");
+  assert.match(reference, /git rev-parse --show-toplevel/, "reference.md Pi bash must use git rev-parse");
+  assert.match(reference, /\.\.\/\$repoName-\$slug/, "reference.md Pi bash must use ../$repoName-$slug");
+  assert.match(reference, /feat\/\$slug/, "reference.md Pi bash must use feat/$slug");
+  assert.match(reference, /이미 있으면.*재사용/, "reference.md Pi bash must state reusing worktree if already exists");
+
+  // Pi bash 증거 아카이브
+  assert.match(reference, /date \+%Y-%m-%d/, "reference.md Pi bash must use date +%Y-%m-%d");
+  assert.match(reference, /\$HOME\/\.pi\/agent\/matt-pocock-atomic-workflow\/evidence\/\$stamp-<slug>/, "reference.md Pi bash must archive to $HOME/.pi/agent/matt-pocock-atomic-workflow/evidence/$stamp-<slug>");
+  assert.match(reference, /\.docs\/<slug>/, "reference.md Pi bash must mention .docs/<slug>");
+  assert.match(reference, /원본은.*남긴다/, "reference.md Pi bash must state original is kept");
+});
+
+test("pipeline recovery SKILL orchestration", async () => {
+  const skill = await readFile("skills/matt-pocock-atomic-workflow/SKILL.md", "utf8");
+
+  // 사람 게이트 불변
+  assert.match(skill, /사람 게이트는.*PLAN.*Phase 1.*만|사람 게이트는 \*\*PLAN뿐\*\*이다/, "SKILL.md must state human gate is PLAN(Phase 1) only");
+  assert.match(skill, /리뷰 재작업 1회·막힘 재개는 정책으로 자동/, "SKILL.md must state review rework and block resume are automated by policy");
+
+  // 리뷰 재작업
+  assert.match(skill, /REVIEW 결함을 열린 TASKS로 되돌리거나 새 항목을 붙인 뒤/, "SKILL.md must specify resetting or appending task on review defect");
+  assert.match(skill, /worker\s*→\s*reviewer를 한 번만 자동 재실행/, "SKILL.md must specify running worker->reviewer automatically once");
+  assert.match(skill, /한 바퀴 후에도 결함이면 멈추고 보고/, "SKILL.md must specify stopping and reporting if defect persists");
+
+  // 막힘 재개
+  assert.match(skill, /실패한 항목만 재시도/, "SKILL.md must specify retrying only failed items");
+  assert.match(skill, /이미 \[x\]는 유지/, "SKILL.md must specify keeping already checked items");
+  assert.match(skill, /재시도 시작 때 그 항목의 `막힘:`만 지운다/, "SKILL.md must specify clearing 막힘: at start of retry");
+  assert.match(skill, /입구는 `?\/matt-pocock-atomic-execute`?/, "SKILL.md must specify entrypoint as /matt-pocock-atomic-execute");
+
+  // Status 다음 커맨드 execute 안내
+  assert.match(skill, /막힘.*\/matt-pocock-atomic-execute/, "SKILL.md Status must guide to /matt-pocock-atomic-execute when blocked");
+
+  // 멈추는 경우에 회복 명시
+  assert.match(skill, /멈추는 경우:[\s\S]*?막힘 재개[\s\S]*?리뷰 재작업/, "SKILL.md 멈추는 경우 must reference recovery policies");
+});
+
+test("pipeline recovery workers and testing", async () => {
+  const workers = await readFile("skills/matt-pocock-atomic-workflow/workers.md", "utf8");
+  const testing = await readFile("skills/matt-pocock-atomic-workflow/testing.md", "utf8");
+
+  for (const [file, content] of [["workers.md", workers], ["testing.md", testing]]) {
+    // 1회 / 한 번
+    assert.match(content, /(?:1회|한 번)/, `${file} must mention 1회 or 한 번 for review rework`);
+    // 막힘 재개
+    assert.match(content, /막힘 재개/, `${file} must mention 막힘 재개`);
+    // execute 재입구
+    assert.match(content, /\/matt-pocock-atomic-execute/, `${file} must mention /matt-pocock-atomic-execute`);
+    // flake retry 없음
+    assert.match(content, /flake retry 없음/, `${file} must mention flake retry 없음`);
+    // 사람 게이트
+    assert.match(content, /사람 게이트.*PLAN.*Phase 1.*만|사람 게이트는.*PLAN.*만/, `${file} must mention human gate is PLAN(Phase 1) only`);
+  }
+});
+
+test("pipeline recovery prompts", async () => {
+  const execute = await readFile("prompts/matt-pocock-atomic-execute.md", "utf8");
+  const review = await readFile("prompts/matt-pocock-atomic-review.md", "utf8");
+  const status = await readFile("prompts/matt-pocock-atomic-status.md", "utf8");
+  const commit = await readFile("prompts/matt-pocock-atomic-commit.md", "utf8");
+
+  // execute prompt recovery policy
+  assert.match(execute, /막힘 재개/, "execute.md must mention 막힘 재개");
+  assert.match(execute, /실패한 항목만 재시도/, "execute.md must specify retrying only failed items");
+  assert.match(execute, /이미 \[x\]는 유지/, "execute.md must specify keeping already checked items");
+  assert.match(execute, /재시도 시작 때 그 항목의 `?막힘:`?만 지운다/, "execute.md must specify clearing 막힘: at start of retry");
+  assert.match(execute, /\/matt-pocock-atomic-execute/, "execute.md must mention entrypoint /matt-pocock-atomic-execute");
+  assert.match(execute, /사람 게이트.*PLAN.*Phase 1.*만|사람 게이트는.*PLAN.*만/, "execute.md must state human gate is PLAN(Phase 1) only");
+  assert.match(execute, /막힘 재개는 정책으로 자동/, "execute.md must state block resume is automated by policy");
+
+  // review prompt recovery policy
+  assert.match(review, /리뷰 재작업/, "review.md must mention 리뷰 재작업");
+  assert.match(review, /REVIEW 결함/, "review.md must mention REVIEW 결함");
+  assert.match(review, /worker\s*→\s*reviewer를 (?:1회|한 번만) 자동 재실행/, "review.md must specify running worker->reviewer automatically once (1회/한 번만)");
+  assert.match(review, /한 바퀴 후에도 결함이면 멈추고 보고/, "review.md must specify stopping and reporting if defect persists");
+  assert.match(review, /flake retry 없음/, "review.md must specify no flake retry");
+  assert.match(review, /사람 게이트.*PLAN.*Phase 1.*만|사람 게이트는.*PLAN.*만/, "review.md must state human gate is PLAN(Phase 1) only");
+
+  // status prompt recovery policy and Pi bash paths
+  assert.match(status, /막힘.*\/matt-pocock-atomic-execute/, "status.md must guide to /matt-pocock-atomic-execute when blocked");
+  assert.match(status, /~\/\.pi\/agent\/matt-pocock-atomic-workflow\/docs\/<slug>\/|\$HOME\/\.pi\/agent\/matt-pocock-atomic-workflow\/docs\/<slug>\//, "status.md must guide Pi bash harness docs path");
+  assert.match(status, /~\/\.pi\/agent\/matt-pocock-atomic-workflow\/runs\//, "status.md must guide Pi bash harness runs path");
+  assert.match(status, /PowerShell|%USERPROFILE%/, "status.md must retain Cursor PowerShell block/path");
+
+  // commit prompt Pi bash evidence path and Cursor PowerShell
+  assert.match(commit, /~\/\.pi\/agent\/matt-pocock-atomic-workflow\/evidence\/|\$HOME\/\.pi\/agent\/matt-pocock-atomic-workflow\/evidence\//, "commit.md must guide Pi bash harness evidence path");
+  assert.match(commit, /PowerShell|%USERPROFILE%/, "commit.md must retain Cursor PowerShell block/path");
+});
+
+test("pipeline recovery reviewer agent", async () => {
+  const reviewer = await readFile("agents/reviewer.md", "utf8");
+
+  // 직접 리뷰어 및 CLI 디스패치 금지
+  assert.match(reviewer, /직접 리뷰어/, "reviewer.md must state package reviewer is direct reviewer");
+  assert.match(reviewer, /(?:agy|pi|codex).*디스패치하지 말 것|디스패치.*금지/, "reviewer.md must forbid CLI dispatch");
+  assert.match(reviewer, /invoke-worker 금지/, "reviewer.md must forbid invoke-worker");
+
+  // Fresh 검증
+  assert.match(reviewer, /Fresh 검증/, "reviewer.md must mention Fresh 검증");
+  assert.match(reviewer, /작업자 대화 맥락을 상속받지 않는 독립 컨텍스트로 검증/, "reviewer.md must specify verifying in independent context without worker conversation history");
+
+  // 리뷰 재작업 및 결함 1회 / 한 번
+  assert.match(reviewer, /리뷰 재작업/, "reviewer.md must mention 리뷰 재작업");
+  assert.match(reviewer, /REVIEW 결함을 열린 TASKS로 되돌리거나 새 항목을 붙인 뒤/, "reviewer.md must specify resetting or appending task on review defect");
+  assert.match(reviewer, /worker\s*→\s*reviewer를 (?:1회|한 번만) 자동 재실행/, "reviewer.md must specify running worker->reviewer automatically once (1회/한 번만)");
+  assert.match(reviewer, /한 바퀴 후에도 결함이면 멈추고 보고/, "reviewer.md must specify stopping and reporting if defect persists");
+  assert.match(reviewer, /flake retry 없음/, "reviewer.md must specify no flake retry");
+
+  // 사람 게이트 PLAN-only
+  assert.match(reviewer, /사람 게이트.*PLAN.*Phase 1.*만|사람 게이트는.*PLAN.*만/, "reviewer.md must state human gate is PLAN(Phase 1) only");
+  assert.match(reviewer, /리뷰 재작업 1회는 정책으로 자동/, "reviewer.md must state review rework is automated by policy");
+});
+
+
+
+
+
