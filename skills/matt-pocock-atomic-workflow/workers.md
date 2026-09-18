@@ -87,7 +87,7 @@ Cursor/Antigravity는 확장 프로바이더라서 이 모델들을 쓰는 자�
 1. 해당 작업공간/워크트리에서 `git status`, `git diff`
 2. 항목의 `done` 조건(테스트)을 오케스트레이터가 `scripts/run-done.mjs`로 재실행하여 검증 (`.done.json` 증거 확인)
 3. 통과면 TASKS `[x]`, 아니면 `막힘:` + `errorTail`(마지막 20줄) 요약 및 로그 파일 경로
-4. 워커는 커밋하지 않는다. `/matt-pocock-atomic-commit`만 커밋한다.
+4. 워커는 커밋하지 않는다. `/matt-pocock-atomic-wrapup`만 커밋한다.
 
 병렬: 파일이 겹치지 않고 워크트리가 다를 때만. **워크트리당 쓰기 워커는 하나.**
 

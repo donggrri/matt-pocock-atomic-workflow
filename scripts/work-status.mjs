@@ -399,6 +399,21 @@ if (process.argv[1] && process.argv[1].endsWith("work-status.mjs")) {
       const repo = process.cwd();
       const updated = await writeStatus(repo, slug, { phase, lastCommand: process.argv.join(" ") });
       console.log(JSON.stringify(updated, null, 2));
+    } else if (command === "complete") {
+      const slug = args[1];
+      if (!slug) {
+        console.error("Usage: node scripts/work-status.mjs complete <slug>");
+        process.exit(1);
+      }
+      const repo = process.cwd();
+      const list = await listAllStatuses();
+      const existing = list.find((s) => s.slug === slug);
+      const targetRepo = existing?.repo || repo;
+      const updated = await writeStatus(targetRepo, slug, {
+        phase: "complete",
+        lastCommand: process.argv.join(" "),
+      });
+      console.log(JSON.stringify(updated, null, 2));
     } else if (command === "import-docs") {
       const srcArg = args[1];
       let repo = process.cwd();
@@ -418,7 +433,7 @@ if (process.argv[1] && process.argv[1].endsWith("work-status.mjs")) {
       }
     } else {
       console.error(`Unknown command: ${command}`);
-      console.error("Usage: node scripts/work-status.mjs list|show <slug>|record <slug> [phase]|import-docs [srcDir]");
+      console.error("Usage: node scripts/work-status.mjs list|show <slug>|record <slug> [phase]|complete <slug>|import-docs [srcDir]");
       process.exit(1);
     }
   })().catch((err) => {

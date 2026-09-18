@@ -3,7 +3,7 @@ English | [한국어](README.kr.md)
 # matt-pocock-atomic-workflow
 
 A Pi-based coding workflow package.  
-`/matt-pocock-atomic-explore` (optional) → `/matt-pocock-atomic-plan` → `/matt-pocock-atomic-task` → `/matt-pocock-atomic-execute` → `/matt-pocock-atomic-review` → `/matt-pocock-atomic-commit`
+`/matt-pocock-atomic-explore` (optional) → `/matt-pocock-atomic-plan` → `/matt-pocock-atomic-task` → `/matt-pocock-atomic-execute` → `/matt-pocock-atomic-review` → `/matt-pocock-atomic-wrapup`
 
 ---
 
@@ -122,7 +122,7 @@ After restart, if `/matt-pocock-atomic-plan` appears, installation is complete.
 
 ## 6. Usage
 
-Default: once **PLAN is confirmed**, task → execute → review run automatically. Commit only happens with `/matt-pocock-atomic-commit`.
+Default: once **PLAN is confirmed**, task → execute → review run automatically. Commit only happens with `/matt-pocock-atomic-wrapup`.
 
 | Command | Role | Output |
 |---|---|---|
@@ -132,7 +132,7 @@ Default: once **PLAN is confirmed**, task → execute → review run automatical
 | `/matt-pocock-atomic-execute` | Force Phase 3 only, or continue automatically | code changes + checked-off TASKS |
 | `/matt-pocock-atomic-delegate` | Phase 3: delegate to a specific worker | same |
 | `/matt-pocock-atomic-review` | Phase 4 | `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/REVIEW-<slug>.md` |
-| `/matt-pocock-atomic-commit` | Phase 5: commit (no push) | git commit |
+| `/matt-pocock-atomic-wrapup` | Phase 5: wrapup (commit, no push) | git commit + STATUS |
 | `/matt-pocock-atomic-status` | Progress report (`npm run status` / `STATUS.json`) | text summary / table |
 | `/matt-pocock-atomic-config` | Manage matt-pocock-atomic-workflow model/skill settings (`/matt-pocock-atomic-settings`) | text/interactive settings |
 | `/matt-pocock-atomic-models` | Model settings guide (read-only) | text guide |

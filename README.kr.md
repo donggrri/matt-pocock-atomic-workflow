@@ -3,7 +3,7 @@
 # matt-pocock-atomic-workflow
 
 Pi 기반 코딩 워크플로 패키지.  
-`/matt-pocock-atomic-explore`(선택) → `/matt-pocock-atomic-plan` → `/matt-pocock-atomic-task` → `/matt-pocock-atomic-execute` → `/matt-pocock-atomic-review` → `/matt-pocock-atomic-commit`
+`/matt-pocock-atomic-explore`(선택) → `/matt-pocock-atomic-plan` → `/matt-pocock-atomic-task` → `/matt-pocock-atomic-execute` → `/matt-pocock-atomic-review` → `/matt-pocock-atomic-wrapup`
 
 ---
 
@@ -122,7 +122,7 @@ pi restart
 
 ## 6. 사용법
 
-기본: **PLAN만 확정하면** task → execute → review가 자동이다. 커밋은 `/matt-pocock-atomic-commit`일 때만.
+기본: **PLAN만 확정하면** task → execute → review가 자동이다. 커밋은 `/matt-pocock-atomic-wrapup`일 때만.
 
 | 커맨드 | 역할 | 산출물 |
 |---|---|---|
@@ -132,7 +132,7 @@ pi restart
 | `/matt-pocock-atomic-execute` | Phase 3만 강제하거나 이어서 자동 | 코드 변경 + 체크된 TASKS |
 | `/matt-pocock-atomic-delegate` | Phase 3: 특정 워커에 위임 | 같음 |
 | `/matt-pocock-atomic-review` | Phase 4 | `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/REVIEW-<slug>.md` |
-| `/matt-pocock-atomic-commit` | Phase 5: 커밋 (푸시 없음) | git commit |
+| `/matt-pocock-atomic-wrapup` | Phase 5: 마무리 (커밋, 푸시 없음) | git commit + STATUS |
 | `/matt-pocock-atomic-status` | 진행 상황 보고 (`npm run status` / `STATUS.json`) | 텍스트 요약 / 테이블 |
 | `/matt-pocock-atomic-config` | matt-pocock-atomic-workflow 모델/스킬 설정 관리 (`/matt-pocock-atomic-settings`) | 텍스트/대화형 설정 |
 | `/matt-pocock-atomic-models` | 모델 설정 안내 (읽기 전용) | 텍스트 안내 |

@@ -8,6 +8,6 @@ Pi 세션이다. 남은 구현이 있으면 기본 파이프라인으로 그 항
 
 대상: ${@:-현재 TASKS}
 
-Structured Validation 원칙: 빌드/테스트 raw 로그 전체를 채팅창에 덤프하지 말고, 결과 요약, 결함, 실패 시 `errorTail`(마지막 20줄) 및 로그 파일 경로만 간결히 보고한다. 실패한 테스트나 의미 있는 survived mutation을 통과로 쓰지 마라. 커밋하지 마라. 다음이 커밋이면 `/matt-pocock-atomic-commit`을 안내한다.
+Structured Validation 원칙: 빌드/테스트 raw 로그 전체를 채팅창에 덤프하지 말고, 결과 요약, 결함, 실패 시 `errorTail`(마지막 20줄) 및 로그 파일 경로만 간결히 보고한다. 실패한 테스트나 의미 있는 survived mutation을 통과로 쓰지 마라. 커밋하지 마라. 다음이 커밋이면 `/matt-pocock-atomic-wrapup`을 안내한다.
 
 리뷰 재작업: REVIEW 결함을 열린 TASKS로 되돌리거나 새 항목을 붙인 뒤 worker → reviewer를 한 번만 자동 재실행한다. 한 바퀴 후에도 결함이면 멈추고 보고한다 (flake retry 없음). 사람 게이트는 PLAN(Phase 1)만이며 리뷰 재작업 1회는 정책으로 자동 실행된다.

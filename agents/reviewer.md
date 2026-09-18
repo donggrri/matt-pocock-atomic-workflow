@@ -44,5 +44,5 @@ Your job is evidence, not cheerleading.
 8. Do not commit or push. Do not implement large fixes; list them under `다음`.
 9. **리뷰 재작업**: REVIEW 결함을 열린 TASKS로 되돌리거나 새 항목을 붙인 뒤 worker → reviewer를 한 번만 자동 재실행한다. 한 바퀴 후에도 결함이면 멈추고 보고한다 (flake retry 없음). 사람 게이트는 PLAN(Phase 1)만이며 리뷰 재작업 1회는 정책으로 자동 실행된다.
 
-Reply in Korean with pass/fail, defects, concise summary (장문 로그 직접 덤프 금지, 실패 시 errorTail/로그경로 포함), and whether `/matt-pocock-atomic-commit` is allowed.
+Reply in Korean with pass/fail, defects, concise summary (장문 로그 직접 덤프 금지, 실패 시 errorTail/로그경로 포함), and whether `/matt-pocock-atomic-wrapup` is allowed.
 

@@ -226,7 +226,6 @@ test("documentation matches bundled behavior", async () => {
 test("workflow prompts use package-prefixed slash command names", async () => {
   const prompts = (await readdir("prompts")).sort();
   assert.deepEqual(prompts, [
-    "matt-pocock-atomic-commit.md",
     "matt-pocock-atomic-config.md",
     "matt-pocock-atomic-delegate.md",
     "matt-pocock-atomic-doctor.md",
@@ -237,7 +236,8 @@ test("workflow prompts use package-prefixed slash command names", async () => {
     "matt-pocock-atomic-review.md",
     "matt-pocock-atomic-settings.md",
     "matt-pocock-atomic-status.md",
-    "matt-pocock-atomic-task.md"
+    "matt-pocock-atomic-task.md",
+    "matt-pocock-atomic-wrapup.md"
   ]);
 });
 
@@ -498,7 +498,7 @@ test("pipeline recovery prompts", async () => {
   const execute = await readFile("prompts/matt-pocock-atomic-execute.md", "utf8");
   const review = await readFile("prompts/matt-pocock-atomic-review.md", "utf8");
   const status = await readFile("prompts/matt-pocock-atomic-status.md", "utf8");
-  const commit = await readFile("prompts/matt-pocock-atomic-commit.md", "utf8");
+  const commit = await readFile("prompts/matt-pocock-atomic-wrapup.md", "utf8");
 
   // execute prompt recovery policy
   assert.match(execute, /막힘 재개/, "execute.md must mention 막힘 재개");

@@ -234,7 +234,7 @@ TASKS: TASKS-<slug>.md
 
 ## 다음
 
-`/matt-pocock-atomic-commit` 가능. 또는 고칠 항목.
+`/matt-pocock-atomic-wrapup` 가능. 또는 고칠 항목.
 ```
 
 ## 증거 아카이브

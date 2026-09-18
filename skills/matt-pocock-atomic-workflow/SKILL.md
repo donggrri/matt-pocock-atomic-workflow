@@ -3,7 +3,7 @@ name: matt-pocock-atomic-workflow
 description: >-
   Runs matt-pocock-atomic-workflow phases (explore, plan, task, execute, review, commit, status, config).
   Use when the user invokes /matt-pocock-atomic-explore, /matt-pocock-atomic-plan, /matt-pocock-atomic-task, /matt-pocock-atomic-execute, /matt-pocock-atomic-delegate,
-  /matt-pocock-atomic-review, /matt-pocock-atomic-commit, /matt-pocock-atomic-status, /matt-pocock-atomic-config, /matt-pocock-atomic-settings, or mentions matt-pocock-atomic-workflow or matt-pocock-atomic-workflow.
+  /matt-pocock-atomic-review, /matt-pocock-atomic-wrapup, /matt-pocock-atomic-status, /matt-pocock-atomic-config, /matt-pocock-atomic-settings, or mentions matt-pocock-atomic-workflow or matt-pocock-atomic-workflow.
 ---
 
 # Atomic Workflow (matt-pocock-atomic-workflow)
@@ -39,7 +39,7 @@ Pi 패키지 스킬이다. 프롬프트·에이전트는 이 패키지가 등록
 | 2 | (자동) `tasker` | `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/TASKS-<slug>.md` | **자동** Phase 3 |
 | 3 | (자동) `worker` | 코드 + 체크된 TASKS | **자동** Phase 4 |
 | 4 | (자동) `reviewer` | `~/.matt-pocock-workflow/docs/{shortRepo}/{slug}/REVIEW-<slug>.md` + 테스트 | 보고. 커밋은 수동 |
-| 5 | `/matt-pocock-atomic-commit` | 커밋 (푸시 없음) | 사용자가 원할 때만 PR |
+| 5 | `/matt-pocock-atomic-wrapup` | 커밋 + 상태 기록 (푸시 없음) | 사용자가 원할 때만 PR |
 | — | `/matt-pocock-atomic-status` | 진행 보고 (`work-status.mjs` 조회) | 이어서 할 커맨드 |
 | — | `/matt-pocock-atomic-config` (`/matt-pocock-atomic-settings`) | 설정 조회 및 대화형 변경 | 설정 확인 및 저장 |
 
@@ -63,7 +63,7 @@ PLAN이 있고 막힌 질문(보안·범위·데이터 손실)이 없으면 부�
 - 사용자가 「계획만」/「태스크만」/「구현만」이라고 했다
 - 항목 `done`이 실패했다 (막힘 재개: 실패한 항목만 재시도. 이미 [x]는 유지. 재시도 시작 때 그 항목의 `막힘:`만 지운다. 입구는 `/matt-pocock-atomic-execute`)
 - 리뷰 재작업 한 바퀴 후에도 결함이 남았다 (한 바퀴 후에도 결함이면 멈추고 보고)
-- `/matt-pocock-atomic-commit` 또는 「커밋해」가 없다 → 커밋하지 않는다
+- `/matt-pocock-atomic-wrapup` 또는 「커밋해」가 없다 → 커밋하지 않는다
 
 사용자가 이미 `.docs/<slug>/PLAN-<slug>.md`(또는 워크플로 자체 `docs/<slug>/PLAN-<slug>.md`)를 써 두었거나 메시지에 계획을 주면 Phase 1 자식을 건너뛴다. `/matt-pocock-atomic-plan`에 의도만 있으면 `planner`가 PLAN을 쓴 뒤 위 루프로 들어간다.
 
@@ -233,14 +233,15 @@ Cursor CLI 워커 (TASKS `worker:` opt-in): `agy` · `pi` · `opencode` · `code
 5. `reviewer`가 `.docs/<slug>/REVIEW-<slug>.md`(워크플로 자체는 `docs/<slug>/`)를 쓴다. 실패한 테스트나 break 미만 mutation을 통과로 쓰지 않는다.
 6. **리뷰 재작업**: REVIEW 결함을 열린 TASKS로 되돌리거나 새 항목을 붙인 뒤 worker → reviewer를 한 번만 자동 재실행한다. 한 바퀴 후에도 결함이면 멈추고 보고한다. 사람 게이트는 PLAN(Phase 1)만이며 리뷰 재작업 1회는 정책으로 자동 실행된다.
 7. 제품 기능이 끝났고 검사가 통과하면 `docs/README.md` 표대로 문서를 갱신한다.
-8. 커밋하지 않는다. `/matt-pocock-atomic-commit`을 안내한다.
+8. 커밋하지 않는다. `/matt-pocock-atomic-wrapup`을 안내한다.
 
-## Phase 5 — Commit
+## Phase 5 — Wrapup
 
-1. `/matt-pocock-atomic-commit` 또는 「커밋해」가 있을 때만 한다. 서브에이전트에 넘기지 않는다.
+1. `/matt-pocock-atomic-wrapup` 또는 「커밋해」/「마무리」가 있을 때만 한다. 서브에이전트에 넘기지 않는다.
 2. `git status` / `git diff` / `git log`를 본 뒤, 비밀 파일은 제외하고 커밋한다. PLAN/TASKS/REVIEW는 기본적으로 커밋하지 않는다.
 3. 슬러그 폴더의 산출물 복사본을 하네스 `evidence/<YYYY-MM-DD>-<slug>/`에 둔다. 원본은 슬러그 폴더에 남긴다.
 4. 푸시하지 않는다. 커밋 해시와 남은 일을 보고한다.
+5. 커밋 성공 후 `node scripts/work-status.mjs record <slug> commit`으로 전역 상태를 갱신한다. 파이프라인 종료(완료)는 `node scripts/work-status.mjs complete <slug>`다. 푸시만으로는 `STATUS.json`이 바뀌지 않는다.
 
 ## Status
 

@@ -1,6 +1,6 @@
 # matt-pocock-atomic-workflow
 
-`/matt-pocock-atomic-plan`이 PLAN을 확정하면 task → execute → review는 자동이다. 커밋만 `/matt-pocock-atomic-commit`. 이어서 할 일이 흐려지면 `/matt-pocock-atomic-status`.
+`/matt-pocock-atomic-plan`이 PLAN을 확정하면 task → execute → review는 자동이다. 커밋만 `/matt-pocock-atomic-wrapup`. 이어서 할 일이 흐려지면 `/matt-pocock-atomic-status`.
 
 이 저장소는 **Pi**를 기본 하네스로 한다. 단계마다 서브에이전트가 다른 모델로 돌고, 필요한 matt-pocock 스킬은 이 패키지에 번들되어 설치 즉시 발견된다.
 
@@ -32,4 +32,4 @@ Windows는 동일 계약의 `invoke-worker.ps1` / `ensure-workers.ps1`을 쓴다
 - Pi 프롬프트: 패키지 `prompts/matt-pocock-atomic-*.md` (설치 시 자동 등록. 사용자 홈 복사본을 남기지 말 것)
 - Pi 에이전트: 패키지 `agents/*.md` (설치 시 자동 등록. 사용자 홈 복사본을 남기지 말 것)
 
-계획이 막히면 구현으로 넘어가지 않는다. 커밋은 `/matt-pocock-atomic-commit`일 때만, 푸시는 따로 요청할 때만 한다.
+계획이 막히면 구현으로 넘어가지 않는다. 커밋은 `/matt-pocock-atomic-wrapup`일 때만, 푸시는 따로 요청할 때만 한다.
