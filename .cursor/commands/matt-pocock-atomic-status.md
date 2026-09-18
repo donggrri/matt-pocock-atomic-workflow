@@ -10,7 +10,7 @@ matt-pocock-atomic-workflow 진행 상태를 보고한다.
 2. 레거시 호환으로 `.docs/<slug>/`(`.docs/*/`), `git worktree list` 형제 경로의 `.docs/*/`, 하네스 `docs/<slug>/`(Pi bash: `~/.pi/agent/matt-pocock-atomic-workflow/docs/<slug>/`, Cursor PowerShell: `%USERPROFILE%/.cursor/matt-pocock-atomic-workflow/docs/<slug>/`)에서도 `EXPLORE-*.md`, `PLAN-*.md`, `TASKS-*.md`, `REVIEW-*.md`를 찾는다. 목록에 없는 레거시만 짧게 덧붙인다. 루트·홈에 남은 레거시 평탄 파일이 있으면 언급하되 자동 이동하지 않는다.
 3. 런 로그(`~/.matt-pocock-workflow/runs/{shortRepo}/{slug}/`, Cursor PowerShell: `%USERPROFILE%/.matt-pocock-workflow/runs/{shortRepo}/{slug}/` 또는 기존 하네스 `~/.pi/agent/matt-pocock-atomic-workflow/runs/`)도 본다.
 4. 목록이 비면 「활성 워크플로 없음. `/matt-pocock-atomic-explore` 또는 `/matt-pocock-atomic-plan`으로 시작한다」.
-5. 목록이 있으면 슬러그·shortRepo·phase·체크 비율·막힘을 한국어로 표기한다. 현재 cwd와 `repo`/`cwd`가 맞는 행이 있으면 표시만 한다. 막힘 발생 시 실패한 항목만 재시도하도록 다음 커맨드로 `/matt-pocock-atomic-execute`를 안내한다.
+5. 목록이 있으면 슬러그·shortRepo·phase·체크 비율·막힘·Cursor `sessionId`를 한국어로 표기한다. 현재 cwd와 `repo`/`cwd`가 맞는 행이 있으면 표시만 한다. 막힘 발생 시 실패한 항목만 재시도하도록 다음 커맨드로 `/matt-pocock-atomic-execute`를 안내한다.
 
 ---
 

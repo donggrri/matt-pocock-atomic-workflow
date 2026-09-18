@@ -10,6 +10,8 @@ Cursor 세션이다. `.docs/<slug>/TASKS-<slug>.md`(워크플로 자체는 `docs
 
 슬러그/힌트: 현재 PLAN(슬래시 뒤에 붙인 텍스트가 있으면 그것을 우선한다)
 
+TASKS 저장 직후 `node scripts/work-status.mjs sync <slug>`로 STATUS.json을 갱신한다 (Cursor 설치: `node .agents/skills/matt-pocock-atomic-workflow/scripts/work-status.mjs sync <slug>`).
+
 커밋하지 않는다. 한국어로 항목 수와 이어서 돌릴 워커를 보고한다.
 
 ---

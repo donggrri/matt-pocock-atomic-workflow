@@ -35,5 +35,6 @@ Create the slug directory if needed, then write `TASKS-<slug>.md` beside the PLA
 - Product logic gets a failing-then-passing test item when the repo has a test runner. 로직 diff에 테스트 명령이 없으면 결함이다.
 - In Pi, implementation items use `worker: worker`. Docs/status items use `worker: self`.
 - Do not implement. Do not commit. Do not mark items done.
+- Immediately after writing, run `node scripts/work-status.mjs sync <slug>` (Cursor install: `node .agents/skills/matt-pocock-atomic-workflow/scripts/work-status.mjs sync <slug>`).
 
 Reply in Korean with item count, workers, and that the parent should continue the auto pipeline (`worker` per open item).
